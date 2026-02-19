@@ -1260,14 +1260,6 @@ function Home(props) {
           </div>
         </div>
 
-        <div style={{ marginBottom: 24 }}>
-          <GrpHdr status="terminated" note="No longer available or ending soon" />
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(300px,1fr))", gap: 12 }}>
-            {TERM.map(function(t, i) {
-              return <CCard key={i} sec={t.sec} name={t.n} type="—" status="terminated" one={t.d} />;
-            })}
-          </div>
-        </div>
       </div>
 
       <div style={{ marginBottom: 36 }}>
