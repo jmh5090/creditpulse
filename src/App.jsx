@@ -337,6 +337,103 @@ C["45Z"] = {
   ]
 };
 
+C["45Q"] = {
+  sec: "§45Q",
+  name: "Carbon Oxide Sequestration Credit",
+  type: "PTC",
+  st: "expanded",
+  deep: true,
+  one: "Pays facilities per ton of CO₂ they capture and permanently store or use. Growing fast as CCS and direct air capture scale up.",
+  hover: [
+    "12-year credit window per facility",
+    "Up to $180/ton for DAC with secure storage",
+    "New IRS safe harbor (Notice 2026-01) eases reporting"
+  ],
+  sum: "This credit pays facilities a fixed dollar amount for every metric ton of carbon dioxide they capture and either permanently store underground or use in approved ways. It's the government's primary tool for incentivizing carbon capture and direct air capture — technologies many see as essential but that are still expensive to deploy at scale.",
+  obbba: "OBBBA left the core §45Q mechanics intact but layered on broader FEOC policy considerations and stricter reporting expectations. The credit was not repealed or cut — a significant signal given how aggressively OBBBA treated other IRA credits. Treasury is preparing revisions to existing regulations to reflect evolving MRV (measurement, reporting, and verification) standards.",
+  how: {
+    elig: [
+      "Carbon capture from industrial facilities (power plants, cement, steel, chemicals, etc.)",
+      "Direct air capture (DAC) facilities",
+      "Secure geological storage (saline formations, depleted oil/gas reservoirs)",
+      "Enhanced oil recovery (EOR) with secure storage verification",
+      "Qualifying utilization — chemical conversion or fixation in products meeting lifecycle GHG reduction requirements"
+    ],
+    val: "A fixed dollar amount per metric ton of qualified CO₂ captured:",
+    valTable: [
+      ["Secure geological storage (with PWA)", "$85/ton"],
+      ["Secure geological storage (without PWA)", "$17/ton"],
+      ["DAC with secure storage (with PWA)", "$180/ton"],
+      ["DAC with secure storage (without PWA)", "$36/ton"],
+      ["EOR / utilization (with PWA)", "$60/ton"],
+      ["EOR / utilization (without PWA)", "$12/ton"]
+    ],
+    bonus: "The 5x multiplier for meeting prevailing wage and apprenticeship (PWA) requirements is the only bonus. Unlike §48E, there are no separate domestic content, energy community, or low-income bonuses. The biggest rate differentiator is the pathway: secure geological storage pays more than EOR or utilization, and DAC pays the most.",
+    xfer: "Yes — §45Q credits are transferable under §6418 as a one-time transfer. Both tax-equity partnerships and direct transfers are used. Large CCS hubs may combine project-level equity with multi-year credit strips.",
+    epay: "Yes, in limited circumstances — available for §6417-eligible entities (tax-exempts, governments, tribes, cooperatives). For taxable entities, transfer is the standard monetization path.",
+    dur: "12 years from the date the qualified facility or carbon capture equipment is placed in service. Credits are claimed annually based on verified capture volumes."
+  },
+  tl: {
+    orig: "IRA extended and increased §45Q for projects beginning construction by the statutory deadline, with a 12-year credit period from placed-in-service.",
+    post: "OBBBA did not repeal §45Q. Core mechanics intact. FEOC policy overlay and MRV reporting changes anticipated. Notice 2026-01 safe harbor issued for 2025 volumes.",
+    dates: [
+      { d: "1/1/2023", e: "Enhanced IRA rates took effect for new projects" },
+      { d: "1/1/2033", e: "Construction must begin by this date for enhanced rates", u: true },
+      { d: "2025–2044", e: "12-year credit windows for projects placed in service 2023–2032" },
+      { d: "Feb 2026", e: "Notice 2026-01 safe harbor for 2025 backup reporting issued" }
+    ]
+  },
+  feoc: "FEOC rules are not yet the center of §45Q guidance — the primary regulatory focus is on storage integrity, MRV compliance, and secure geological sequestration verification. However, OBBBA creates a backdrop of stricter reporting and FEOC oversight that may influence future regulatory revisions. No explicit FEOC percentage thresholds have been codified for §45Q.",
+  riskScore: { level: "Elevated", reason: "Long-dated operational risk. MRV compliance is complex. Storage integrity is a 12-year commitment. Regulatory framework still evolving." },
+  risks: {
+    underwriting: [
+      "Storage integrity — the credit depends on CO₂ staying permanently underground. Any leakage or failure to verify secure storage can trigger credit loss.",
+      "MRV compliance — measurement, reporting, and verification requirements are stringent and still evolving. EPA's Subpart RR electronic reporting system has experienced disruptions.",
+      "Capture volume risk — credits are earned per ton actually captured. If the facility underperforms, credit volumes fall short of projections."
+    ],
+    mitigable: [
+      "Notice 2026-01 safe harbor — IRS issued backup reporting methods for 2025 volumes, protecting eligibility during EPA reporting transitions.",
+      "Structured indemnities and insurance — long-term storage liability can be allocated contractually with insurance backstops.",
+      "Third-party MRV verification — independent monitoring of injection and storage reduces regulatory challenge risk."
+    ],
+    uncertain: [
+      "Final MRV requirements are still being developed. Treasury has indicated it will propose revisions to existing §45Q regulations.",
+      "Long-term liability allocation for stored CO₂ — who bears responsibility 20+ years after injection is not fully settled.",
+      "How EPA reporting system transitions will interact with IRS credit eligibility in future years."
+    ],
+    summary: "No recapture in the traditional sense, but credits depend on ongoing verified storage — making this a long-dated operational commitment. MRV is the dominant diligence issue. The new IRS safe harbor signals regulatory commitment to keeping the credit functional, but the framework is still maturing. Buyers apply larger discounts than for power-sector credits due to technology and regulatory complexity."
+  },
+  stats: {
+    pricing: "85–90¢",
+    pricingNote: "per $1 (larger discount than power credits)",
+    share: "Growing",
+    shareNote: "minority share, scaling with CCS/DAC",
+    timeline: "12–20 wks",
+    timelineNote: "complex diligence"
+  },
+  mkt: {
+    price: "Early §45Q transfers trade at 85¢–90¢ on the dollar — a larger discount than wind/solar ITCs/PTCs due to technology, regulatory, and MRV risk.",
+    deal: "Deal sizes range from single-digit millions for smaller industrial capture to $100M+ for large CCS hubs and DAC facilities.",
+    time: "12–20 weeks typical. Heavy diligence on storage verification, MRV compliance, and counterparty strength."
+  },
+  guid: {
+    stat: "Existing §45Q regulations in place. Notice 2026-01 safe harbor issued for 2025 backup reporting. Treasury preparing revisions to reflect MRV and reporting changes.",
+    open: [
+      "Final MRV requirements and alignment with EPA reporting systems",
+      "Long-term liability allocation for stored CO₂",
+      "How FEOC oversight will interact with §45Q in practice",
+      "Whether additional safe harbors will be issued for future reporting years"
+    ]
+  },
+  bl: [
+    "§45Q offers substantial per-ton value — up to $180/ton for DAC with secure storage — but demands robust MRV and storage assurances.",
+    "12-year credit window per facility provides long-term revenue certainty for qualifying projects.",
+    "Transferability opens §45Q to a broader buyer universe, but perceived risk keeps discounts higher than power-sector credits.",
+    "New IRS safe harbor (Notice 2026-01) signals regulatory commitment — the government wants this credit to work.",
+    "OBBBA left §45Q intact while cutting other credits — a strong political signal for carbon capture's durability."
+  ]
+};
+
 var TERM = [
   { sec: "§30D", n: "Clean Vehicle Credit", d: "Terminated Sep 2025" },
   { sec: "§45W", n: "Commercial Clean Vehicles", d: "Terminated Sep 2025" },
@@ -369,6 +466,13 @@ var TL = [
 ];
 
 var NEWS = [
+  {
+    date: "Feb 2026", tag: "Policy",
+    h: "§45Q carbon capture — IRS issues safe harbor for 2025 reporting",
+    b: "Notice 2026-01 establishes backup reporting methods for carbon capture credits during EPA system transitions.",
+    cr: ["§45Q"],
+    impact: "CCS/DAC project operators and credit buyers"
+  },
   {
     date: "Feb 2026", tag: "Policy",
     h: "Foreign supply chain rules — interim guidance released",
@@ -1123,7 +1227,7 @@ function Home(props) {
           <GrpHdr status="expanded" note="OBBBA made these credits better" />
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(300px,1fr))", gap: 12 }}>
             <CCard sec={C["45Z"].sec} name={C["45Z"].name} type={C["45Z"].type} status={C["45Z"].st} one={C["45Z"].one} hover={C["45Z"].hover} onClick={function() { nav("45Z"); }} deep={true} />
-            <CCard sec="§45Q" name="Carbon Capture & Storage" type="PTC" status="expanded" one="Credit rates increased for certain types of carbon capture." pending={true} />
+            <CCard sec={C["45Q"].sec} name={C["45Q"].name} type={C["45Q"].type} status={C["45Q"].st} one={C["45Q"].one} hover={C["45Q"].hover} onClick={function() { nav("45Q"); }} deep={true} />
           </div>
         </div>
 
