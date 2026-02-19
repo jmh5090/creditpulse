@@ -50,9 +50,9 @@ C["45X"] = {
   deep: true,
   one: "Pays U.S. manufacturers per unit of solar panels, batteries, and other clean energy components they produce. Wind components lose eligibility after 2027.",
   hover: [
-    "Largest credit category — 27% of the transfer market",
-    "100% of listed credits receive bids within 3 days",
-    "Detailed government rules finalized in late 2024"
+    "Pricing: 93.5–96¢ per $1 of credit",
+    "Market share: 27% of the transfer market",
+    "Risk: Low — no recapture, verified production, primary diligence is FEOC supply chain"
   ],
   sum: "If you make solar panels, batteries, inverters, or mine critical minerals in the U.S., this credit pays you a fixed dollar amount for each unit you produce and sell. It's the single most-traded credit in the market and the backbone of America's push to build clean energy supply chains domestically.",
   obbba: "The core credit survived OBBBA mostly intact. The big changes: wind turbine components (blades, towers, nacelles) lose eligibility after 2027, metallurgical coal was added as a new qualifying product through 2029, and new rules restrict credits if your supply chain relies too heavily on companies tied to China, Russia, North Korea, or Iran.",
@@ -149,9 +149,9 @@ C["48E"] = {
   deep: true,
   one: "Covers up to 30%+ of the cost of building clean power plants and energy storage. Wind and solar face a hard deadline. Storage was protected.",
   hover: [
-    "Solar+storage = 26% of credits sold in early 2025",
-    "Pricing around 89¢ on the dollar",
-    "5-year 'clawback' risk for buyers"
+    "Pricing: ~89¢ per $1 of credit",
+    "Market share: 26% of credits sold (H1 '25)",
+    "Risk: Moderate — recapture is insurable, but PWA/domestic content/FEOC compliance layers require thorough documentation"
   ],
   sum: "If you're building a new power plant that produces zero-emission electricity — or an energy storage facility — this credit can cover 30% or more of your upfront investment. It's technology-neutral: it doesn't matter how you generate the clean power, as long as it's clean.",
   obbba: "OBBBA created winners and losers within this single credit. Wind and solar face an accelerated shutdown — ineligible unless construction starts by July 4, 2026, and the facility is operational by end of 2027. But energy storage was preserved. Fuel cell projects got better terms — a 30% credit regardless of emissions.",
@@ -251,9 +251,9 @@ C["45Z"] = {
   deep: true,
   one: "The only clean energy credit OBBBA actually made bigger — extended through 2029. Pays fuel producers based on how clean their fuel is.",
   hover: [
-    "Only IRA credit that got extended by OBBBA",
-    "Government cost estimate: $25.7B (9x the original)",
-    "Detailed rules proposed February 2026"
+    "Pricing: Discount to established credits (rules still proposed)",
+    "Market share: Growing — early-stage but high-interest",
+    "Risk: Elevated — credit value depends entirely on carbon modeling that hasn't been stress-tested at scale"
   ],
   sum: "This credit pays fuel producers based on a simple principle: the cleaner your fuel, the more you earn per gallon. It replaced a confusing patchwork of older biofuel incentives with one unified framework.",
   obbba: "This is the one IRA energy credit OBBBA actually expanded. Production window extended from 2027 to 2029. SAF bonus cut from $1.75 to $1.00/gal after 2025. Excluding indirect land use change (ILUC) from emissions calculations made corn ethanol and soy biodiesel big winners. Feedstock must come from North America. Government cost estimate jumped from $2.9B to $25.7B.",
@@ -345,9 +345,9 @@ C["45Q"] = {
   deep: true,
   one: "Pays facilities per ton of CO₂ they capture and permanently store or use. Growing fast as CCS and direct air capture scale up.",
   hover: [
-    "12-year credit window per facility",
-    "Up to $180/ton for DAC with secure storage",
-    "New IRS safe harbor (Notice 2026-01) eases reporting"
+    "Pricing: 85–90¢ per $1 of credit (larger discount than power credits)",
+    "Market share: Growing — minority share, scaling with CCS/DAC",
+    "Risk: Elevated — long-dated operational risk, MRV compliance is complex, regulatory framework still evolving"
   ],
   sum: "This credit pays facilities a fixed dollar amount for every metric ton of carbon dioxide they capture and either permanently store underground or use in approved ways. It's the government's primary tool for incentivizing carbon capture and direct air capture — technologies many see as essential but that are still expensive to deploy at scale.",
   obbba: "OBBBA left the core §45Q mechanics intact but layered on broader FEOC policy considerations and stricter reporting expectations. The credit was not repealed or cut — a significant signal given how aggressively OBBBA treated other IRA credits. Treasury is preparing revisions to existing regulations to reflect evolving MRV (measurement, reporting, and verification) standards.",
@@ -801,7 +801,11 @@ function CCard(props) {
             return (
               <div key={i} style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 3 }}>
                 <div style={{ width: 4, height: 4, borderRadius: "50%", background: s.c, flexShrink: 0 }} />
-                <span style={{ fontSize: 12, color: TXT2 }}>{f}</span>
+                <span style={{ fontSize: 12, color: TXT2 }}>
+                  {f.indexOf(":") > -1 ? (
+                    <><strong style={{ color: TXT }}>{f.slice(0, f.indexOf(":"))}</strong>{f.slice(f.indexOf(":"))}</>
+                  ) : f}
+                </span>
               </div>
             );
           })}
