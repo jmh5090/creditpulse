@@ -594,7 +594,7 @@ function AskSidebar(props) {
     setA("");
     setEr("");
     var sysMsg = "You are CreditPulse, an expert on U.S. clean energy tax credits after OBBBA (signed July 4, 2025). Answer using ONLY the data below. Plain English. Concise (2-4 sentences). Cite section numbers. If unsure, say so.\n\nDATA:\n" + ctx;
-    fetch("https://api.anthropic.com/v1/messages", {
+    fetch("/.netlify/functions/ask", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
