@@ -469,30 +469,34 @@ var NEWS = [
   {
     date: "Feb 2026", tag: "Policy",
     h: "§45Q carbon capture — IRS issues safe harbor for 2025 reporting",
-    b: "Notice 2026-01 establishes backup reporting methods for carbon capture credits during EPA system transitions.",
     cr: ["§45Q"],
-    impact: "CCS/DAC project operators and credit buyers"
+    who: "CCS and DAC project operators claiming §45Q credits, and buyers purchasing those credits in the transfer market.",
+    what: "Treasury issued Notice 2026-01, establishing a backup reporting method for 2025 carbon capture volumes. This protects credit eligibility during EPA's Subpart RR electronic reporting system transitions.",
+    next: "Watch for Treasury's proposed revisions to existing §45Q regulations, which will address MRV requirements and long-term storage verification standards."
   },
   {
     date: "Feb 2026", tag: "Policy",
     h: "Foreign supply chain rules — interim guidance released",
-    b: "Treasury issued Notice 2026-15 with temporary safe harbors for FEOC restrictions.",
     cr: ["§45X", "§45Y", "§48E"],
-    impact: "Companies claiming credits with foreign-sourced components"
+    who: "Any company claiming credits that involve foreign-sourced components — manufacturers (§45X), project developers (§45Y/§48E), and credit buyers doing supply chain diligence.",
+    what: "Treasury issued Notice 2026-15 with temporary safe harbors for FEOC (Foreign Entity of Concern) restrictions. The guidance provides interim thresholds and compliance methods while final rules are developed.",
+    next: "Final FEOC rules expected late 2026. The interim safe harbors could tighten, so companies should map their supply chains now rather than waiting."
   },
   {
     date: "Feb 2026", tag: "Policy",
     h: "§45Z clean fuel rules — proposed regulations published",
-    b: "Proposed rules cover carbon intensity scoring and registration. Hearing May 28.",
     cr: ["§45Z"],
-    impact: "Fuel producers and credit buyers"
+    who: "Fuel producers (SAF, renewable diesel, ethanol, biodiesel) and credit buyers evaluating §45Z transactions.",
+    what: "Proposed regulations cover carbon intensity scoring methodology, producer registration requirements, and third-party verification frameworks. The 45ZCF-GREET model is the designated calculation tool.",
+    next: "Public hearing scheduled May 28, 2026. Final rules could change qualification thresholds and verification standards. Producers should begin modeling credits using the proposed framework now."
   },
   {
     date: "Q3 2025", tag: "Market",
     h: "Credit prices dipped — fewer buyers, more opportunity",
-    b: "ITCs dropped to ~89¢. OBBBA's other provisions reduced corporate tax bills, thinning the buyer pool.",
     cr: ["Market-wide"],
-    impact: "Credit buyers seeking favorable pricing"
+    who: "Credit buyers looking for favorable pricing, and sellers who may need to accept lower offers to close deals.",
+    what: "ITC pricing dropped to ~89¢ on the dollar. OBBBA's other provisions (SALT cap increase, corporate tax adjustments) reduced corporate tax bills, thinning the pool of buyers who need credits to offset liability.",
+    next: "Pricing may stabilize or recover as the market adjusts to post-OBBBA tax dynamics. Buyers with near-term tax liability have a window to lock in historically favorable rates."
   }
 ];
 
@@ -567,11 +571,10 @@ function ctxAll() {
 }
 
 // ─── Floating Chat Widget ─────────────────────────────────
-function FloatingAsk(props) {
+function AskSidebar(props) {
   var ctx = props.ctx;
-  var _open = useState(false);
-  var open = _open[0];
-  var setOpen = _open[1];
+  var open = props.open;
+  var onClose = props.onClose;
   var _q = useState("");
   var q = _q[0];
   var setQ = _q[1];
@@ -613,103 +616,125 @@ function FloatingAsk(props) {
     .finally(function() { setLd(false); });
   }
 
-  if (!open) {
-    return (
-      <button
-        onClick={function() { setOpen(true); }}
-        title="Ask CreditPulse AI"
-        style={{
-          position: "fixed", bottom: 24, right: 24, height: 48,
-          borderRadius: 24, background: TXT, color: BG, border: "none",
-          cursor: "pointer", boxShadow: "0 4px 20px rgba(0,0,0,0.15)",
-          display: "flex", alignItems: "center", gap: 10,
-          paddingLeft: 16, paddingRight: 20,
-          fontSize: 13, fontWeight: 600, zIndex: 1000,
-          fontFamily: "inherit", transition: "transform 0.15s"
-        }}
-      >
-        <div style={{ width: 8, height: 8, borderRadius: "50%", background: GOLD, flexShrink: 0 }} />
-        Ask CreditPulse AI
-      </button>
-    );
-  }
-
   return (
-    <div style={{
-      position: "fixed", bottom: 24, right: 24, width: 400, maxHeight: "70vh",
-      background: CARD, borderRadius: 16, boxShadow: "0 8px 40px rgba(0,0,0,0.15)",
-      border: "1px solid " + BORDER, zIndex: 1000, display: "flex",
-      flexDirection: "column", overflow: "hidden"
-    }}>
-      <div style={{
-        display: "flex", justifyContent: "space-between", alignItems: "center",
-        padding: "14px 18px", borderBottom: "1px solid " + BORDER
-      }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <div style={{ width: 8, height: 8, borderRadius: "50%", background: GOLD }} />
-          <span style={{ fontSize: 13, fontWeight: 700, color: TXT }}>Ask CreditPulse</span>
-        </div>
-        <button
-          onClick={function() { setOpen(false); }}
-          style={{ background: "none", border: "none", fontSize: 18, color: TXT3, cursor: "pointer", padding: 0 }}
-        >
-          ×
-        </button>
-      </div>
-      <div style={{ flex: 1, overflowY: "auto", padding: "14px 18px" }}>
-        {a ? (
-          <div style={{
-            padding: "12px 14px", background: HOVER, borderRadius: 8,
-            marginBottom: 12, borderLeft: "3px solid " + GOLD
-          }}>
-            <p style={{ fontSize: 14, lineHeight: 1.7, color: TXT, margin: 0 }}>{a}</p>
-          </div>
-        ) : null}
-        {er ? (
-          <div style={{
-            padding: "10px 14px", background: "#FFF3E0", borderRadius: 8,
-            marginBottom: 12, borderLeft: "3px solid #E65100"
-          }}>
-            <p style={{ fontSize: 13, color: "#E65100", margin: 0 }}>{er}</p>
-          </div>
-        ) : null}
-        {!a && !er ? (
-          <p style={{ fontSize: 13, color: TXT3, lineHeight: 1.6, margin: 0 }}>
-            Ask anything about clean energy tax credits.
-          </p>
-        ) : null}
-      </div>
-      <div style={{
-        padding: "12px 18px 14px", borderTop: "1px solid " + BORDER,
-        display: "flex", gap: 8
-      }}>
-        <input
-          value={q}
-          onChange={function(e) { setQ(e.target.value); }}
-          onKeyDown={function(e) { if (e.key === "Enter") go(); }}
-          placeholder="Ask a question..."
+    <>
+      {/* Overlay */}
+      {open ? (
+        <div
+          onClick={onClose}
           style={{
-            flex: 1, background: HOVER, border: "1px solid " + BORDER,
-            borderRadius: 8, padding: "10px 12px", color: TXT, fontSize: 13,
-            outline: "none", fontFamily: "inherit"
+            position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+            background: "rgba(0,0,0,0.15)", zIndex: 999,
+            transition: "opacity 0.3s", opacity: open ? 1 : 0
           }}
         />
-        <button
-          onClick={go}
-          disabled={ld}
-          style={{
-            background: ld ? BORDER : TXT, color: BG, border: "none",
-            borderRadius: 8, padding: "10px 16px", fontWeight: 700, fontSize: 13,
-            cursor: ld ? "wait" : "pointer"
-          }}
-        >
-          {ld ? "..." : "Ask"}
-        </button>
+      ) : null}
+      {/* Sidebar panel */}
+      <div style={{
+        position: "fixed", top: 0, right: 0, bottom: 0, width: 380,
+        background: CARD, zIndex: 1000, display: "flex",
+        flexDirection: "column", borderLeft: "1px solid " + BORDER,
+        boxShadow: open ? "-8px 0 40px rgba(0,0,0,0.1)" : "none",
+        transform: open ? "translateX(0)" : "translateX(100%)",
+        transition: "transform 0.3s ease"
+      }}>
+        {/* Header */}
+        <div style={{
+          display: "flex", justifyContent: "space-between", alignItems: "center",
+          padding: "18px 20px", borderBottom: "1px solid " + BORDER, flexShrink: 0
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <div style={{ width: 8, height: 8, borderRadius: "50%", background: GOLD }} />
+            <span style={{ fontSize: 14, fontWeight: 700, color: TXT }}>Ask CreditPulse</span>
+          </div>
+          <button
+            onClick={onClose}
+            style={{ background: "none", border: "none", fontSize: 20, color: TXT3, cursor: "pointer", padding: 0, lineHeight: 1 }}
+          >
+            ×
+          </button>
+        </div>
+        {/* Content */}
+        <div style={{ flex: 1, overflowY: "auto", padding: "20px 20px" }}>
+          {a ? (
+            <div style={{
+              padding: "14px 16px", background: HOVER, borderRadius: 8,
+              marginBottom: 14, borderLeft: "3px solid " + GOLD
+            }}>
+              <p style={{ fontSize: 14, lineHeight: 1.7, color: TXT, margin: 0 }}>{a}</p>
+            </div>
+          ) : null}
+          {er ? (
+            <div style={{
+              padding: "12px 16px", background: "#FFF3E0", borderRadius: 8,
+              marginBottom: 14, borderLeft: "3px solid #E65100"
+            }}>
+              <p style={{ fontSize: 13, color: "#E65100", margin: 0 }}>{er}</p>
+            </div>
+          ) : null}
+          {!a && !er ? (
+            <div>
+              <p style={{ fontSize: 14, color: TXT2, lineHeight: 1.6, margin: "0 0 16px" }}>
+                Ask anything about clean energy tax credits, market pricing, risk profiles, or regulatory timelines.
+              </p>
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                {[
+                  "What credits can I still claim for solar?",
+                  "How does §45X pricing compare to §48E?",
+                  "What are the biggest risks for credit buyers?"
+                ].map(function(suggestion, i) {
+                  return (
+                    <button
+                      key={i}
+                      onClick={function(e) { e.stopPropagation(); setQ(suggestion); }}
+                      style={{
+                        background: HOVER, border: "1px solid " + BORDER, borderRadius: 8,
+                        padding: "10px 14px", textAlign: "left", cursor: "pointer",
+                        fontSize: 13, color: TXT2, fontFamily: "inherit",
+                        transition: "border-color 0.15s"
+                      }}
+                    >
+                      {suggestion}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ) : null}
+        </div>
+        {/* Input */}
+        <div style={{
+          padding: "14px 20px 16px", borderTop: "1px solid " + BORDER,
+          display: "flex", gap: 8, flexShrink: 0
+        }}>
+          <input
+            value={q}
+            onChange={function(e) { setQ(e.target.value); }}
+            onKeyDown={function(e) { if (e.key === "Enter") go(); }}
+            placeholder="Ask a question..."
+            style={{
+              flex: 1, background: HOVER, border: "1px solid " + BORDER,
+              borderRadius: 8, padding: "11px 14px", color: TXT, fontSize: 13,
+              outline: "none", fontFamily: "inherit"
+            }}
+          />
+          <button
+            onClick={go}
+            disabled={ld}
+            style={{
+              background: ld ? BORDER : TXT, color: BG, border: "none",
+              borderRadius: 8, padding: "11px 18px", fontWeight: 700, fontSize: 13,
+              cursor: ld ? "wait" : "pointer", fontFamily: "inherit"
+            }}
+          >
+            {ld ? "..." : "Ask"}
+          </button>
+        </div>
+        <div style={{ padding: "0 20px 12px", fontSize: 9, color: TXT3, flexShrink: 0 }}>
+          Powered by Claude API · Curated data only · Not legal advice
+        </div>
       </div>
-      <div style={{ padding: "0 18px 10px", fontSize: 9, color: TXT3 }}>
-        Powered by Claude API · Curated data only · Not legal advice
-      </div>
-    </div>
+    </>
   );
 }
 
@@ -823,6 +848,70 @@ function GrpHdr(props) {
       <span style={{ fontSize: 12, fontWeight: 700, color: s.c, letterSpacing: "0.06em", textTransform: "uppercase" }}>{s.l}</span>
       {props.note ? <span style={{ fontSize: 12, color: TXT3, fontStyle: "italic" }}>— {props.note}</span> : null}
       <div style={{ flex: 1, height: 1, background: BORDER }} />
+    </div>
+  );
+}
+
+// ─── News Card ────────────────────────────────────────────
+function NewsCard(props) {
+  var item = props.item;
+  var _o = useState(false);
+  var open = _o[0];
+  var setOpen = _o[1];
+  var _h = useState(false);
+  var hov = _h[0];
+  var setHov = _h[1];
+
+  return (
+    <div
+      onClick={function() { setOpen(!open); }}
+      onMouseEnter={function() { setHov(true); }}
+      onMouseLeave={function() { setHov(false); }}
+      style={{
+        background: hov && !open ? HOVER : CARD,
+        border: "1px solid " + (hov ? "#C8C5BE" : BORDER), borderRadius: 10,
+        marginBottom: 10, cursor: "pointer", transition: "all 0.2s",
+        overflow: "hidden"
+      }}
+    >
+      <div style={{ padding: "16px 22px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+          <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 12, color: TXT3 }}>{item.date}</span>
+          <span style={{
+            fontSize: 11, padding: "2px 8px", borderRadius: 4,
+            background: item.tag === "Market" ? "#FFF3E0" : "#F0EDE6",
+            color: item.tag === "Market" ? "#E65100" : TXT2, fontWeight: 600
+          }}>{item.tag}</span>
+          {item.cr.map(function(c, j) {
+            return <span key={j} style={{ fontSize: 10, padding: "2px 7px", borderRadius: 4, background: "#F0EDE6", color: TXT3, fontWeight: 600 }}>{c}</span>;
+          })}
+        </div>
+        <div style={{ fontSize: 15, fontWeight: 600, color: TXT, marginTop: 8, lineHeight: 1.35 }}>{item.h}</div>
+        <div style={{ marginTop: 10 }}>
+          <span style={{ fontSize: 13, color: GOLD, fontWeight: 600 }}>
+            {open ? "Show less \u2212" : "Read more +"}
+          </span>
+        </div>
+      </div>
+      {open ? (
+        <div style={{ padding: "0 22px 18px", borderTop: "1px solid " + BORDER }}>
+          {[
+            ["Who this affects", item.who],
+            ["What happened", item.what],
+            ["What's next", item.next]
+          ].map(function(row, i) {
+            return (
+              <div key={i} style={{ marginTop: 14 }}>
+                <div style={{
+                  fontSize: 12, fontWeight: 700, color: TXT, marginBottom: 4,
+                  paddingLeft: 10, borderLeft: "3px solid " + GOLD
+                }}>{row[0]}</div>
+                <p style={{ fontSize: 14, color: TXT2, lineHeight: 1.65, margin: 0 }}>{row[1]}</p>
+              </div>
+            );
+          })}
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -1266,26 +1355,7 @@ function Home(props) {
         <h2 style={{ fontSize: 22, color: TXT, margin: "0 0 6px", fontWeight: 500 }}>Recent Developments</h2>
         <p style={{ fontSize: 14, color: TXT3, margin: "0 0 16px" }}>Policy and market updates.</p>
         {NEWS.map(function(item, i) {
-          return (
-            <div key={i} style={{ padding: "18px 22px", background: CARD, border: "1px solid " + BORDER, borderRadius: 10, marginBottom: 10 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-                <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 12, color: TXT3 }}>{item.date}</span>
-                <span style={{
-                  fontSize: 11, padding: "2px 8px", borderRadius: 4,
-                  background: item.tag === "Market" ? "#FFF3E0" : "#F0EDE6",
-                  color: item.tag === "Market" ? "#E65100" : TXT2, fontWeight: 600
-                }}>{item.tag}</span>
-              </div>
-              <div style={{ fontSize: 16, fontWeight: 600, color: TXT, marginBottom: 6, lineHeight: 1.3 }}>{item.h}</div>
-              <p style={{ fontSize: 14, color: TXT2, margin: "0 0 8px", lineHeight: 1.6 }}>{item.b}</p>
-              <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
-                {item.cr.map(function(c, j) {
-                  return <span key={j} style={{ fontSize: 10, padding: "2px 7px", borderRadius: 4, background: "#F0EDE6", color: TXT3, fontWeight: 600 }}>{c}</span>;
-                })}
-              </div>
-              <div style={{ marginTop: 6, fontSize: 12, color: TXT3 }}><em>Who this affects:</em> {item.impact}</div>
-            </div>
-          );
+          return <NewsCard key={i} item={item} />;
         })}
       </div>
 
@@ -1360,6 +1430,9 @@ export default function CreditPulse() {
   var _f = useState(true);
   var fade = _f[0];
   var setFade = _f[1];
+  var _sb = useState(false);
+  var sidebarOpen = _sb[0];
+  var setSidebarOpen = _sb[1];
   var ref = useRef(null);
 
   function nav(v) {
@@ -1382,7 +1455,7 @@ export default function CreditPulse() {
         "::-webkit-scrollbar{width:6px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.1);border-radius:3px;}"
       }</style>
       <div style={{ maxWidth: 940, margin: "0 auto", padding: "36px 24px 80px", opacity: fade ? 1 : 0, transition: "opacity 0.2s" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 36, paddingBottom: 18, borderBottom: "1px solid " + BORDER }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingBottom: 18, borderBottom: "1px solid " + BORDER, position: "sticky", top: 0, background: BG, zIndex: 100, paddingTop: 12, marginBottom: 24 }}>
           <div
             style={{ display: "flex", alignItems: "center", gap: 8, cursor: view !== "home" ? "pointer" : "default" }}
             onClick={view !== "home" ? function() { nav("home"); } : undefined}
@@ -1390,16 +1463,30 @@ export default function CreditPulse() {
             <div style={{ width: 8, height: 8, borderRadius: "50%", background: GOLD }} />
             <span style={{ fontSize: 14, fontWeight: 700, color: TXT, letterSpacing: "0.04em" }}>CREDITPULSE</span>
           </div>
-          <span style={{ fontSize: 12, color: TXT3 }}>
-            Built by{" "}
-            <a href="https://www.linkedin.com/in/jaredhutchinson/" target="_blank" rel="noopener noreferrer" style={{ color: TXT2, textDecoration: "none", borderBottom: "1px solid " + BORDER, fontWeight: 600 }}>
-              Jared Hutchinson
-            </a>
-          </span>
+          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+            <span style={{ fontSize: 12, color: TXT3 }}>
+              Built by{" "}
+              <a href="https://www.linkedin.com/in/jaredhutchinson/" target="_blank" rel="noopener noreferrer" style={{ color: TXT2, textDecoration: "none", borderBottom: "1px solid " + BORDER, fontWeight: 600 }}>
+                Jared Hutchinson
+              </a>
+            </span>
+            <button
+              onClick={function() { setSidebarOpen(true); }}
+              style={{
+                display: "flex", alignItems: "center", gap: 8,
+                background: TXT, color: BG, border: "none", borderRadius: 6,
+                padding: "7px 14px", fontSize: 12, fontWeight: 600,
+                cursor: "pointer", fontFamily: "inherit", transition: "opacity 0.15s"
+              }}
+            >
+              <div style={{ width: 6, height: 6, borderRadius: "50%", background: GOLD, flexShrink: 0 }} />
+              Ask AI
+            </button>
+          </div>
         </div>
         {view === "home" ? <Home nav={nav} /> : <DeepDive ck={view} onBack={function() { nav("home"); }} />}
       </div>
-      <FloatingAsk ctx={ctx} />
+      <AskSidebar ctx={ctx} open={sidebarOpen} onClose={function() { setSidebarOpen(false); }} />
     </div>
   );
 }
