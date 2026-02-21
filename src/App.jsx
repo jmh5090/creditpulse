@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import ReactMarkdown from "react-markdown";
 
 /*
   CREDITPULSE v5 — Clean Energy Tax Credit Navigator
@@ -570,6 +571,28 @@ function ctxAll() {
   return all + "\nMARKET: $55-60B projected 2025. 8 active types. ITC 89¢, PTC 92¢.";
 }
 
+// ─── Markdown Styles ──────────────────────────────────────
+var mdComponents = {
+  h1: function(props) { return <h3 style={{ fontSize: 16, fontWeight: 700, color: TXT, margin: "16px 0 8px", lineHeight: 1.3 }}>{props.children}</h3>; },
+  h2: function(props) { return <h4 style={{ fontSize: 15, fontWeight: 700, color: TXT, margin: "14px 0 6px", lineHeight: 1.3 }}>{props.children}</h4>; },
+  h3: function(props) { return <h5 style={{ fontSize: 14, fontWeight: 700, color: TXT, margin: "12px 0 4px", lineHeight: 1.3 }}>{props.children}</h5>; },
+  p: function(props) { return <p style={{ fontSize: 14, lineHeight: 1.7, color: TXT, margin: "0 0 10px" }}>{props.children}</p>; },
+  ul: function(props) { return <ul style={{ margin: "4px 0 10px", paddingLeft: 20 }}>{props.children}</ul>; },
+  ol: function(props) { return <ol style={{ margin: "4px 0 10px", paddingLeft: 20 }}>{props.children}</ol>; },
+  li: function(props) { return <li style={{ fontSize: 14, lineHeight: 1.65, color: TXT, marginBottom: 4 }}>{props.children}</li>; },
+  strong: function(props) { return <strong style={{ fontWeight: 700, color: TXT }}>{props.children}</strong>; },
+  em: function(props) { return <em style={{ fontStyle: "italic" }}>{props.children}</em>; },
+  code: function(props) {
+    return <code style={{ fontSize: 12, background: BORDER, padding: "2px 5px", borderRadius: 3, fontFamily: "'IBM Plex Mono',monospace" }}>{props.children}</code>;
+  },
+  pre: function(props) {
+    return <pre style={{ fontSize: 12, background: "#F0EDE6", padding: "12px 14px", borderRadius: 6, overflowX: "auto", margin: "8px 0 10px", fontFamily: "'IBM Plex Mono',monospace", lineHeight: 1.5 }}>{props.children}</pre>;
+  },
+  blockquote: function(props) {
+    return <blockquote style={{ borderLeft: "3px solid " + GOLD, margin: "8px 0", paddingLeft: 14, color: TXT2 }}>{props.children}</blockquote>;
+  }
+};
+
 // ─── Floating Chat Widget ─────────────────────────────────
 function AskSidebar(props) {
   var ctx = props.ctx;
@@ -587,33 +610,88 @@ function AskSidebar(props) {
   var _er = useState("");
   var er = _er[0];
   var setEr = _er[1];
+  var contentRef = useRef(null);
 
   function go() {
-    if (!q.trim()) return;
+    if (!q.trim() || ld) return;
     setLd(true);
     setA("");
     setEr("");
-    var sysMsg = "You are CreditPulse, an expert on U.S. clean energy tax credits after OBBBA (signed July 4, 2025). Answer using ONLY the data below. Plain English. Concise (2-4 sentences). Cite section numbers. If unsure, say so.\n\nDATA:\n" + ctx;
+    var sysMsg = "You are CreditPulse, an expert assistant specializing in U.S. clean energy tax credits under the Inflation Reduction Act (IRA) and related legislation.\n\nYour role:\n- Answer questions about clean energy tax credit eligibility, structure, pricing, timelines, and risk\n- Draw ONLY from the curated data provided below — do not speculate or use outside knowledge\n- Be specific: cite section numbers (§45X, §48E, §45Z, etc.), dollar amounts, percentages, and dates whenever possible\n- Acknowledge when a question falls outside your curated data rather than guessing\n\nResponse structure:\n- Lead with a direct answer to the question in 1-2 sentences\n- Follow with supporting detail organized by relevance\n- Use headers and bullet points to improve scannability when the answer has multiple components\n- End with a brief note on what the user should verify with a tax professional if the question involves eligibility or dollar amounts\n\nTone:\n- Confident but precise — like a knowledgeable analyst briefing a CFO\n- Avoid jargon unless the user uses it first, then match their level\n- Keep answers concise — aim for 150-300 words unless the question requires more depth\n\nImportant constraints:\n- Never provide legal or tax advice — always frame as informational\n- Always note when information may have changed since the curated data was last updated\n- If a question is ambiguous, state your interpretation before answering\n\nDATA:\n" + ctx;
+
+    var accumulated = "";
+
     fetch("/.netlify/functions/ask", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
-        max_tokens: 1000,
+        model: "claude-sonnet-4-5-20250929",
+        max_tokens: 1024,
         system: sysMsg,
         messages: [{ role: "user", content: q }]
       })
     })
-    .then(function(r) { return r.json(); })
-    .then(function(d) {
-      if (d.content && d.content[0] && d.content[0].text) {
-        setA(d.content[0].text);
-      } else {
-        setEr((d.error && d.error.message) || "Something went wrong.");
+    .then(function(res) {
+      if (!res.ok) {
+        return res.text().then(function(t) {
+          var parsed;
+          try { parsed = JSON.parse(t); } catch (e) { parsed = null; }
+          throw new Error((parsed && parsed.error && parsed.error.message) || "Request failed (" + res.status + ")");
+        });
       }
+
+      var reader = res.body.getReader();
+      var decoder = new TextDecoder();
+      var buf = "";
+
+      function read() {
+        return reader.read().then(function(result) {
+          if (result.done) {
+            setLd(false);
+            return;
+          }
+          buf += decoder.decode(result.value, { stream: true });
+          var lines = buf.split("\n");
+          buf = lines.pop() || "";
+
+          for (var i = 0; i < lines.length; i++) {
+            var line = lines[i].trim();
+            if (!line.startsWith("data: ")) continue;
+            var payload = line.slice(6);
+            if (payload === "[DONE]") continue;
+            try {
+              var evt = JSON.parse(payload);
+              if (evt.type === "content_block_delta" && evt.delta && evt.delta.type === "text_delta") {
+                accumulated += evt.delta.text;
+                setA(accumulated);
+              }
+              if (evt.type === "message_stop") {
+                setLd(false);
+              }
+              if (evt.type === "error") {
+                setEr((evt.error && evt.error.message) || "An error occurred during streaming.");
+                setLd(false);
+                return;
+              }
+            } catch (e) {
+              // skip non-JSON lines (event: type lines, empty lines)
+            }
+          }
+
+          if (contentRef.current) {
+            contentRef.current.scrollTop = contentRef.current.scrollHeight;
+          }
+
+          return read();
+        });
+      }
+
+      return read();
     })
-    .catch(function() { setEr("Unable to connect."); })
-    .finally(function() { setLd(false); });
+    .catch(function(e) {
+      setEr(e.message || "Unable to connect.");
+      setLd(false);
+    });
   }
 
   return (
@@ -655,13 +733,23 @@ function AskSidebar(props) {
           </button>
         </div>
         {/* Content */}
-        <div style={{ flex: 1, overflowY: "auto", padding: "20px 20px" }}>
+        <div ref={contentRef} style={{ flex: 1, overflowY: "auto", padding: "20px 20px" }}>
           {a ? (
             <div style={{
               padding: "14px 16px", background: HOVER, borderRadius: 8,
               marginBottom: 14, borderLeft: "3px solid " + GOLD
             }}>
-              <p style={{ fontSize: 14, lineHeight: 1.7, color: TXT, margin: 0 }}>{a}</p>
+              <ReactMarkdown components={mdComponents}>{a}</ReactMarkdown>
+            </div>
+          ) : null}
+          {ld && !a ? (
+            <div style={{
+              padding: "14px 16px", background: HOVER, borderRadius: 8,
+              marginBottom: 14, borderLeft: "3px solid " + GOLD,
+              display: "flex", alignItems: "center", gap: 8
+            }}>
+              <div style={{ width: 6, height: 6, borderRadius: "50%", background: GOLD, animation: "pulse 1.2s infinite" }} />
+              <span style={{ fontSize: 13, color: TXT3 }}>Thinking...</span>
             </div>
           ) : null}
           {er ? (
@@ -672,7 +760,7 @@ function AskSidebar(props) {
               <p style={{ fontSize: 13, color: "#E65100", margin: 0 }}>{er}</p>
             </div>
           ) : null}
-          {!a && !er ? (
+          {!a && !er && !ld ? (
             <div>
               <p style={{ fontSize: 14, color: TXT2, lineHeight: 1.6, margin: "0 0 16px" }}>
                 Ask anything about clean energy tax credits, market pricing, risk profiles, or regulatory timelines.
@@ -712,10 +800,12 @@ function AskSidebar(props) {
             onChange={function(e) { setQ(e.target.value); }}
             onKeyDown={function(e) { if (e.key === "Enter") go(); }}
             placeholder="Ask a question..."
+            disabled={ld}
             style={{
               flex: 1, background: HOVER, border: "1px solid " + BORDER,
               borderRadius: 8, padding: "11px 14px", color: TXT, fontSize: 13,
-              outline: "none", fontFamily: "inherit"
+              outline: "none", fontFamily: "inherit",
+              opacity: ld ? 0.6 : 1
             }}
           />
           <button
@@ -724,7 +814,7 @@ function AskSidebar(props) {
             style={{
               background: ld ? BORDER : TXT, color: BG, border: "none",
               borderRadius: 8, padding: "11px 18px", fontWeight: 700, fontSize: 13,
-              cursor: ld ? "wait" : "pointer", fontFamily: "inherit"
+              cursor: ld ? "not-allowed" : "pointer", fontFamily: "inherit"
             }}
           >
             {ld ? "..." : "Ask"}
@@ -1460,7 +1550,8 @@ export default function CreditPulse() {
         "@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap');" +
         "*{box-sizing:border-box;}" +
         "::placeholder{color:#B0ADA6;}" +
-        "::-webkit-scrollbar{width:6px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.1);border-radius:3px;}"
+        "::-webkit-scrollbar{width:6px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.1);border-radius:3px;}" +
+        "@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}"
       }</style>
       <div style={{ maxWidth: 940, margin: "0 auto", padding: "36px 24px 80px", opacity: fade ? 1 : 0, transition: "opacity 0.2s" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingBottom: 18, borderBottom: "1px solid " + BORDER, position: "sticky", top: 0, background: BG, zIndex: 100, paddingTop: 12, marginBottom: 24 }}>
