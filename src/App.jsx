@@ -339,7 +339,7 @@ C["45Z"] = {
 
 C["45Q"] = {
   sec: "§45Q",
-  name: "Carbon Oxide Sequestration Credit",
+  name: "Carbon Dioxide Sequestration Credit",
   type: "PTC",
   st: "expanded",
   deep: true,
@@ -1229,12 +1229,6 @@ function Home(props) {
   return (
     <div>
       <div style={{ marginBottom: 32 }}>
-        <h1 style={{ fontSize: 34, color: TXT, margin: "0 0 16px", fontWeight: 300, lineHeight: 1.2 }}>
-          The Clean Energy Tax Credit Landscape
-        </h1>
-        <p style={{ fontSize: 17, color: TXT2, lineHeight: 1.75, maxWidth: 720, margin: "0 0 12px" }}>
-          The One Big Beautiful Bill Act — signed July 4, 2025 — reshaped the IRA's clean energy tax credits. The ability to buy and sell credits survived. Some got better. Many face accelerated sunsets. This tool maps what changed and what it means.
-        </p>
         <div style={{ fontSize: 12, color: TXT3 }}>Last updated {LAST_UPDATED}</div>
       </div>
 
@@ -1254,62 +1248,6 @@ function Home(props) {
             </div>
           );
         })}
-      </div>
-
-      <div style={{ marginBottom: 28 }}>
-        <button
-          onClick={function() { setMatchOpen(!matchOpen); if (matchOpen) setMatchRole(null); }}
-          style={{ display: "flex", alignItems: "center", gap: 8, background: "none", border: "none", cursor: "pointer", fontFamily: "inherit", padding: 0 }}
-        >
-          <span style={{ fontSize: 14, color: GOLD, fontWeight: 600 }}>Not sure where to start? Tell us what brings you here →</span>
-        </button>
-        {matchOpen ? (
-          <div style={{ marginTop: 12, padding: "16px 20px", background: CARD, border: "1px solid " + BORDER, borderRadius: 10 }}>
-            <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: mr ? 14 : 0 }}>
-              {MATCH_ROLES.map(function(o) {
-                var active = matchRole === o.id;
-                return (
-                  <button
-                    key={o.id}
-                    onClick={function() { setMatchRole(o.id); }}
-                    style={{
-                      background: active ? TXT : "transparent",
-                      border: "1px solid " + (active ? TXT : BORDER),
-                      borderRadius: 6, padding: "8px 14px",
-                      color: active ? "#fff" : TXT2, fontSize: 13,
-                      fontWeight: active ? 600 : 400, cursor: "pointer", fontFamily: "inherit"
-                    }}
-                  >
-                    {o.label}
-                  </button>
-                );
-              })}
-            </div>
-            {mr ? (
-              <div style={{ padding: "14px 18px", background: HOVER, borderRadius: 8, borderLeft: "3px solid " + GOLD }}>
-                <p style={{ fontSize: 14.5, color: TXT2, lineHeight: 1.7, margin: "0 0 12px" }}>{mr.msg}</p>
-                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                  {mr.credits.map(function(ck) {
-                    if (!C[ck]) return null;
-                    return (
-                      <button
-                        key={ck}
-                        onClick={function() { nav(ck); }}
-                        style={{
-                          background: TXT, color: "#fff", border: "none", borderRadius: 6,
-                          padding: "7px 14px", fontSize: 12, fontWeight: 600,
-                          cursor: "pointer", fontFamily: "inherit"
-                        }}
-                      >
-                        {C[ck].sec} Deep Dive →
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            ) : null}
-          </div>
-        ) : null}
       </div>
 
       <div style={{ marginBottom: 36 }}>
@@ -1349,6 +1287,76 @@ function Home(props) {
           </div>
         </div>
 
+      </div>
+
+      <div style={{
+        background: "linear-gradient(135deg, #FDF6E3 0%, #F9EDCF 100%)",
+        border: "1px solid #E8D5A3",
+        borderRadius: 10, padding: "20px 24px", marginBottom: 36
+      }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div>
+            <span style={{ fontSize: 14, fontWeight: 600, color: "#6B5200" }}>Not sure where to start?</span>
+            <span style={{ fontSize: 13, color: "#8B7332", marginLeft: 8 }}>Tell us your role and we'll point you to the right credits.</span>
+          </div>
+          <button
+            onClick={function() { setMatchOpen(!matchOpen); if (matchOpen) setMatchRole(null); }}
+            style={{
+              background: GOLD, color: "#fff", border: "none", borderRadius: 6,
+              padding: "8px 16px", fontSize: 12, fontWeight: 600,
+              cursor: "pointer", fontFamily: "inherit", flexShrink: 0
+            }}
+          >
+            {matchOpen ? "Close" : "Get Started"}
+          </button>
+        </div>
+        {matchOpen ? (
+          <div style={{ marginTop: 16, paddingTop: 16, borderTop: "1px solid #E8D5A3" }}>
+            <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: mr ? 14 : 0 }}>
+              {MATCH_ROLES.map(function(o) {
+                var active = matchRole === o.id;
+                return (
+                  <button
+                    key={o.id}
+                    onClick={function() { setMatchRole(o.id); }}
+                    style={{
+                      background: active ? GOLD : "transparent",
+                      border: "1px solid " + (active ? GOLD : "#D4C08A"),
+                      borderRadius: 6, padding: "8px 14px",
+                      color: active ? "#fff" : "#6B5200", fontSize: 13,
+                      fontWeight: active ? 600 : 400, cursor: "pointer", fontFamily: "inherit"
+                    }}
+                  >
+                    {o.label}
+                  </button>
+                );
+              })}
+            </div>
+            {mr ? (
+              <div style={{ padding: "14px 18px", background: "rgba(255,255,255,0.5)", borderRadius: 8, borderLeft: "3px solid " + GOLD }}>
+                <p style={{ fontSize: 14.5, color: TXT2, lineHeight: 1.7, margin: "0 0 12px" }}>{mr.msg}</p>
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                  {mr.credits.map(function(ck) {
+                    if (!C[ck]) return null;
+                    return (
+                      <button
+                        key={ck}
+                        onClick={function() { nav(ck); }}
+                        style={{
+                          background: TXT, color: "#fff", border: "none", borderRadius: 6,
+                          padding: "7px 14px", fontSize: 12, fontWeight: 600,
+                          cursor: "pointer", fontFamily: "inherit"
+                        }}
+                      >
+                        {C[ck].sec} Deep Dive →
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : null}
+          </div>
+        ) : null}
       </div>
 
       <div style={{ marginBottom: 36 }}>
@@ -1462,6 +1470,7 @@ export default function CreditPulse() {
           >
             <div style={{ width: 8, height: 8, borderRadius: "50%", background: GOLD }} />
             <span style={{ fontSize: 14, fontWeight: 700, color: TXT, letterSpacing: "0.04em" }}>CREDITPULSE</span>
+            <span style={{ fontSize: 12, color: TXT3, fontWeight: 400 }}>Tracking the evolving clean energy tax credit landscape</span>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
             <span style={{ fontSize: 12, color: TXT3 }}>
