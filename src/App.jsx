@@ -40,6 +40,12 @@ var RISKCOLOR = {
   "Variable": "#5C5C5C"
 };
 
+var SEVERITY = {
+  high: { c: "#BF360C", bg: "#FBE9E7", l: "HIGH" },
+  medium: { c: "#E65100", bg: "#FFF3E0", l: "MEDIUM" },
+  low: { c: "#37474F", bg: "#ECEFF1", l: "LOW" }
+};
+
 // ─── CREDIT DATA ──────────────────────────────────────────
 var C = {};
 
@@ -453,84 +459,211 @@ var ACT = [
 ];
 
 var TL = [
-  { d: "Jul 4, 2025", e: "OBBBA signed into law", past: true },
-  { d: "Sep 30, 2025", e: "EV credits (§30D, §45W) terminated", past: true },
-  { d: "Dec 31, 2025", e: "Home energy credits ended; FEOC rules took effect", past: true },
-  { d: "Feb 2026", e: "Interim FEOC guidance and proposed §45Z rules issued", past: true, type: "guidance" },
-  { d: "May 28, 2026", e: "Public hearing on §45Z regulations", type: "guidance" },
-  { d: "Jun 30, 2026", e: "Three more credits terminate: §30C, §45L, §179D", next: true },
-  { d: "Jul 4, 2026", e: "Hard deadline: begin construction for wind/solar", urg: true },
-  { d: "Late 2026", e: "Final FEOC rules expected from Treasury", type: "guidance" },
-  { d: "Dec 31, 2026", e: "Domestic content requirement rises to 55%" },
-  { d: "Dec 31, 2027", e: "Wind/solar must be operational; §45X wind credits end" },
-  { d: "Dec 31, 2029", e: "§45Z and §45X full-value credits expire" }
+  { d: "Jul 4, 2025", e: "OBBBA signed into law", past: true,
+    detail: "The One Big Beautiful Bill Act restructured IRA-era clean energy incentives. Several credits were terminated immediately, others modified, and §45Z was extended through 2029." },
+  { d: "Sep 30, 2025", e: "EV credits (§30D, §45W) terminated", past: true,
+    detail: "Consumer and commercial EV tax credits ended. Vehicles purchased after this date no longer qualify. The transfer market for these credits is closed." },
+  { d: "Dec 31, 2025", e: "Home energy credits ended; FEOC rules took effect", past: true,
+    detail: "Residential clean energy and efficiency credits (§25C, §25D) expired. Foreign Entity of Concern restrictions began applying to manufacturing and investment credits." },
+  { d: "Feb 2026", e: "Interim FEOC guidance and proposed §45Z rules issued", past: true, type: "guidance",
+    detail: "Treasury published interim safe harbors for FEOC compliance and proposed regulations for the §45Z clean fuel production credit." },
+  { d: "May 28, 2026", e: "Public hearing on §45Z regulations", type: "guidance",
+    detail: "Treasury will take public testimony on the proposed §45Z rules. Written comments are due 60 days before the hearing. Final rules could change CI scoring thresholds and verification requirements.",
+    credits: ["§45Z"] },
+  { d: "Jun 30, 2026", e: "Three more credits terminate: §30C, §45L, §179D", next: true,
+    detail: "Alternative fuel vehicle refueling (§30C), energy-efficient commercial buildings (§179D), and new energy-efficient homes (§45L) all expire. Sellers with these credits should close transactions before this date." },
+  { d: "Jul 4, 2026", e: "Hard deadline: begin construction for wind/solar", urg: true,
+    detail: "Wind and solar projects must demonstrate construction has begun by this date to qualify for §48E or §45Y credits. The IRS 'begin construction' safe harbor requires either 5% of total cost incurred or continuous physical work of a significant nature.",
+    credits: ["§48E"] },
+  { d: "Late 2026", e: "Final FEOC rules expected from Treasury", type: "guidance",
+    detail: "The interim 25% FEOC content threshold may tighten in final rules. Companies relying on the safe harbor should be mapping supply chains now rather than waiting.",
+    credits: ["§45X", "§48E"] },
+  { d: "Dec 31, 2026", e: "Domestic content requirement rises to 55%",
+    detail: "The percentage of steel, iron, and manufactured products that must be sourced domestically increases from 40% to 55% for projects claiming the domestic content bonus. This affects the 10% bonus credit adder.",
+    credits: ["§48E"] },
+  { d: "Dec 31, 2027", e: "Wind/solar must be operational; §45X wind credits end",
+    detail: "Projects that began construction by July 4, 2026 must be placed in service by this date. Separately, §45X manufacturing credits for wind turbine components (blades, nacelles, towers) expire entirely.",
+    credits: ["§48E", "§45X"] },
+  { d: "Dec 31, 2029", e: "§45Z and §45X full-value credits expire",
+    detail: "The last day to earn full-value §45Z clean fuel credits and §45X manufacturing credits. After this, §45X enters a phasedown (75% in 2030, 50% in 2031, 25% in 2032, then zero).",
+    credits: ["§45Z", "§45X"] }
 ];
 
 var NEWS = [
   {
-    date: "Feb 2026", tag: "Policy",
-    h: "§45Q carbon capture — IRS issues safe harbor for 2025 reporting",
-    cr: ["§45Q"],
-    who: "CCS and DAC project operators claiming §45Q credits, and buyers purchasing those credits in the transfer market.",
-    what: "Treasury issued Notice 2026-01, establishing a backup reporting method for 2025 carbon capture volumes. This protects credit eligibility during EPA's Subpart RR electronic reporting system transitions.",
-    next: "Watch for Treasury's proposed revisions to existing §45Q regulations, which will address MRV requirements and long-term storage verification standards."
+    id: "reg-001",
+    date: "2026-02-18",
+    source: "Treasury / IRS",
+    title: "§45Q carbon capture — IRS issues safe harbor for 2025 reporting",
+    severity: "medium",
+    summary: "Treasury issued Notice 2026-01, establishing a backup reporting method for 2025 carbon capture volumes. This protects credit eligibility while EPA transitions its Subpart RR electronic reporting system.",
+    keyChanges: [
+      "Alternative MRV reporting pathway available for tax year 2025",
+      "Projects can use existing EPA-approved monitoring plans as interim documentation",
+      "Safe harbor applies to both §45Q(a) capture credits and §45Q(b) sequestration credits",
+      "No penalty for reliance on the interim method if applied in good faith"
+    ],
+    buyerImpact: {
+      enterprise: "Low disruption. Large-cap buyers already in §45Q deals can rely on existing MRV infrastructure. The safe harbor eliminates a narrow compliance risk — no pricing impact expected.",
+      midMarket: "Positive signal for new entrants evaluating CCS credits. The safe harbor reduces the perceived regulatory risk that made some mid-market buyers hesitant about §45Q transactions.",
+      sellers: "Direct benefit for CCS/DAC operators. Projects that were at risk of losing 2025 credit eligibility due to EPA system transitions now have a clear compliance path."
+    },
+    relevantCreditTypes: ["§45Q"],
+    relatedLinks: ["https://www.irs.gov/pub/irs-drop/n-26-01.pdf"]
   },
   {
-    date: "Feb 2026", tag: "Policy",
-    h: "Foreign supply chain rules — interim guidance released",
-    cr: ["§45X", "§45Y", "§48E"],
-    who: "Any company claiming credits that involve foreign-sourced components — manufacturers (§45X), project developers (§45Y/§48E), and credit buyers doing supply chain diligence.",
-    what: "Treasury issued Notice 2026-15 with temporary safe harbors for FEOC (Foreign Entity of Concern) restrictions. The guidance provides interim thresholds and compliance methods while final rules are developed.",
-    next: "Final FEOC rules expected late 2026. The interim safe harbors could tighten, so companies should map their supply chains now rather than waiting."
+    id: "reg-002",
+    date: "2026-02-12",
+    source: "Treasury / IRS",
+    title: "Foreign supply chain rules — interim FEOC guidance released",
+    severity: "high",
+    summary: "Treasury issued Notice 2026-15 with temporary safe harbors for Foreign Entity of Concern restrictions. The guidance provides interim thresholds and compliance methods affecting manufacturing, generation, and investment credits.",
+    keyChanges: [
+      "25% threshold for FEOC-sourced content in applicable credits (interim, may tighten)",
+      "Self-certification permitted during safe harbor period with documentation requirements",
+      "Supply chain tracing required to the 'first transformation' level, not raw material origin",
+      "Safe harbor period runs through December 31, 2026 — final rules expected after",
+      "Separate FEOC standards for battery components vs. critical minerals vs. generation equipment"
+    ],
+    buyerImpact: {
+      enterprise: "Significant diligence burden. Fortune 500 tax teams must now incorporate FEOC supply chain analysis into every credit purchase. Expect 2-4 weeks added to deal timelines for verification. Upside: early compliance positions you ahead of final rules.",
+      midMarket: "This is the update that matters most. If you're buying §45X or §48E credits, the seller's supply chain compliance is now your underwriting risk. Demand FEOC representations in purchase agreements. Consider hiring specialized diligence firms.",
+      sellers: "Manufacturers and developers must begin supply chain mapping immediately. The 25% threshold is workable for most domestic-heavy operations, but companies with significant Chinese-sourced polysilicon, lithium, or inverter components face real exposure."
+    },
+    relevantCreditTypes: ["§45X", "§45Y", "§48E"],
+    relatedLinks: ["https://www.irs.gov/pub/irs-drop/n-26-15.pdf"]
   },
   {
-    date: "Feb 2026", tag: "Policy",
-    h: "§45Z clean fuel rules — proposed regulations published",
-    cr: ["§45Z"],
-    who: "Fuel producers (SAF, renewable diesel, ethanol, biodiesel) and credit buyers evaluating §45Z transactions.",
-    what: "Proposed regulations cover carbon intensity scoring methodology, producer registration requirements, and third-party verification frameworks. The 45ZCF-GREET model is the designated calculation tool.",
-    next: "Public hearing scheduled May 28, 2026. Final rules could change qualification thresholds and verification standards. Producers should begin modeling credits using the proposed framework now."
+    id: "reg-003",
+    date: "2026-02-05",
+    source: "Treasury / IRS",
+    title: "§45Z clean fuel rules — proposed regulations published",
+    severity: "high",
+    summary: "Proposed regulations establish carbon intensity scoring methodology, producer registration requirements, and third-party verification frameworks for clean fuel production credits. The 45ZCF-GREET model is confirmed as the designated calculation tool.",
+    keyChanges: [
+      "45ZCF-GREET model confirmed as sole carbon intensity calculation methodology",
+      "Producer registration required before credits can be generated — 90-day lead time",
+      "Third-party verification required for all CI scores below 25 kgCO2e/mmBTU",
+      "Lifecycle analysis must include feedstock production, transportation, and end-use combustion",
+      "SAF pathway includes both HEFA and Fischer-Tropsch with separate CI benchmarks",
+      "Public hearing scheduled May 28, 2026 — written comments due 60 days before"
+    ],
+    buyerImpact: {
+      enterprise: "Watch closely. §45Z is the only credit OBBBA extended through 2029, making it a reliable long-term play. But the CI scoring methodology will determine which fuels actually qualify and at what credit value. Model your exposure now using the proposed GREET framework.",
+      midMarket: "Don't wait for final rules. Start CI modeling immediately using 45ZCF-GREET. The 90-day registration lead time means companies that delay could miss entire quarters of credit generation. This is a first-mover advantage opportunity.",
+      sellers: "Critical. Producers must begin the registration process and third-party verification engagement now. The proposed CI benchmarks will directly determine your credit value per gallon. SAF producers should model both HEFA and FT pathways."
+    },
+    relevantCreditTypes: ["§45Z"],
+    relatedLinks: ["https://www.federalregister.gov/documents/2026/02/05/2026-02341/clean-fuel-production-credit"]
   },
   {
-    date: "Q3 2025", tag: "Market",
-    h: "Credit prices dipped — fewer buyers, more opportunity",
-    cr: ["Market-wide"],
-    who: "Credit buyers looking for favorable pricing, and sellers who may need to accept lower offers to close deals.",
-    what: "ITC pricing dropped to ~89¢ on the dollar. OBBBA's other provisions (SALT cap increase, corporate tax adjustments) reduced corporate tax bills, thinning the pool of buyers who need credits to offset liability.",
-    next: "Pricing may stabilize or recover as the market adjusts to post-OBBBA tax dynamics. Buyers with near-term tax liability have a window to lock in historically favorable rates."
+    id: "reg-004",
+    date: "2026-01-22",
+    source: "DOE",
+    title: "DOE updates prevailing wage compliance guidance for energy communities",
+    severity: "low",
+    summary: "The Department of Energy published updated maps and census-tract data for energy community designations, along with clarified prevailing wage requirements for projects seeking the 10% bonus credit.",
+    keyChanges: [
+      "Updated energy community census tracts reflecting 2025 unemployment data",
+      "12 new metropolitan statistical areas now qualify as energy communities",
+      "Prevailing wage safe harbor extended to cover subcontractor labor for projects under 5MW",
+      "Apprenticeship percentage requirements unchanged at 15% of total labor hours"
+    ],
+    buyerImpact: {
+      enterprise: "Minor update but worth flagging for portfolio optimization. If you're buying credits from projects in newly-designated energy communities, the 10% bonus may apply. Update your internal qualifying project maps.",
+      midMarket: "Useful for companies evaluating specific project deals. The new census tracts could make previously-borderline projects eligible for bonus credit amounts, improving the economics of certain transactions.",
+      sellers: "Developers in or near the 12 new MSAs should reassess project eligibility for the energy community bonus. The subcontractor safe harbor simplifies compliance for smaller distributed generation projects."
+    },
+    relevantCreditTypes: ["§48E", "§45Y"],
+    relatedLinks: ["https://www.energy.gov/eere/energy-community-bonus"]
+  },
+  {
+    id: "reg-005",
+    date: "2026-01-15",
+    source: "Congress",
+    title: "Senate Finance Committee requests GAO review of credit transfer market",
+    severity: "medium",
+    summary: "The Senate Finance Committee formally requested a Government Accountability Office study of the §6418 credit transfer market, examining pricing transparency, intermediary fees, and buyer protections. Report expected Q4 2026.",
+    keyChanges: [
+      "GAO directed to assess pricing transparency and market efficiency",
+      "Study scope includes intermediary/broker fee structures and potential conflicts of interest",
+      "Committee expressed interest in whether a centralized exchange or reporting framework is needed",
+      "Report to include comparison with international carbon credit market structures"
+    ],
+    buyerImpact: {
+      enterprise: "Low immediate impact, but signals future regulatory direction. Large buyers should document their pricing methodology and broker selection processes now, in case reporting requirements follow the GAO report.",
+      midMarket: "Net positive. More transparency generally benefits mid-market buyers who lack the deal volume to command premium pricing. A centralized exchange or reporting framework could level the information asymmetry.",
+      sellers: "Minimal near-term effect, but watch the GAO report's recommendations. If Congress pushes for mandatory pricing disclosure, it could compress margins for sellers who benefit from opacity."
+    },
+    relevantCreditTypes: ["§45X", "§48E", "§45Z", "§45Q"],
+    relatedLinks: []
+  },
+  {
+    id: "reg-006",
+    date: "2025-11-20",
+    source: "Treasury / IRS",
+    title: "Final regulations issued for §48E clean electricity ITC",
+    severity: "high",
+    summary: "Treasury finalized regulations for the technology-neutral clean electricity investment tax credit. The rules establish emissions thresholds, the qualified facility definition, and the interaction between §48E and legacy §48 for projects placed in service after 2024.",
+    keyChanges: [
+      "Net-zero lifecycle emissions threshold confirmed at 0 grams CO2e/kWh for full credit",
+      "Projects with emissions up to 10g CO2e/kWh qualify for partial credit (proportional reduction)",
+      "Energy storage qualifies as a standalone facility — no co-location with generation required",
+      "Begin-construction rules align with existing IRS safe harbors (5% physical work or continuous efforts)",
+      "Domestic content bonus requires 40% of steel/iron and 20% of manufactured products sourced domestically (rising to 55% by 2027)"
+    ],
+    buyerImpact: {
+      enterprise: "Major clarity event. §48E is now the primary ITC credit for all new clean electricity projects. Enterprise buyers should update their underwriting models to reflect the finalized emissions thresholds and bonus structure. This is the most actively traded ITC credit.",
+      midMarket: "Good news — the rules are largely as proposed, meaning deals in progress shouldn't need restructuring. The standalone storage qualification opens a significant new transaction category for companies with tax appetite but no prior energy experience.",
+      sellers: "Final rules remove a major source of pricing uncertainty. Developers can now market credits with definitive regulatory backing. Storage developers benefit most from the standalone qualification rule."
+    },
+    relevantCreditTypes: ["§48E"],
+    relatedLinks: ["https://www.federalregister.gov/documents/2025/11/20/2025-25891/clean-electricity-investment-credit"]
+  },
+  {
+    id: "reg-007",
+    date: "2025-10-08",
+    source: "Treasury / IRS",
+    title: "Credit pricing dipped — OBBBA reduces buyer tax appetite",
+    severity: "medium",
+    summary: "ITC credit pricing dropped to approximately 89¢ on the dollar following OBBBA's passage. The law's SALT cap increase and corporate tax adjustments reduced many potential buyers' federal tax liability, thinning the pool of credit purchasers.",
+    keyChanges: [
+      "Average ITC transfer pricing fell from 92-93¢ to 88-90¢ per dollar of credit",
+      "PTC credit pricing remained more stable at 93-95¢ due to recurring annual generation",
+      "OBBBA SALT cap increase reduced effective federal tax rates for many corporate buyers",
+      "Broker deal volume fell approximately 18% quarter-over-quarter in Q3 2025"
+    ],
+    buyerImpact: {
+      enterprise: "Opportunity window. If your entity still has meaningful federal tax liability after OBBBA adjustments, you can buy credits at historically favorable rates. Run a refreshed tax capacity analysis before year-end.",
+      midMarket: "Strong buying moment. The pricing dip disproportionately benefits mid-market buyers who may have been priced out at 92-93¢. Consider accelerating planned credit purchases before pricing stabilizes.",
+      sellers: "Adjust expectations. The 89¢ floor reflects genuine demand reduction, not a temporary dip. Sellers should model at current pricing and consider shorter-term forward contracts rather than waiting for a recovery that may not materialize quickly."
+    },
+    relevantCreditTypes: ["§48E", "§45X", "§45Z", "§45Q"],
+    relatedLinks: []
+  },
+  {
+    id: "reg-008",
+    date: "2025-09-15",
+    source: "USDA",
+    title: "USDA issues rural energy project guidance affecting §48E siting",
+    severity: "low",
+    summary: "The USDA Rural Utilities Service published guidance clarifying how rural electric cooperatives can participate in clean electricity projects eligible for §48E credits, including direct pay provisions and interconnection standards.",
+    keyChanges: [
+      "Rural co-ops confirmed eligible for direct pay under §6417 for §48E projects",
+      "Interconnection cost-sharing framework established for projects under 20MW",
+      "USDA will provide technical assistance for co-ops pursuing first-time clean energy development",
+      "No change to existing rural energy community bonus eligibility criteria"
+    ],
+    buyerImpact: {
+      enterprise: "Minimal direct impact unless your portfolio includes rural utility-scale projects. The co-op direct pay pathway means these entities won't be selling credits — they'll claim them directly.",
+      midMarket: "Watch for partnership opportunities. Co-ops with direct pay access may still seek private capital for project development, creating structured finance opportunities that don't involve credit transfer.",
+      sellers: "Rural developers and EPCs benefit from USDA technical assistance and clearer interconnection cost-sharing. This could accelerate project timelines in underserved areas."
+    },
+    relevantCreditTypes: ["§48E"],
+    relatedLinks: ["https://www.rd.usda.gov/programs-services/electric-programs"]
   }
 ];
 
-var MATCH_ROLES = [
-  { id: "buyer", label: "Buying credits" },
-  { id: "developer", label: "Building a project" },
-  { id: "manufacturer", label: "Manufacturing equipment" },
-  { id: "fuel", label: "Producing fuel" },
-  { id: "advisor", label: "Advising clients" }
-];
-
-var MATCH_RESULTS = {
-  buyer: {
-    credits: ["48E", "45X", "45Z"],
-    msg: "The three most active transferable credits are §48E (clean power/storage), §45X (manufacturing), and §45Z (clean fuels). Pricing ranges from 89¢ to 96¢ on the dollar."
-  },
-  developer: {
-    credits: ["48E"],
-    msg: "§48E is your primary credit — up to 30%+ of your project investment. Wind/solar must start construction by July 4, 2026. Storage has years more runway."
-  },
-  manufacturer: {
-    credits: ["45X"],
-    msg: "§45X pays a fixed dollar amount per unit produced. Most actively traded credit. Biggest issue: new foreign supply chain rules."
-  },
-  fuel: {
-    credits: ["45Z"],
-    msg: "§45Z is the only credit OBBBA extended (through 2029). Value depends on your fuel's carbon intensity score."
-  },
-  advisor: {
-    credits: ["48E", "45X", "45Z"],
-    msg: "All three deep dives include market pricing, risk profiles, and open regulatory questions."
-  }
-};
 
 // ─── AI Context Builder ───────────────────────────────────
 function ctxFor(k) {
@@ -573,13 +706,13 @@ function ctxAll() {
 
 // ─── Markdown Styles ──────────────────────────────────────
 var mdComponents = {
-  h1: function(props) { return <h3 style={{ fontSize: 16, fontWeight: 700, color: TXT, margin: "16px 0 8px", lineHeight: 1.3 }}>{props.children}</h3>; },
+  h1: function(props) { return <h3 style={{ fontSize: 15, fontWeight: 700, color: TXT, margin: "16px 0 8px", lineHeight: 1.3 }}>{props.children}</h3>; },
   h2: function(props) { return <h4 style={{ fontSize: 15, fontWeight: 700, color: TXT, margin: "14px 0 6px", lineHeight: 1.3 }}>{props.children}</h4>; },
-  h3: function(props) { return <h5 style={{ fontSize: 14, fontWeight: 700, color: TXT, margin: "12px 0 4px", lineHeight: 1.3 }}>{props.children}</h5>; },
-  p: function(props) { return <p style={{ fontSize: 14, lineHeight: 1.7, color: TXT, margin: "0 0 10px" }}>{props.children}</p>; },
+  h3: function(props) { return <h5 style={{ fontSize: 13, fontWeight: 700, color: TXT, margin: "12px 0 4px", lineHeight: 1.3 }}>{props.children}</h5>; },
+  p: function(props) { return <p style={{ fontSize: 13, lineHeight: 1.7, color: TXT, margin: "0 0 10px" }}>{props.children}</p>; },
   ul: function(props) { return <ul style={{ margin: "4px 0 10px", paddingLeft: 20 }}>{props.children}</ul>; },
   ol: function(props) { return <ol style={{ margin: "4px 0 10px", paddingLeft: 20 }}>{props.children}</ol>; },
-  li: function(props) { return <li style={{ fontSize: 14, lineHeight: 1.65, color: TXT, marginBottom: 4 }}>{props.children}</li>; },
+  li: function(props) { return <li style={{ fontSize: 13, lineHeight: 1.65, color: TXT, marginBottom: 4 }}>{props.children}</li>; },
   strong: function(props) { return <strong style={{ fontWeight: 700, color: TXT }}>{props.children}</strong>; },
   em: function(props) { return <em style={{ fontStyle: "italic" }}>{props.children}</em>; },
   code: function(props) {
@@ -723,7 +856,7 @@ function AskSidebar(props) {
         }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <div style={{ width: 8, height: 8, borderRadius: "50%", background: GOLD }} />
-            <span style={{ fontSize: 14, fontWeight: 700, color: TXT }}>Ask CreditPulse</span>
+            <span style={{ fontSize: 15, fontWeight: 700, color: TXT }}>Ask CreditPulse</span>
           </div>
           <button
             onClick={onClose}
@@ -762,7 +895,7 @@ function AskSidebar(props) {
           ) : null}
           {!a && !er && !ld ? (
             <div>
-              <p style={{ fontSize: 14, color: TXT2, lineHeight: 1.6, margin: "0 0 16px" }}>
+              <p style={{ fontSize: 13, color: TXT2, lineHeight: 1.6, margin: "0 0 16px" }}>
                 Ask anything about clean energy tax credits, market pricing, risk profiles, or regulatory timelines.
               </p>
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
@@ -820,7 +953,7 @@ function AskSidebar(props) {
             {ld ? "..." : "Ask"}
           </button>
         </div>
-        <div style={{ padding: "0 20px 12px", fontSize: 9, color: TXT3, flexShrink: 0 }}>
+        <div style={{ padding: "0 20px 12px", fontSize: 11, color: TXT3, flexShrink: 0 }}>
           Powered by Claude API · Curated data only · Not legal advice
         </div>
       </div>
@@ -848,7 +981,7 @@ function Sec(props) {
       >
         <span style={{ fontSize: 15, fontWeight: 700, color: TXT }}>{props.title}</span>
         <span style={{
-          color: TXT3, fontSize: 16,
+          color: TXT3, fontSize: 15,
           transform: open ? "rotate(0)" : "rotate(-90deg)",
           transition: "0.2s"
         }}>▾</span>
@@ -865,7 +998,7 @@ function Sec(props) {
 function Lbl(props) {
   return (
     <div style={{
-      fontSize: 14, fontWeight: 700, color: TXT, marginBottom: 6, marginTop: 14,
+      fontSize: 13, fontWeight: 700, color: TXT, marginBottom: 6, marginTop: 14,
       paddingLeft: 10, borderLeft: "3px solid " + GOLD
     }}>
       {props.children}
@@ -875,57 +1008,31 @@ function Lbl(props) {
 
 // ─── Credit Card ──────────────────────────────────────────
 function CCard(props) {
-  var _h = useState(false);
-  var h = _h[0];
-  var setH = _h[1];
   var s = STATUS[props.status] || STATUS.active;
 
   return (
     <div
-      onMouseEnter={function() { setH(true); }}
-      onMouseLeave={function() { setH(false); }}
       onClick={props.deep ? props.onClick : undefined}
       style={{
         background: CARD,
-        border: "1px solid " + (h && props.deep ? "#C8C5BE" : BORDER),
-        borderRadius: 10, padding: "18px 20px",
+        border: "1px solid " + BORDER,
+        borderRadius: 10, padding: "14px 16px",
         cursor: props.deep ? "pointer" : "default",
-        transition: "all 0.2s",
-        transform: h && props.deep ? "translateY(-2px)" : "none",
-        boxShadow: h && props.deep ? "0 4px 12px rgba(0,0,0,0.06)" : "none",
+        transition: "border-color 0.15s, box-shadow 0.15s",
         opacity: props.status === "terminated" ? 0.6 : 1
       }}
+      onMouseEnter={props.deep ? function(e) { e.currentTarget.style.borderColor = "#C8C5BE"; e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.04)"; } : undefined}
+      onMouseLeave={props.deep ? function(e) { e.currentTarget.style.borderColor = BORDER; e.currentTarget.style.boxShadow = "none"; } : undefined}
     >
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 14, color: s.c, fontWeight: 700 }}>{props.sec}</span>
-          <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 4, background: s.bg, color: s.c, fontWeight: 600 }}>{props.type}</span>
-        </div>
-        {props.deep ? (
-          <span style={{ fontSize: 11, padding: "3px 10px", borderRadius: 5, background: GOLD, color: "#fff", fontWeight: 600 }}>Explore →</span>
-        ) : null}
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+        <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 13, color: s.c, fontWeight: 700 }}>{props.sec}</span>
+        <span style={{ fontSize: 11, padding: "2px 8px", borderRadius: 4, background: s.bg, color: s.c, fontWeight: 700 }}>{props.type}</span>
+        <span style={{ fontSize: 15, fontWeight: 700, color: TXT, lineHeight: 1.3 }}>{props.name}</span>
         {props.pending ? (
-          <span style={{ fontSize: 10, color: TXT3, fontStyle: "italic" }}>Coming soon</span>
+          <span style={{ fontSize: 11, color: TXT3, fontStyle: "italic", marginLeft: "auto" }}>Coming soon</span>
         ) : null}
       </div>
-      <div style={{ fontSize: 15, fontWeight: 600, color: TXT, marginBottom: 6, lineHeight: 1.3 }}>{props.name}</div>
-      <div style={{ fontSize: 13.5, color: TXT2, lineHeight: 1.55 }}>{props.one}</div>
-      {h && props.hover && props.deep ? (
-        <div style={{ marginTop: 10, paddingTop: 8, borderTop: "1px solid " + BORDER }}>
-          {props.hover.map(function(f, i) {
-            return (
-              <div key={i} style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 3 }}>
-                <div style={{ width: 4, height: 4, borderRadius: "50%", background: s.c, flexShrink: 0 }} />
-                <span style={{ fontSize: 12, color: TXT2 }}>
-                  {f.indexOf(":") > -1 ? (
-                    <><strong style={{ color: TXT }}>{f.slice(0, f.indexOf(":"))}</strong>{f.slice(f.indexOf(":"))}</>
-                  ) : f}
-                </span>
-              </div>
-            );
-          })}
-        </div>
-      ) : null}
+      <div style={{ fontSize: 13, color: TXT2, lineHeight: 1.55 }}>{props.one}</div>
     </div>
   );
 }
@@ -935,22 +1042,38 @@ function GrpHdr(props) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
       <div style={{ width: 10, height: 10, borderRadius: "50%", background: s.c }} />
-      <span style={{ fontSize: 12, fontWeight: 700, color: s.c, letterSpacing: "0.06em", textTransform: "uppercase" }}>{s.l}</span>
-      {props.note ? <span style={{ fontSize: 12, color: TXT3, fontStyle: "italic" }}>— {props.note}</span> : null}
+      <span style={{ fontSize: 11, fontWeight: 700, color: s.c, letterSpacing: "0.06em", textTransform: "uppercase" }}>{s.l}</span>
+      {props.note ? <span style={{ fontSize: 11, color: TXT3, fontStyle: "italic" }}>— {props.note}</span> : null}
       <div style={{ flex: 1, height: 1, background: BORDER }} />
     </div>
   );
 }
 
-// ─── News Card ────────────────────────────────────────────
-function NewsCard(props) {
+// ─── Regulatory Monitor Card ─────────────────────────────
+function RegCard(props) {
   var item = props.item;
+  var nav = props.nav;
   var _o = useState(false);
   var open = _o[0];
   var setOpen = _o[1];
   var _h = useState(false);
   var hov = _h[0];
   var setHov = _h[1];
+  var _it = useState("enterprise");
+  var impactTab = _it[0];
+  var setImpactTab = _it[1];
+  var sev = SEVERITY[item.severity];
+  var displayDate = (function() {
+    var d = new Date(item.date + "T00:00:00");
+    var months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    return months[d.getMonth()] + " " + d.getDate() + ", " + d.getFullYear();
+  })();
+
+  var IMPACT_LABELS = {
+    enterprise: { label: "Enterprise", desc: "Fortune 500 / large-cap" },
+    midMarket: { label: "Mid-Market", desc: "$2B–$10B companies" },
+    sellers: { label: "Sellers", desc: "Developers & manufacturers" }
+  };
 
   return (
     <div
@@ -959,47 +1082,197 @@ function NewsCard(props) {
       onMouseLeave={function() { setHov(false); }}
       style={{
         background: hov && !open ? HOVER : CARD,
-        border: "1px solid " + (hov ? "#C8C5BE" : BORDER), borderRadius: 10,
-        marginBottom: 10, cursor: "pointer", transition: "all 0.2s",
+        border: "1px solid " + (open ? "#C8C5BE" : hov ? "#C8C5BE" : BORDER),
+        borderLeft: "3px solid " + sev.c,
+        borderRadius: 10,
+        marginBottom: 12, cursor: "pointer", transition: "all 0.2s",
         overflow: "hidden"
       }}
     >
       <div style={{ padding: "16px 22px" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-          <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 12, color: TXT3 }}>{item.date}</span>
+        {/* Row 1: date, source, severity */}
+        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 8 }}>
+          <span style={{ fontSize: 11, color: TXT3 }}>{displayDate}</span>
           <span style={{
             fontSize: 11, padding: "2px 8px", borderRadius: 4,
-            background: item.tag === "Market" ? "#FFF3E0" : "#F0EDE6",
-            color: item.tag === "Market" ? "#E65100" : TXT2, fontWeight: 600
-          }}>{item.tag}</span>
-          {item.cr.map(function(c, j) {
-            return <span key={j} style={{ fontSize: 10, padding: "2px 7px", borderRadius: 4, background: "#F0EDE6", color: TXT3, fontWeight: 600 }}>{c}</span>;
+            background: "#F0EDE6", color: TXT2, fontWeight: 700
+          }}>{item.source}</span>
+          <span style={{
+            fontSize: 11, padding: "2px 8px", borderRadius: 4,
+            background: sev.bg, color: sev.c, fontWeight: 700, letterSpacing: "0.5px"
+          }}>{sev.l}</span>
+        </div>
+        {/* Row 2: credit tags */}
+        <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", marginBottom: 8 }}>
+          {item.relevantCreditTypes.map(function(ct, j) {
+            var key = ct.replace("§", "");
+            var hasDeep = C[key] && C[key].deep;
+            return (
+              <span
+                key={j}
+                onClick={hasDeep ? function(e) { e.stopPropagation(); nav(key); } : undefined}
+                style={{
+                  fontSize: 11, padding: "2px 8px", borderRadius: 4,
+                  background: hasDeep ? GOLD + "18" : "#F0EDE6",
+                  color: hasDeep ? GOLD : TXT3,
+                  fontWeight: 700, cursor: hasDeep ? "pointer" : "default",
+                  border: hasDeep ? "1px solid " + GOLD + "40" : "1px solid transparent",
+                  transition: "all 0.15s"
+                }}
+              >{ct}{hasDeep ? " \u2192" : ""}</span>
+            );
           })}
         </div>
-        <div style={{ fontSize: 15, fontWeight: 600, color: TXT, marginTop: 8, lineHeight: 1.35 }}>{item.h}</div>
+        {/* Row 3: headline + summary */}
+        <div style={{ fontSize: 15, fontWeight: 700, color: TXT, lineHeight: 1.35 }}>{item.title}</div>
+        <p style={{ fontSize: 13, color: TXT2, lineHeight: 1.55, margin: "6px 0 0" }}>{item.summary}</p>
         <div style={{ marginTop: 10 }}>
-          <span style={{ fontSize: 13, color: GOLD, fontWeight: 600 }}>
-            {open ? "Show less \u2212" : "Read more +"}
+          <span style={{ fontSize: 13, color: GOLD, fontWeight: 500 }}>
+            {open ? "Show less \u2212" : "Details +"}
           </span>
         </div>
       </div>
       {open ? (
-        <div style={{ padding: "0 22px 18px", borderTop: "1px solid " + BORDER }}>
-          {[
-            ["Who this affects", item.who],
-            ["What happened", item.what],
-            ["What's next", item.next]
-          ].map(function(row, i) {
-            return (
-              <div key={i} style={{ marginTop: 14 }}>
-                <div style={{
-                  fontSize: 12, fontWeight: 700, color: TXT, marginBottom: 4,
-                  paddingLeft: 10, borderLeft: "3px solid " + GOLD
-                }}>{row[0]}</div>
-                <p style={{ fontSize: 14, color: TXT2, lineHeight: 1.65, margin: 0 }}>{row[1]}</p>
-              </div>
-            );
-          })}
+        <div style={{ padding: "0 22px 20px", borderTop: "1px solid " + BORDER }}>
+          {/* Key Changes */}
+          <div style={{ marginTop: 16 }}>
+            <div style={{
+              fontSize: 13, fontWeight: 700, color: TXT, marginBottom: 8,
+              paddingLeft: 10, borderLeft: "3px solid " + GOLD
+            }}>Key Changes</div>
+            <ul style={{ margin: 0, paddingLeft: 18 }}>
+              {item.keyChanges.map(function(kc, j) {
+                return <li key={j} style={{ fontSize: 13, color: TXT2, lineHeight: 1.6, marginBottom: 4 }}>{kc}</li>;
+              })}
+            </ul>
+          </div>
+          {/* Buyer Impact — tabbed */}
+          <div style={{ marginTop: 18 }}>
+            <div style={{
+              fontSize: 13, fontWeight: 700, color: TXT, marginBottom: 10,
+              paddingLeft: 10, borderLeft: "3px solid " + GOLD
+            }}>Buyer Impact</div>
+            <div style={{ display: "flex", gap: 4, marginBottom: 10 }}>
+              {["enterprise", "midMarket", "sellers"].map(function(seg) {
+                var active = impactTab === seg;
+                return (
+                  <button
+                    key={seg}
+                    onClick={function(e) { e.stopPropagation(); setImpactTab(seg); }}
+                    style={{
+                      fontSize: 11, padding: "4px 12px", borderRadius: 4,
+                      background: active ? TXT : "transparent",
+                      color: active ? "#fff" : TXT2,
+                      border: "1px solid " + (active ? TXT : BORDER),
+                      fontWeight: active ? 700 : 400,
+                      cursor: "pointer", fontFamily: "inherit",
+                      transition: "all 0.15s"
+                    }}
+                  >{IMPACT_LABELS[seg].label}</button>
+                );
+              })}
+            </div>
+            <div style={{ padding: "12px 14px", background: HOVER, borderRadius: 8, border: "1px solid " + BORDER }}>
+              <div style={{ fontSize: 11, color: TXT3, marginBottom: 6 }}>{IMPACT_LABELS[impactTab].desc}</div>
+              <p style={{ fontSize: 13, color: TXT2, lineHeight: 1.6, margin: 0 }}>{item.buyerImpact[impactTab]}</p>
+            </div>
+          </div>
+          {/* Source Links */}
+          {item.relatedLinks.length > 0 ? (
+            <div style={{ marginTop: 14, display: "flex", gap: 8, flexWrap: "wrap" }}>
+              {item.relatedLinks.map(function(link, j) {
+                return (
+                  <a
+                    key={j}
+                    href={link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={function(e) { e.stopPropagation(); }}
+                    style={{
+                      fontSize: 11, color: GOLD, textDecoration: "none",
+                      padding: "4px 10px", borderRadius: 4,
+                      border: "1px solid " + GOLD + "40", background: GOLD + "08"
+                    }}
+                  >Source document \u2197</a>
+                );
+              })}
+            </div>
+          ) : null}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+// ─── Timeline Item ────────────────────────────────────────
+function TLItem(props) {
+  var t = props.item;
+  var nav = props.nav;
+  var expandable = !t.past && t.detail;
+  var _o = useState(false);
+  var open = _o[0];
+  var setOpen = _o[1];
+
+  var dotBg = "#D0CEC8";
+  if (t.urg) dotBg = "#BF360C";
+  else if (t.next) dotBg = TXT;
+  else if (t.type === "guidance" && !t.past) dotBg = "#E65100";
+
+  return (
+    <div
+      onClick={expandable ? function() { setOpen(!open); } : undefined}
+      style={{
+        marginBottom: 16, position: "relative",
+        cursor: expandable ? "pointer" : "default"
+      }}
+    >
+      <div style={{
+        position: "absolute", left: -28, top: 5, width: 10, height: 10,
+        borderRadius: t.type === "guidance" ? 2 : "50%",
+        background: dotBg,
+        border: t.next ? "2px solid " + TXT : "none"
+      }} />
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 2 }}>
+        <span style={{
+          fontSize: 11,
+          color: t.past ? "#B0ADA6" : t.urg ? "#BF360C" : TXT2,
+          fontWeight: t.urg || t.next ? 700 : 400,
+          textDecoration: t.past ? "line-through" : "none"
+        }}>{t.d}</span>
+        {t.next ? <span style={{ fontSize: 11, padding: "1px 7px", borderRadius: 4, background: TXT, color: "#fff", fontWeight: 700 }}>NEXT</span> : null}
+        {t.type === "guidance" && !t.past ? <span style={{ fontSize: 11, padding: "1px 7px", borderRadius: 4, background: "#FFF3E0", color: "#E65100", fontWeight: 700 }}>GUIDANCE</span> : null}
+        {t.urg ? <span style={{ fontSize: 11, padding: "1px 7px", borderRadius: 4, background: "#FBE9E7", color: "#BF360C", fontWeight: 700 }}>URGENT</span> : null}
+      </div>
+      <div style={{ fontSize: 13, color: t.past ? "#B0ADA6" : t.urg ? TXT : TXT2, lineHeight: 1.5 }}>{t.e}</div>
+      {expandable && !open ? (
+        <span style={{ fontSize: 11, color: GOLD, fontWeight: 500, marginTop: 4, display: "inline-block" }}>More +</span>
+      ) : null}
+      {expandable && open ? (
+        <div style={{ marginTop: 8, paddingLeft: 12, borderLeft: "2px solid " + GOLD + "40" }}>
+          <p style={{ fontSize: 13, color: TXT2, lineHeight: 1.6, margin: "0 0 8px" }}>{t.detail}</p>
+          {t.credits && t.credits.length > 0 ? (
+            <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+              {t.credits.map(function(ct, j) {
+                var key = ct.replace("§", "");
+                var hasDeep = C[key] && C[key].deep;
+                return (
+                  <span
+                    key={j}
+                    onClick={hasDeep ? function(e) { e.stopPropagation(); nav(key); } : undefined}
+                    style={{
+                      fontSize: 11, padding: "2px 8px", borderRadius: 4,
+                      background: hasDeep ? GOLD + "18" : "#F0EDE6",
+                      color: hasDeep ? GOLD : TXT3,
+                      fontWeight: 700, cursor: hasDeep ? "pointer" : "default",
+                      border: hasDeep ? "1px solid " + GOLD + "40" : "1px solid transparent",
+                      transition: "all 0.15s"
+                    }}
+                  >{ct}{hasDeep ? " \u2192" : ""}</span>
+                );
+              })}
+            </div>
+          ) : null}
+          <span style={{ fontSize: 11, color: GOLD, fontWeight: 500, marginTop: 6, display: "inline-block" }}>Less \u2212</span>
         </div>
       ) : null}
     </div>
@@ -1011,7 +1284,6 @@ function DeepDive(props) {
   var c = C[props.ck];
   var s = STATUS[c.st];
   var scoreColor = c.riskScore.level === "Low" ? "#2E7D32" : c.riskScore.level === "Moderate" ? "#E65100" : "#BF360C";
-  var scoreBg = c.riskScore.level === "Low" ? "#E8F5E9" : c.riskScore.level === "Moderate" ? "#FFF3E0" : "#FBE9E7";
 
   return (
     <div>
@@ -1020,7 +1292,7 @@ function DeepDive(props) {
         style={{
           background: "none", border: "none", color: GOLD, fontSize: 13,
           cursor: "pointer", padding: "6px 0", marginBottom: 14,
-          fontFamily: "inherit", fontWeight: 600
+          fontFamily: "inherit", fontWeight: 500
         }}
       >
         ← Back to Overview
@@ -1030,11 +1302,11 @@ function DeepDive(props) {
       <div style={{ marginBottom: 28 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8, flexWrap: "wrap" }}>
           <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 28, fontWeight: 700, color: s.c }}>{c.sec}</span>
-          <span style={{ fontSize: 12, padding: "3px 10px", borderRadius: 5, background: s.bg, color: s.c, fontWeight: 700 }}>{s.l}</span>
-          <span style={{ fontSize: 11, padding: "3px 8px", borderRadius: 5, background: "#F0EDE6", color: TXT3, fontWeight: 600 }}>{c.type}</span>
+          <span style={{ fontSize: 11, padding: "3px 10px", borderRadius: 5, background: s.bg, color: s.c, fontWeight: 700 }}>{s.l}</span>
+          <span style={{ fontSize: 11, padding: "3px 8px", borderRadius: 5, background: "#F0EDE6", color: TXT3, fontWeight: 700 }}>{c.type}</span>
         </div>
-        <h1 style={{ fontSize: 26, color: TXT, margin: "0 0 12px", fontWeight: 400, lineHeight: 1.3 }}>{c.name}</h1>
-        <p style={{ fontSize: 16, color: TXT2, lineHeight: 1.7, maxWidth: 720, margin: 0 }}>{c.sum}</p>
+        <h1 style={{ fontSize: 20, color: TXT, margin: "0 0 12px", fontWeight: 700, lineHeight: 1.3 }}>{c.name}</h1>
+        <p style={{ fontSize: 15, color: TXT2, lineHeight: 1.7, maxWidth: 720, margin: 0 }}>{c.sum}</p>
       </div>
 
       {/* STATS BAR */}
@@ -1049,128 +1321,169 @@ function DeepDive(props) {
         ].map(function(item, i) {
           return (
             <div key={i} style={{ background: CARD, padding: "16px 14px", textAlign: "center" }}>
-              <div style={{ fontSize: 10, fontWeight: 700, color: TXT3, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>{item[2]}</div>
-              <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 22, fontWeight: 700, color: TXT, marginBottom: 2 }}>{item[0]}</div>
+              <div style={{ fontSize: 11, fontWeight: 700, color: TXT3, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>{item[2]}</div>
+              <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 20, fontWeight: 700, color: TXT, marginBottom: 2 }}>{item[0]}</div>
               <div style={{ fontSize: 11, color: TXT3, lineHeight: 1.3 }}>{item[1]}</div>
             </div>
           );
         })}
       </div>
 
-      {/* ── OPEN BY DEFAULT: Bottom Line ── */}
-      <Sec title="If You Read Nothing Else">
-        {c.bl.map(function(b, i) {
-          return (
-            <div key={i} style={{
-              display: "flex", gap: 10, padding: "12px 16px", marginBottom: 6,
-              background: i === 0 ? "rgba(0,0,0,0.03)" : HOVER,
-              borderRadius: 8,
-              border: i === 0 ? "2px solid " + s.c : "1px solid " + BORDER,
-              alignItems: "flex-start"
-            }}>
-              <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 14, color: s.c, fontWeight: 700, flexShrink: 0 }}>{i + 1}</span>
-              <span style={{ fontSize: 14.5, color: i === 0 ? TXT : TXT2, lineHeight: 1.6 }}>{b}</span>
-            </div>
-          );
-        })}
-      </Sec>
+      {/* ── ALWAYS VISIBLE: TL;DR ── */}
+      <div style={{
+        marginBottom: 16, background: CARD,
+        border: "1px solid " + BORDER, borderRadius: 10, overflow: "hidden"
+      }}>
+        <div style={{ padding: "14px 20px" }}>
+          <span style={{ fontSize: 15, fontWeight: 700, color: TXT }}>TL;DR</span>
+        </div>
+        <div style={{ padding: "4px 20px 18px", borderTop: "1px solid " + BORDER }}>
+          {c.bl.map(function(b, i) {
+            return (
+              <div key={i} style={{ display: "flex", gap: 8, marginBottom: 4 }}>
+                <span style={{ color: s.c, flexShrink: 0, marginTop: 2 }}>•</span>
+                <span style={{ fontSize: 13, color: i === 0 ? TXT : TXT2, lineHeight: 1.55, fontWeight: i === 0 ? 700 : 400 }}>{b}</span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
 
-      {/* ── OPEN BY DEFAULT: Risk Score + Comparison ── */}
-      {c.risks ? (
-        <Sec title="Risk Profile">
-          {/* Overall risk score — hero element */}
-          <div style={{
-            display: "flex", alignItems: "center", gap: 16,
-            padding: "16px 20px", marginBottom: 16,
-            background: scoreBg, borderRadius: 10,
-            border: "2px solid " + scoreColor + "44"
-          }}>
-            <div style={{
-              fontFamily: "'IBM Plex Mono',monospace", fontSize: 28, fontWeight: 700,
-              color: scoreColor, lineHeight: 1, flexShrink: 0
-            }}>
-              {c.riskScore.level}
-            </div>
-            <div style={{ fontSize: 14.5, color: TXT2, lineHeight: 1.55 }}>
-              {c.riskScore.reason}
-            </div>
-          </div>
+      {/* ── ALWAYS VISIBLE: Key Dates ── */}
+      <div style={{
+        marginBottom: 16, background: CARD,
+        border: "1px solid " + BORDER, borderRadius: 10, overflow: "hidden"
+      }}>
+        <div style={{ padding: "14px 20px" }}>
+          <span style={{ fontSize: 15, fontWeight: 700, color: TXT }}>Key Dates</span>
+        </div>
+        <div style={{ padding: "4px 20px 18px", borderTop: "1px solid " + BORDER }}>
+          {c.tl.dates.map(function(d, i) {
+            return (
+              <div key={i} style={{ display: "flex", gap: 14, marginBottom: i < c.tl.dates.length - 1 ? 10 : 0 }}>
+                <span style={{
+                  fontFamily: "'IBM Plex Mono',monospace", fontSize: 13,
+                  color: d.u ? "#BF360C" : s.c, minWidth: 100, flexShrink: 0,
+                  fontWeight: d.u ? 700 : 400
+                }}>{d.d}</span>
+                <span style={{ fontSize: 13, color: d.u ? TXT : TXT2, lineHeight: 1.45 }}>
+                  {d.e}{d.u ? " ⚠" : ""}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
 
-          {/* Cross-credit comparison — tighter 3-row version */}
+      {/* ── ALWAYS VISIBLE: Cross-Credit Comparison ── */}
+      {(function() {
+        var cols = [
+          { key: "45X", label: "§45X", sub: "Manufacturing" },
+          { key: "48E", label: "§48E", sub: "Power / Storage" },
+          { key: "45Z", label: "§45Z", sub: "Clean Fuel" },
+          { key: "45Q", label: "§45Q", sub: "Carbon Capture" }
+        ];
+        var rows = [
+          { label: "Pricing", vals: ["93.5–96¢", "~89¢", "Discount", "85–90¢"] },
+          { label: "Risk", vals: ["Low", "Moderate", "Elevated", "Elevated"] },
+          { label: "Market share", vals: ["27%", "26%", "Growing", "Growing"] },
+          { label: "Rules finalized", vals: ["Mostly yes", "Mostly yes", "No — proposed", "Partially"] },
+          { label: "Deal timeline", vals: ["8–16 wks", "8–14 wks", "12–20 wks", "12–20 wks"] }
+        ];
+        return (
           <div style={{
-            background: HOVER, borderRadius: 8, border: "1px solid " + BORDER,
-            padding: "14px 18px", marginBottom: 16
+            marginBottom: 16, background: CARD,
+            border: "1px solid " + BORDER, borderRadius: 10, overflow: "hidden"
           }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: TXT3, marginBottom: 10, textTransform: "uppercase", letterSpacing: "0.05em" }}>
-              Compare across credits
+            <div style={{ padding: "14px 20px" }}>
+              <span style={{ fontSize: 15, fontWeight: 700, color: TXT }}>Compare Across Credits</span>
             </div>
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
-              <thead>
-                <tr>
-                  <th style={{ textAlign: "left", padding: "6px 8px", color: TXT3, fontWeight: 600, fontSize: 11, borderBottom: "1px solid " + BORDER }}></th>
-                  {["§45X Mfg", "§48E Power", "§45Z Fuel"].map(function(h, i) {
-                    var isCurrent = (i === 0 && c.sec === "§45X") || (i === 1 && c.sec === "§48E") || (i === 2 && c.sec === "§45Z");
+            <div style={{ padding: "4px 20px 18px", borderTop: "1px solid " + BORDER }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+                <thead>
+                  <tr>
+                    <th style={{ textAlign: "left", padding: "6px 8px", borderBottom: "1px solid " + BORDER }}></th>
+                    {cols.map(function(col) {
+                      var isCurrent = c.sec === col.label;
+                      return (
+                        <th key={col.key} style={{
+                          textAlign: "left", padding: "6px 8px", fontSize: 11, fontWeight: 700,
+                          color: isCurrent ? GOLD : TXT3,
+                          borderBottom: "1px solid " + BORDER,
+                          background: isCurrent ? GOLD + "0A" : "transparent"
+                        }}>
+                          <div>{col.label}</div>
+                          <div style={{ fontWeight: 400, fontSize: 10, marginTop: 1 }}>{col.sub}</div>
+                        </th>
+                      );
+                    })}
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows.map(function(row, ri) {
                     return (
-                      <th key={i} style={{
-                        textAlign: "left", padding: "6px 8px", fontSize: 11, fontWeight: 700,
-                        color: isCurrent ? GOLD : TXT3,
-                        borderBottom: "1px solid " + BORDER,
-                        background: isCurrent ? "rgba(184,134,11,0.06)" : "transparent"
-                      }}>{h}</th>
+                      <tr key={ri}>
+                        <td style={{ padding: "7px 8px", color: TXT3, fontSize: 11, fontWeight: 700, borderBottom: ri < rows.length - 1 ? "1px solid " + BORDER : "none" }}>{row.label}</td>
+                        {row.vals.map(function(val, ci) {
+                          var isCurrent = c.sec === cols[ci].label;
+                          return (
+                            <td key={ci} style={{
+                              padding: "7px 8px", fontSize: 13,
+                              color: isCurrent ? TXT : TXT2,
+                              fontWeight: isCurrent ? 700 : 400,
+                              borderBottom: ri < rows.length - 1 ? "1px solid " + BORDER : "none",
+                              background: isCurrent ? GOLD + "0A" : "transparent"
+                            }}>{val}</td>
+                          );
+                        })}
+                      </tr>
                     );
                   })}
-                </tr>
-              </thead>
-              <tbody>
-                {[
-                  ["Main risk", "Supply chain (FEOC)", "Recapture (insurable)", "Carbon scoring"],
-                  ["Rules finalized?", "Mostly yes", "Mostly yes", "No — still proposed"],
-                  ["Recapture", "None", "5-year clawback", "None"]
-                ].map(function(row, ri) {
-                  return (
-                    <tr key={ri}>
-                      <td style={{ padding: "7px 8px", color: TXT3, fontSize: 12, fontWeight: 600, borderBottom: ri < 2 ? "1px solid " + BORDER : "none" }}>{row[0]}</td>
-                      {[row[1], row[2], row[3]].map(function(cell, ci) {
-                        var isCurrent = (ci === 0 && c.sec === "§45X") || (ci === 1 && c.sec === "§48E") || (ci === 2 && c.sec === "§45Z");
-                        return (
-                          <td key={ci} style={{
-                            padding: "7px 8px", fontSize: 12.5,
-                            color: isCurrent ? TXT : TXT2,
-                            fontWeight: isCurrent ? 600 : 400,
-                            borderBottom: ri < 2 ? "1px solid " + BORDER : "none",
-                            background: isCurrent ? "rgba(184,134,11,0.06)" : "transparent"
-                          }}>{cell}</td>
-                        );
-                      })}
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                </tbody>
+              </table>
+            </div>
           </div>
+        );
+      })()}
 
-          <p style={{ fontSize: 14, color: TXT2, lineHeight: 1.65, margin: 0 }}>{c.risks.summary}</p>
-        </Sec>
+      {/* ── ALWAYS VISIBLE: Risk Profile ── */}
+      {c.risks ? (
+        <div style={{
+          marginBottom: 16, background: CARD,
+          border: "1px solid " + BORDER, borderRadius: 10, overflow: "hidden"
+        }}>
+          <div style={{ padding: "14px 20px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <span style={{ fontSize: 15, fontWeight: 700, color: TXT }}>Risk Profile</span>
+            <span style={{
+              fontSize: 11, padding: "2px 10px", borderRadius: 4,
+              background: scoreColor + "14", color: scoreColor, fontWeight: 700,
+              letterSpacing: "0.3px"
+            }}>{c.riskScore.level.toUpperCase()}</span>
+          </div>
+          <div style={{ padding: "4px 20px 18px", borderTop: "1px solid " + BORDER }}>
+            <p style={{ fontSize: 13, color: TXT2, lineHeight: 1.65, margin: 0 }}>{c.risks.summary}</p>
+          </div>
+        </div>
       ) : null}
 
       {/* ── COLLAPSED: OBBBA Changes ── */}
       <Sec title="What Changed Under OBBBA" startOpen={false}>
-        <p style={{ fontSize: 14.5, color: TXT2, lineHeight: 1.7, margin: 0 }}>{c.obbba}</p>
+        <p style={{ fontSize: 13, color: TXT2, lineHeight: 1.7, margin: 0 }}>{c.obbba}</p>
       </Sec>
 
-      {/* ── COLLAPSED: Credit Mechanics ── */}
+      {/* ── COLLAPSED: Credit Mechanics (includes transferability + direct pay) ── */}
       <Sec title="Credit Mechanics" startOpen={false}>
         <Lbl>What Qualifies</Lbl>
         {c.how.elig.map(function(e, i) {
           return (
             <div key={i} style={{ display: "flex", gap: 8, marginBottom: 5 }}>
               <span style={{ color: s.c, flexShrink: 0, marginTop: 2 }}>•</span>
-              <span style={{ fontSize: 14.5, color: TXT2, lineHeight: 1.55 }}>{e}</span>
+              <span style={{ fontSize: 13, color: TXT2, lineHeight: 1.55 }}>{e}</span>
             </div>
           );
         })}
         <Lbl>How Much It's Worth</Lbl>
-        <p style={{ fontSize: 14.5, color: TXT2, lineHeight: 1.65, margin: "0 0 10px" }}>{c.how.val}</p>
+        <p style={{ fontSize: 13, color: TXT2, lineHeight: 1.65, margin: "0 0 10px" }}>{c.how.val}</p>
         {c.how.valTable ? (
           <div style={{ background: HOVER, borderRadius: 8, padding: "12px 16px", marginBottom: 10, border: "1px solid " + BORDER }}>
             {c.how.valTable.map(function(row, i) {
@@ -1180,36 +1493,32 @@ function DeepDive(props) {
                   padding: "7px 0",
                   borderBottom: i < c.how.valTable.length - 1 ? "1px solid " + BORDER : "none"
                 }}>
-                  <span style={{ fontSize: 13.5, color: TXT2 }}>{row[0]}</span>
-                  <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 13, color: TXT, fontWeight: 600 }}>{row[1]}</span>
+                  <span style={{ fontSize: 13, color: TXT2 }}>{row[0]}</span>
+                  <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 13, color: TXT, fontWeight: 700 }}>{row[1]}</span>
                 </div>
               );
             })}
           </div>
         ) : null}
         <Lbl>Bonuses</Lbl>
-        <p style={{ fontSize: 14.5, color: TXT2, lineHeight: 1.65, margin: 0 }}>{c.how.bonus}</p>
+        <p style={{ fontSize: 13, color: TXT2, lineHeight: 1.65, margin: 0 }}>{c.how.bonus}</p>
         <Lbl>Duration</Lbl>
-        <p style={{ fontSize: 14.5, color: TXT2, lineHeight: 1.65, margin: 0 }}>{c.how.dur}</p>
+        <p style={{ fontSize: 13, color: TXT2, lineHeight: 1.65, margin: 0 }}>{c.how.dur}</p>
         <Lbl>Market Detail</Lbl>
-        <p style={{ fontSize: 14.5, color: TXT2, lineHeight: 1.65, margin: "0 0 4px" }}>{c.mkt.price}</p>
-        <p style={{ fontSize: 14.5, color: TXT2, lineHeight: 1.65, margin: "0 0 4px" }}>{c.mkt.share}</p>
-        <p style={{ fontSize: 14.5, color: TXT2, lineHeight: 1.65, margin: 0 }}>{c.mkt.deal}</p>
-      </Sec>
-
-      {/* ── COLLAPSED: Transferability ── */}
-      <Sec title="Transferability & Direct Pay" startOpen={false}>
-        <Lbl>Can You Sell It?</Lbl>
-        <p style={{ fontSize: 14.5, color: TXT2, lineHeight: 1.65, margin: 0 }}>{c.how.xfer}</p>
-        <Lbl>Direct Cash Payment</Lbl>
-        <p style={{ fontSize: 14.5, color: TXT2, lineHeight: 1.65, margin: 0 }}>{c.how.epay}</p>
+        <p style={{ fontSize: 13, color: TXT2, lineHeight: 1.65, margin: "0 0 4px" }}>{c.mkt.price}</p>
+        <p style={{ fontSize: 13, color: TXT2, lineHeight: 1.65, margin: "0 0 4px" }}>{c.mkt.share}</p>
+        <p style={{ fontSize: 13, color: TXT2, lineHeight: 1.65, margin: 0 }}>{c.mkt.deal}</p>
+        <Lbl>Transferability</Lbl>
+        <p style={{ fontSize: 13, color: TXT2, lineHeight: 1.65, margin: 0 }}>{c.how.xfer}</p>
+        <Lbl>Direct Pay</Lbl>
+        <p style={{ fontSize: 13, color: TXT2, lineHeight: 1.65, margin: 0 }}>{c.how.epay}</p>
       </Sec>
 
       {/* ── COLLAPSED: Begin Construction (48E only) ── */}
       {c.beginConstruction ? (
         <Sec title="What Does 'Begin Construction' Actually Mean?" startOpen={false}>
           {c.beginConstruction.map(function(para, i) {
-            return <p key={i} style={{ fontSize: 14.5, color: TXT2, lineHeight: 1.65, margin: "0 0 12px" }}>{para}</p>;
+            return <p key={i} style={{ fontSize: 13, color: TXT2, lineHeight: 1.65, margin: "0 0 12px" }}>{para}</p>;
           })}
         </Sec>
       ) : null}
@@ -1222,7 +1531,7 @@ function DeepDive(props) {
             return (
               <div key={i} style={{ display: "flex", gap: 8, marginBottom: 6 }}>
                 <span style={{ color: "#BF360C", flexShrink: 0, marginTop: 2 }}>•</span>
-                <span style={{ fontSize: 14, color: TXT2, lineHeight: 1.6 }}>{r}</span>
+                <span style={{ fontSize: 13, color: TXT2, lineHeight: 1.6 }}>{r}</span>
               </div>
             );
           })}
@@ -1231,7 +1540,7 @@ function DeepDive(props) {
             return (
               <div key={i} style={{ display: "flex", gap: 8, marginBottom: 6 }}>
                 <span style={{ color: "#2E7D32", flexShrink: 0, marginTop: 2 }}>•</span>
-                <span style={{ fontSize: 14, color: TXT2, lineHeight: 1.6 }}>{r}</span>
+                <span style={{ fontSize: 13, color: TXT2, lineHeight: 1.6 }}>{r}</span>
               </div>
             );
           })}
@@ -1240,65 +1549,34 @@ function DeepDive(props) {
             return (
               <div key={i} style={{ display: "flex", gap: 8, marginBottom: 6 }}>
                 <span style={{ color: "#E65100", flexShrink: 0, marginTop: 2 }}>•</span>
-                <span style={{ fontSize: 14, color: TXT2, lineHeight: 1.6 }}>{r}</span>
+                <span style={{ fontSize: 13, color: TXT2, lineHeight: 1.6 }}>{r}</span>
               </div>
             );
           })}
         </Sec>
       ) : null}
 
-      {/* ── COLLAPSED: Timeline ── */}
-      <Sec title="Key Dates" startOpen={false}>
-        {c.tl.dates.map(function(d, i) {
-          return (
-            <div key={i} style={{ display: "flex", gap: 14, marginBottom: 10 }}>
-              <span style={{
-                fontFamily: "'IBM Plex Mono',monospace", fontSize: 13,
-                color: d.u ? "#BF360C" : s.c, minWidth: 100, flexShrink: 0,
-                fontWeight: d.u ? 700 : 400
-              }}>{d.d}</span>
-              <span style={{ fontSize: 14, color: d.u ? TXT : TXT2, lineHeight: 1.45 }}>
-                {d.e}{d.u ? " ⚠" : ""}
-              </span>
-            </div>
-          );
-        })}
-      </Sec>
-
-      {/* ── COLLAPSED: FEOC ── */}
-      <Sec title="Foreign Supply Chain Restrictions (FEOC)" startOpen={false}>
-        <p style={{ fontSize: 14.5, color: TXT2, lineHeight: 1.7, margin: 0 }}>{c.feoc}</p>
-      </Sec>
-
-      {/* ── COLLAPSED: Regulatory Status ── */}
-      <Sec title="Where Do the Rules Stand?" startOpen={false}>
-        <Lbl>Current Status</Lbl>
-        <p style={{ fontSize: 14.5, color: TXT2, lineHeight: 1.6, margin: "0 0 10px" }}>{c.guid.stat}</p>
+      {/* ── COLLAPSED: Regulatory Status & FEOC (merged) ── */}
+      <Sec title="Regulatory Status & FEOC" startOpen={false}>
+        <Lbl>Foreign Supply Chain Restrictions</Lbl>
+        <p style={{ fontSize: 13, color: TXT2, lineHeight: 1.7, margin: 0 }}>{c.feoc}</p>
+        <Lbl>Current Guidance</Lbl>
+        <p style={{ fontSize: 13, color: TXT2, lineHeight: 1.6, margin: "0 0 10px" }}>{c.guid.stat}</p>
         <Lbl>Unresolved Questions</Lbl>
         {c.guid.open.map(function(q, i) {
           return (
             <div key={i} style={{ display: "flex", gap: 8, marginBottom: 5 }}>
               <span style={{ color: "#E65100", flexShrink: 0, fontWeight: 700 }}>?</span>
-              <span style={{ fontSize: 14, color: TXT2, lineHeight: 1.55 }}>{q}</span>
+              <span style={{ fontSize: 13, color: TXT2, lineHeight: 1.55 }}>{q}</span>
             </div>
           );
         })}
       </Sec>
 
-      {/* CTA + DISCLAIMER */}
-      <div style={{
-        padding: "20px 24px", background: HOVER, borderRadius: 10,
-        border: "1px solid " + BORDER, marginBottom: 20
-      }}>
-        <div style={{ fontSize: 15, fontWeight: 600, color: TXT, marginBottom: 6 }}>Ready to go deeper?</div>
-        <p style={{ fontSize: 14, color: TXT2, lineHeight: 1.6, margin: 0 }}>
-          Every transaction is different. Reach out to a qualified tax advisor, energy attorney, or credit marketplace.
-        </p>
-      </div>
-
+      {/* DISCLAIMER */}
       <div style={{ padding: "14px 20px", background: HOVER, borderRadius: 8, border: "1px solid " + BORDER }}>
-        <p style={{ fontSize: 12, color: TXT3, margin: 0, lineHeight: 1.6 }}>
-          <strong style={{ color: TXT2 }}>Disclaimer:</strong> Educational only. Not legal, tax, or investment advice. Data as of {LAST_UPDATED}.
+        <p style={{ fontSize: 11, color: TXT3, margin: 0, lineHeight: 1.6 }}>
+          <strong style={{ color: TXT2 }}>Disclaimer:</strong> CreditPulse is educational only. Not legal, tax, or investment advice. Every transaction is different — consult a qualified tax advisor or energy attorney. Data as of {LAST_UPDATED}.
         </p>
       </div>
     </div>
@@ -1308,23 +1586,18 @@ function DeepDive(props) {
 // ─── Landing Page ─────────────────────────────────────────
 function Home(props) {
   var nav = props.nav;
-  var _mo = useState(false);
-  var matchOpen = _mo[0];
-  var setMatchOpen = _mo[1];
-  var _mr = useState(null);
-  var matchRole = _mr[0];
-  var setMatchRole = _mr[1];
-  var mr = matchRole ? MATCH_RESULTS[matchRole] : null;
+  var _sp = useState(false);
+  var showPast = _sp[0];
+  var setShowPast = _sp[1];
+
+  var tlUpcoming = TL.filter(function(t) { return !t.past; });
+  var tlPast = TL.filter(function(t) { return t.past; });
 
   return (
     <div>
-      <div style={{ marginBottom: 32 }}>
-        <div style={{ fontSize: 12, color: TXT3 }}>Last updated {LAST_UPDATED}</div>
-      </div>
-
       <div style={{
         display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 1,
-        background: BORDER, borderRadius: 10, overflow: "hidden", marginBottom: 32
+        background: BORDER, borderRadius: 10, overflow: "hidden", marginBottom: 48
       }}>
         {[
           ["89–96¢", "Credit pricing range (per $1)"],
@@ -1333,22 +1606,21 @@ function Home(props) {
         ].map(function(item, i) {
           return (
             <div key={i} style={{ background: CARD, padding: "20px 16px", textAlign: "center" }}>
-              <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 24, fontWeight: 700, color: TXT, marginBottom: 4 }}>{item[0]}</div>
-              <div style={{ fontSize: 12, color: TXT3, lineHeight: 1.35 }}>{item[1]}</div>
+              <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 28, fontWeight: 700, color: TXT, marginBottom: 4 }}>{item[0]}</div>
+              <div style={{ fontSize: 11, color: TXT3, lineHeight: 1.35 }}>{item[1]}</div>
             </div>
           );
         })}
       </div>
 
-      <div style={{ marginBottom: 36 }}>
-        <h2 style={{ fontSize: 22, color: TXT, margin: "0 0 6px", fontWeight: 500 }}>Credit Status After OBBBA</h2>
-        <p style={{ fontSize: 14, color: TXT3, margin: "0 0 20px" }}>Cards marked "Explore" have full deep dives.</p>
+      <div style={{ marginBottom: 48 }}>
+        <h2 style={{ fontSize: 20, color: TXT, margin: "0 0 16px", fontWeight: 700 }}>Credit Status After OBBBA</h2>
 
         <div style={{ marginBottom: 24 }}>
           <GrpHdr status="expanded" note="OBBBA made these credits better" />
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(300px,1fr))", gap: 12 }}>
-            <CCard sec={C["45Z"].sec} name={C["45Z"].name} type={C["45Z"].type} status={C["45Z"].st} one={C["45Z"].one} hover={C["45Z"].hover} onClick={function() { nav("45Z"); }} deep={true} />
-            <CCard sec={C["45Q"].sec} name={C["45Q"].name} type={C["45Q"].type} status={C["45Q"].st} one={C["45Q"].one} hover={C["45Q"].hover} onClick={function() { nav("45Q"); }} deep={true} />
+            <CCard sec={C["45Z"].sec} name={C["45Z"].name} type={C["45Z"].type} status={C["45Z"].st} one={C["45Z"].one} onClick={function() { nav("45Z"); }} deep={true} />
+            <CCard sec={C["45Q"].sec} name={C["45Q"].name} type={C["45Q"].type} status={C["45Q"].st} one={C["45Q"].one} onClick={function() { nav("45Q"); }} deep={true} />
           </div>
         </div>
 
@@ -1364,7 +1636,7 @@ function Home(props) {
         <div style={{ marginBottom: 24 }}>
           <GrpHdr status="modified" note="Changed but still functional" />
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(300px,1fr))", gap: 12 }}>
-            <CCard sec={C["45X"].sec} name={C["45X"].name} type={C["45X"].type} status={C["45X"].st} one={C["45X"].one} hover={C["45X"].hover} onClick={function() { nav("45X"); }} deep={true} />
+            <CCard sec={C["45X"].sec} name={C["45X"].name} type={C["45X"].type} status={C["45X"].st} one={C["45X"].one} onClick={function() { nav("45X"); }} deep={true} />
             <CCard sec="§45V" name="Clean Hydrogen Production" type="PTC" status="modified" one="Credit active but rules contentious. FEOC restrictions apply." pending={true} />
           </div>
         </div>
@@ -1373,147 +1645,49 @@ function Home(props) {
           <GrpHdr status="sunsetting" note="Facing accelerated expiration" />
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(300px,1fr))", gap: 12 }}>
             <CCard sec="§45Y" name="Clean Electricity Production Credit" type="PTC" status="sunsetting" one="Same wind/solar deadline: construction must start by July 4, 2026." pending={true} />
-            <CCard sec={C["48E"].sec} name={C["48E"].name} type={C["48E"].type} status={C["48E"].st} one={C["48E"].one} hover={C["48E"].hover} onClick={function() { nav("48E"); }} deep={true} />
+            <CCard sec={C["48E"].sec} name={C["48E"].name} type={C["48E"].type} status={C["48E"].st} one={C["48E"].one} onClick={function() { nav("48E"); }} deep={true} />
           </div>
         </div>
 
       </div>
 
-      <div style={{
-        background: "linear-gradient(135deg, #FDF6E3 0%, #F9EDCF 100%)",
-        border: "1px solid #E8D5A3",
-        borderRadius: 10, padding: "20px 24px", marginBottom: 36
-      }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <div>
-            <span style={{ fontSize: 14, fontWeight: 600, color: "#6B5200" }}>Not sure where to start?</span>
-            <span style={{ fontSize: 13, color: "#8B7332", marginLeft: 8 }}>Tell us your role and we'll point you to the right credits.</span>
-          </div>
-          <button
-            onClick={function() { setMatchOpen(!matchOpen); if (matchOpen) setMatchRole(null); }}
-            style={{
-              background: GOLD, color: "#fff", border: "none", borderRadius: 6,
-              padding: "8px 16px", fontSize: 12, fontWeight: 600,
-              cursor: "pointer", fontFamily: "inherit", flexShrink: 0
-            }}
-          >
-            {matchOpen ? "Close" : "Get Started"}
-          </button>
+      {/* ── Key Deadlines ── */}
+      <div style={{ marginBottom: 48 }}>
+        <h2 style={{ fontSize: 20, color: TXT, margin: "0 0 16px", fontWeight: 700 }}>Key Deadlines</h2>
+        <div style={{ borderLeft: "2px solid " + BORDER, paddingLeft: 22, marginLeft: 6 }}>
+          {tlUpcoming.map(function(t, i) {
+            return <TLItem key={i} item={t} nav={nav} />;
+          })}
         </div>
-        {matchOpen ? (
-          <div style={{ marginTop: 16, paddingTop: 16, borderTop: "1px solid #E8D5A3" }}>
-            <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: mr ? 14 : 0 }}>
-              {MATCH_ROLES.map(function(o) {
-                var active = matchRole === o.id;
-                return (
-                  <button
-                    key={o.id}
-                    onClick={function() { setMatchRole(o.id); }}
-                    style={{
-                      background: active ? GOLD : "transparent",
-                      border: "1px solid " + (active ? GOLD : "#D4C08A"),
-                      borderRadius: 6, padding: "8px 14px",
-                      color: active ? "#fff" : "#6B5200", fontSize: 13,
-                      fontWeight: active ? 600 : 400, cursor: "pointer", fontFamily: "inherit"
-                    }}
-                  >
-                    {o.label}
-                  </button>
-                );
-              })}
-            </div>
-            {mr ? (
-              <div style={{ padding: "14px 18px", background: "rgba(255,255,255,0.5)", borderRadius: 8, borderLeft: "3px solid " + GOLD }}>
-                <p style={{ fontSize: 14.5, color: TXT2, lineHeight: 1.7, margin: "0 0 12px" }}>{mr.msg}</p>
-                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                  {mr.credits.map(function(ck) {
-                    if (!C[ck]) return null;
-                    return (
-                      <button
-                        key={ck}
-                        onClick={function() { nav(ck); }}
-                        style={{
-                          background: TXT, color: "#fff", border: "none", borderRadius: 6,
-                          padding: "7px 14px", fontSize: 12, fontWeight: 600,
-                          cursor: "pointer", fontFamily: "inherit"
-                        }}
-                      >
-                        {C[ck].sec} Deep Dive →
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            ) : null}
+        {/* Past milestones toggle */}
+        <button
+          onClick={function() { setShowPast(!showPast); }}
+          style={{
+            marginTop: 8, fontSize: 12, color: TXT3, background: "none",
+            border: "1px solid " + BORDER, borderRadius: 6, padding: "6px 14px",
+            cursor: "pointer", fontFamily: "inherit", fontWeight: 500,
+            transition: "all 0.15s"
+          }}
+        >{showPast ? "Hide past milestones \u2212" : "Show past milestones +"}</button>
+        {showPast ? (
+          <div style={{ borderLeft: "2px solid " + BORDER, paddingLeft: 22, marginLeft: 6, marginTop: 16, opacity: 0.7 }}>
+            {tlPast.map(function(t, i) {
+              return <TLItem key={"past-" + i} item={t} nav={nav} />;
+            })}
           </div>
         ) : null}
       </div>
 
-      <div style={{ marginBottom: 36 }}>
-        <h2 style={{ fontSize: 22, color: TXT, margin: "0 0 6px", fontWeight: 500 }}>Recent Developments</h2>
-        <p style={{ fontSize: 14, color: TXT3, margin: "0 0 16px" }}>Policy and market updates.</p>
-        {NEWS.map(function(item, i) {
-          return <NewsCard key={i} item={item} />;
+      <div style={{ marginBottom: 48 }}>
+        <h2 style={{ fontSize: 20, color: TXT, margin: "0 0 16px", fontWeight: 700 }}>Regulatory Monitor</h2>
+        {NEWS.map(function(item) {
+          return <RegCard key={item.id} item={item} nav={nav} />;
         })}
       </div>
 
-      <div style={{ marginBottom: 36 }}>
-        <h2 style={{ fontSize: 22, color: TXT, margin: "0 0 6px", fontWeight: 500 }}>What's Coming Next</h2>
-        <p style={{ fontSize: 14, color: TXT3, margin: "0 0 18px" }}>Key deadlines and expected government actions.</p>
-        <div style={{ borderLeft: "2px solid " + BORDER, paddingLeft: 22, marginLeft: 6 }}>
-          {TL.map(function(t, i) {
-            var dotBg = "#D0CEC8";
-            if (t.urg) dotBg = "#BF360C";
-            else if (t.next) dotBg = TXT;
-            else if (t.type === "guidance" && !t.past) dotBg = "#E65100";
-            return (
-              <div key={i} style={{ marginBottom: 16, position: "relative" }}>
-                <div style={{
-                  position: "absolute", left: -28, top: 5, width: 10, height: 10,
-                  borderRadius: t.type === "guidance" ? 2 : "50%",
-                  background: dotBg,
-                  border: t.next ? "2px solid " + TXT : "none"
-                }} />
-                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 2 }}>
-                  <span style={{
-                    fontFamily: "'IBM Plex Mono',monospace", fontSize: 13,
-                    color: t.past ? "#B0ADA6" : t.urg ? "#BF360C" : TXT2,
-                    fontWeight: t.urg || t.next ? 700 : 400,
-                    textDecoration: t.past ? "line-through" : "none"
-                  }}>{t.d}</span>
-                  {t.next ? <span style={{ fontSize: 10, padding: "1px 7px", borderRadius: 4, background: TXT, color: "#fff", fontWeight: 700 }}>NEXT</span> : null}
-                  {t.type === "guidance" && !t.past ? <span style={{ fontSize: 10, padding: "1px 7px", borderRadius: 4, background: "#FFF3E0", color: "#E65100", fontWeight: 600 }}>GUIDANCE</span> : null}
-                </div>
-                <div style={{ fontSize: 14, color: t.past ? "#B0ADA6" : t.urg ? TXT : TXT2, lineHeight: 1.5 }}>{t.e}</div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      <div style={{ marginBottom: 32 }}>
-        <h2 style={{ fontSize: 22, color: TXT, margin: "0 0 6px", fontWeight: 500 }}>About This Tool</h2>
-        <p style={{ fontSize: 14, color: TXT3, margin: "0 0 16px" }}>How CreditPulse works and where the information comes from.</p>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-          {[
-            ["Data Sources", "IRA and OBBBA statutory text, IRS/Treasury guidance, Crux Climate market reports, law firm advisories, CRS, JCT, and the Clean Investment Monitor."],
-            ["How Ask CreditPulse Works", "Uses the Claude API (Anthropic) to answer questions against curated data. No internet search. Not a substitute for professional advice."],
-            ["What's a Transferable Tax Credit?", "The IRA created §6418, letting companies sell earned clean energy credits for cash. A market worth tens of billions annually."],
-            ["What Are FEOC Restrictions?", "OBBBA restricts credits for projects/products with significant ties to companies in China, Russia, North Korea, or Iran."]
-          ].map(function(item, i) {
-            return (
-              <div key={i} style={{ padding: "18px 20px", background: CARD, border: "1px solid " + BORDER, borderRadius: 10 }}>
-                <div style={{ fontSize: 14, fontWeight: 700, color: TXT, marginBottom: 6 }}>{item[0]}</div>
-                <p style={{ fontSize: 13, color: TXT2, margin: 0, lineHeight: 1.6 }}>{item[1]}</p>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
       <div style={{ padding: "14px 20px", background: HOVER, borderRadius: 8, border: "1px solid " + BORDER }}>
-        <p style={{ fontSize: 12, color: TXT3, margin: 0, lineHeight: 1.6 }}>
-          <strong style={{ color: TXT2 }}>Disclaimer:</strong> CreditPulse is educational only. Not legal, tax, or investment advice. Data as of {LAST_UPDATED}. Consult qualified advisors before transacting.
+        <p style={{ fontSize: 11, color: TXT3, margin: 0, lineHeight: 1.6 }}>
+          <strong style={{ color: TXT2 }}>Disclaimer:</strong> CreditPulse is educational only. Not legal, tax, or investment advice. Data sourced from IRA/OBBBA statutory text, IRS/Treasury guidance, and Crux Climate market reports. Last updated {LAST_UPDATED}. Consult qualified advisors before transacting.
         </p>
       </div>
     </div>
@@ -1560,13 +1734,13 @@ export default function CreditPulse() {
             onClick={view !== "home" ? function() { nav("home"); } : undefined}
           >
             <div style={{ width: 8, height: 8, borderRadius: "50%", background: GOLD }} />
-            <span style={{ fontSize: 14, fontWeight: 700, color: TXT, letterSpacing: "0.04em" }}>CREDITPULSE</span>
+            <span style={{ fontSize: 15, fontWeight: 700, color: TXT, letterSpacing: "0.04em" }}>CREDITPULSE</span>
             <span style={{ fontSize: 12, color: TXT3, fontWeight: 400 }}>Tracking the evolving clean energy tax credit landscape</span>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
             <span style={{ fontSize: 12, color: TXT3 }}>
               Built by{" "}
-              <a href="https://www.linkedin.com/in/jaredhutchinson/" target="_blank" rel="noopener noreferrer" style={{ color: TXT2, textDecoration: "none", borderBottom: "1px solid " + BORDER, fontWeight: 600 }}>
+              <a href="https://www.linkedin.com/in/jaredhutchinson/" target="_blank" rel="noopener noreferrer" style={{ color: TXT2, textDecoration: "none", borderBottom: "1px solid " + BORDER, fontWeight: 500 }}>
                 Jared Hutchinson
               </a>
             </span>
@@ -1575,7 +1749,7 @@ export default function CreditPulse() {
               style={{
                 display: "flex", alignItems: "center", gap: 8,
                 background: TXT, color: BG, border: "none", borderRadius: 6,
-                padding: "7px 14px", fontSize: 12, fontWeight: 600,
+                padding: "7px 14px", fontSize: 13, fontWeight: 700,
                 cursor: "pointer", fontFamily: "inherit", transition: "opacity 0.15s"
               }}
             >
