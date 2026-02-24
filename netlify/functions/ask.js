@@ -1,4 +1,4 @@
-export default async function(req) {
+export default async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, {
       status: 200,
@@ -17,7 +17,7 @@ export default async function(req) {
     });
   }
 
-  var apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
     return new Response(JSON.stringify({ error: { message: "API key not configured" } }), {
       status: 500,
@@ -26,9 +26,9 @@ export default async function(req) {
   }
 
   try {
-    var body = await req.json();
+    const body = await req.json();
 
-    var res = await fetch("https://api.anthropic.com/v1/messages", {
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -45,7 +45,7 @@ export default async function(req) {
     });
 
     if (!res.ok) {
-      var errText = await res.text();
+      const errText = await res.text();
       return new Response(errText, {
         status: res.status,
         headers: { "Content-Type": "application/json" }
@@ -66,8 +66,8 @@ export default async function(req) {
       headers: { "Content-Type": "application/json" }
     });
   }
-}
+};
 
-export var config = {
+export const config = {
   path: "/.netlify/functions/ask"
 };
