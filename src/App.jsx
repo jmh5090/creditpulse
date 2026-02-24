@@ -152,7 +152,7 @@ const CREDITS = {
         "How much homework do buyers need to do on a manufacturer's supply chain before purchasing credits?"
       ]
     },
-    feoc: "Major issue. Manufacturers must track raw material origins. If too much traces to FEOC countries, entire credit is at risk. Interim guidance (Notice 2026-15) has temporary safe harbors.",
+    feoc: "PFE/SFE & FIE prohibitions: effective for taxable years beginning after July 4, 2025 (Jan 1, 2026 for calendar-year). Material assistance (MACR): effective Jan 1, 2026. MACR thresholds by component (year sold): Solar 50% (2026) to 85% (2030+); Wind 85%/90% then N/A (terminated after 2027); Inverters 50% to 70%; Battery 60% to 85%; Critical minerals 0% through 2029, then 25% (2030), 30% (2031), 40% (2032), 50%+ (after). Notice 2026-15 provides Tier 1 supplier certification framework.",
     dates: [
       { d: "12/31/2027", e: "Wind component credits end", urgent: true },
       { d: "12/31/2029", e: "Full credit expires for most components" },
@@ -165,6 +165,14 @@ const CREDITS = {
       "Foreign supply chain rules are the #1 diligence issue.",
       "Wind components face earlier deadline — credits end after 2027.",
       "Both transferable and eligible for direct government payment."
+    ],
+    mkt: {
+      share: "Most actively traded PTC. IG PTC sellers (wind, §45U, §45X) averaged ~94¢ in 2H2025 (down from 95¢ in 1H). Non-IG: ~93¢ (down from 94¢).",
+      price: "IG: ~94¢. Non-IG: ~93¢. Crux forecasts §45X among strongest pricing recovery in 2026, driven by buyer competition for finite credit pool. Wind components terminated after 2027 under OBBBA."
+    },
+    stats: [
+      { label: "Pricing", value: "IG PTC: ~94¢ | Non-IG: ~93¢" },
+      { label: "OBBBA", value: "Wind terminated after 2027" }
     ]
   },
   "48E": {
@@ -231,7 +239,7 @@ const CREDITS = {
         "Do the construction-start safe harbors protect you from all rule changes, or just some?"
       ]
     },
-    feoc: "Projects starting construction after Dec 31, 2025 can't receive credit if significant FEOC involvement during construction. Interim guidance issued Feb 2026.",
+    feoc: "PFE/SFE & FIE prohibitions: effective for taxable years beginning after July 4, 2025 (Jan 1, 2026 for calendar-year taxpayers). Material assistance (MACR): effective Jan 1, 2026. MACR thresholds: Qualified facilities 40% (2026) rising to 60% (2030+); Energy storage 55% (2026) rising to 75% (2030+). Notice 2026-15 (Feb 2026): first MACR calculation guidance — domestic content safe harbor tables are exclusive and exhaustive for solar, wind, battery. 90%+ of developers already initiated supply chain mapping. 80% report no SFE/FIE exposure.",
     dates: [
       { d: "7/4/2026", e: "Deadline to start construction for wind/solar", urgent: true },
       { d: "12/31/2027", e: "Wind/solar must be operational" },
@@ -244,6 +252,15 @@ const CREDITS = {
       "Energy storage is the growth story — market share nearly tripled in a year.",
       "Fuel cells got better OBBBA terms — 30% with fewer strings.",
       "Buyers: focus on recapture protection and developer PWA compliance."
+    ],
+    mkt: {
+      share: "Largest credit segment. Transfer market reached ~$42B in 2025. Tech-neutral §48E entering market but trading at $0.01–0.02 discount to legacy §48 credits. ~25% of Fortune 1000 now active as tax credit buyers.",
+      price: "IG ITC: 93.1¢ in 2H2025 (down from 94.0¢ in 1H). Non-IG ITC: 90.1¢ (down from 91.0¢). IG PTC: 94.0¢ (down from 95.0¢). Only ~10% of TE investors actively pursuing tech-neutral credits. Crux forecasts solar ITC pricing rebound in 2026."
+    },
+    stats: [
+      { label: "Market size", value: "$63B total monetization" },
+      { label: "Pricing", value: "IG ITC: 93.1¢ | Non-IG: 90.1¢" },
+      { label: "Pipeline", value: "170 GW safe-harbored" }
     ]
   },
   "45Z": {
@@ -307,7 +324,7 @@ const CREDITS = {
         "How will USDA farming data affect which fuels qualify?"
       ]
     },
-    feoc: "FEOC restrictions don't directly apply. Focus is on carbon scoring, qualifying sales, and feedstock origin (North American after 2025).",
+    feoc: "PFE/SFE prohibition: effective for taxable years beginning after July 4, 2025 (Jan 1, 2026 for calendar-year). FIE prohibition: later phase-in — effective for taxable years beginning after July 4, 2027 (Jan 1, 2028 for calendar-year). No MACR/material assistance test for §45Z.",
     dates: [
       { d: "1/1/2025", e: "Credit begins" },
       { d: "12/31/2025", e: "SAF premium expires; technical changes take effect" },
@@ -320,6 +337,14 @@ const CREDITS = {
       "SAF rate cut, but eligibility broadened. Corn ethanol/soy biodiesel win.",
       "Early-stage market but high interest. Structures evolving quickly.",
       "5-year window (2025–2029). Ramp-up timing matters."
+    ],
+    mkt: {
+      share: "New entrant to transfer market in 2H2025. Transacted in larger volumes in the second half of the year as the market gained familiarity with the credit type.",
+      price: "85¢–93¢ per dollar — materially below other PTC categories. Consistent with Crux's pattern: new credit types trade at a discount until market familiarity grows. Extended to 12/31/2029 under OBBBA (was 12/31/2027)."
+    },
+    stats: [
+      { label: "Pricing", value: "85¢–93¢ (below other PTCs)" },
+      { label: "Duration", value: "Extended to 12/31/2029" }
     ]
   },
   "45Q": {
@@ -386,7 +411,7 @@ const CREDITS = {
         "Will the government issue more backup plans if reporting systems fail again?"
       ]
     },
-    feoc: "Not yet central to §45Q guidance. Primary focus is storage integrity and MRV. OBBBA creates backdrop of stricter FEOC oversight that may influence future revisions.",
+    feoc: "PFE/SFE & FIE prohibitions: all effective for taxable years beginning after July 4, 2025 (Jan 1, 2026 for calendar-year). No MACR/material assistance test for §45Q. No changes under OBBBA.",
     dates: [
       { d: "1/1/2023", e: "Enhanced IRA rates took effect" },
       { d: "1/1/2033", e: "Construction must begin for enhanced rates", urgent: true },
@@ -399,7 +424,11 @@ const CREDITS = {
       "Transferability opens to broader buyers, but perceived risk keeps discounts higher.",
       "New IRS safe harbor signals government commitment.",
       "OBBBA left §45Q intact while cutting other credits — strong political durability signal."
-    ]
+    ],
+    mkt: {
+      share: "Active but smaller segment. All FEOC restrictions (PFE/SFE/FIE) effective for taxable years beginning after July 4, 2025 (Jan 1, 2026 for calendar-year taxpayers).",
+      price: "No change from IRA under OBBBA. Facilities must begin construction by end of 2032. Manufacturing and fuels segments had limited project finance debt access in 2025; balance sheet capital common."
+    }
   }
 };
 
@@ -418,6 +447,102 @@ const TIMELINE = [
 ];
 
 const NEWS = [
+  {
+    date: "Feb 2026", source: "Crux Climate", severity: "high", credits: ["48E", "45X", "45Z", "45Q"],
+    title: "Crux: $63B in tax credit monetization in 2025, but market bifurcated",
+    summary: "Total monetization across tax equity, transfers, and preferred equity reached $63B (+27% YoY). But the market split: H1 was strong, H2 saw softer pricing and smaller deal sizes as buyers digested OBBBA. $8–10B in 2025-vintage credits remain unsold.",
+    keyChanges: [
+      "Total tax credit monetization reached $63B (+27% YoY)",
+      "Market bifurcated: strong H1, softer H2 pricing and deal sizes",
+      "$8–10B in 2025-vintage credits remain unsold entering 2026",
+      "Crux forecasts pricing rebound in 2026 as large corporate buyers return"
+    ],
+    buyerImpact: {
+      enterprise: "Crux forecasts a pricing rebound in 2026 as large corporate buyers return and compete for a finite credit pool. Solar ITC and §45X credits expected to see strongest recovery.",
+      midMarket: "The $8–10B in unsold 2025-vintage credits may present buying opportunities at favorable pricing before the expected rebound.",
+      sellers: "H2 softness reflects OBBBA digestion, not demand destruction. Position for 2026 recovery."
+    }
+  },
+  {
+    date: "Feb 2026", source: "Treasury / IRS", severity: "high", credits: ["48E", "45X"],
+    title: "Treasury issues first FEOC guidance on MACR calculation (Notice 2026-15)",
+    summary: "Notice 2026-15 (Feb 12, 2026) provides first substantive guidance on Material Assistance Cost Ratio. For solar, wind, and battery storage, domestic content safe harbor tables are the exclusive list for MACR calculation. Establishes three supplier certification pathways and Tier 1 accountability framework.",
+    keyChanges: [
+      "Domestic content safe harbor tables are exclusive and exhaustive for MACR calculation",
+      "Three supplier certification pathways established",
+      "Tier 1 accountability framework for supply chain compliance",
+      "90%+ of developers already proactively mapping supply chains"
+    ],
+    buyerImpact: {
+      enterprise: "Key open questions: constructive ownership rules, debt threshold testing for foreign-influenced entity status, safe harbor tables for nuclear/fuel cells/geothermal.",
+      midMarket: "90%+ of developers already initiated supply chain mapping. Start now if you haven't.",
+      sellers: "80% report no SFE/FIE exposure. Demonstrate compliance to maintain credit value."
+    }
+  },
+  {
+    date: "Feb 2026", source: "Treasury / IRS", severity: "high", credits: ["48E"],
+    title: "5% BOC safe harbor eliminated for large solar and all wind",
+    summary: "Post-OBBBA guidance eliminated the 5% beginning-of-construction safe harbor for solar >1.5 MW and all wind. Projects that started construction before Sept 2, 2025 are grandfathered. 4-year continuity safe harbor retained.",
+    keyChanges: [
+      "5% BOC safe harbor eliminated for solar >1.5 MW and all wind",
+      "Projects started before Sept 2, 2025 are grandfathered",
+      "4-year continuity safe harbor retained",
+      "July 4, 2026 is the hard deadline to begin construction"
+    ],
+    buyerImpact: {
+      enterprise: "Crux estimates 170 GW already safe-harbored (147 GW solar + 23 GW wind) — sufficient pipeline for several years.",
+      midMarket: "Verify safe harbor status of any project credits you're evaluating. Pre-Sept 2025 construction start is key.",
+      sellers: "July 4, 2026 hard deadline. Ensure construction documentation is airtight."
+    }
+  },
+  {
+    date: "Feb 2026", source: "Crux Climate", severity: "medium", credits: ["48E"],
+    title: "Tech-neutral §48E/§45Y credits trading at 1–2¢ discount to legacy",
+    summary: "Only ~10% of tax equity investors actively pursuing tech-neutral credits; 90% would only consider under certain circumstances. FEOC qualification risk is the primary constraint. Legacy credits still available because eligibility is based on construction start date, not placed-in-service.",
+    keyChanges: [
+      "Tech-neutral credits trading at $0.01–0.02 discount to legacy",
+      "Only ~10% of TE investors actively pursuing tech-neutral credits",
+      "FEOC qualification risk is the primary constraint",
+      "Legacy credits still available based on construction start date"
+    ],
+    buyerImpact: {
+      enterprise: "Crux expects gradual shift toward tech-neutral credits beyond 2026 as safe-harbored legacy pipeline reaches commercial operation. FEOC clarity is the key unlock.",
+      midMarket: "Legacy credits offer less FEOC risk. Consider the discount on tech-neutral credits against your risk tolerance.",
+      sellers: "Demonstrate FEOC compliance to close the pricing gap on tech-neutral credits."
+    }
+  },
+  {
+    date: "Feb 2026", source: "Crux Climate", severity: "medium", credits: ["48E"],
+    title: "Utility-scale storage hits 19 GW, battery costs fall to $108/kWh",
+    summary: "Storage deployment surged 72% YoY to 19 GW. Battery pack prices fell 8% to $108/kWh (BloombergNEF). Broad lender participation, though contracted projects get best terms. Under OBBBA, storage phaseout doesn't begin until 2034.",
+    keyChanges: [
+      "Storage deployment surged 72% YoY to 19 GW",
+      "Battery pack prices fell 8% to $108/kWh",
+      "Broad lender participation for contracted projects",
+      "Storage phaseout doesn't begin until 2034 under OBBBA"
+    ],
+    buyerImpact: {
+      enterprise: "FEOC material assistance thresholds for energy storage start at 55% in 2026, rising to 75% by 2030+. Falling costs and grid volatility position storage as central to new capacity.",
+      midMarket: "Storage credits offer long runway through 2034. Battery cost declines improve project economics.",
+      sellers: "Contracted projects get best financing terms. Focus on offtake agreements."
+    }
+  },
+  {
+    date: "Feb 2026", source: "Crux Climate", severity: "high", credits: ["48E", "45X", "45Z"],
+    title: "Hybrid tax equity structures now 68% of all TE commitments",
+    summary: "Total tax equity exceeded $36.6B in 2025 (+22% YoY). Hybrid structures grew from 58% to 68% of commitments. $15B+ in credits transferred out of hybrid TE partnerships. TE market now nearly 2x its pre-IRA size.",
+    keyChanges: [
+      "Total tax equity exceeded $36.6B in 2025 (+22% YoY)",
+      "Hybrid structures grew from 58% to 68% of commitments",
+      "$15B+ in credits transferred out of hybrid TE partnerships",
+      "TE market now nearly 2x its pre-IRA size"
+    ],
+    buyerImpact: {
+      enterprise: "Transfer market increasingly functions as complement to tax equity. Integrated capital stacks are the new norm for project finance.",
+      midMarket: "Hybrid structures offer flexible entry points for credit buyers at various scales.",
+      sellers: "Integrated capital stacks are the new norm. Structure deals to accommodate both TE and transfer buyers."
+    }
+  },
   {
     date: "Feb 18, 2026", source: "Treasury / IRS", severity: "medium", credits: ["45Q"],
     title: "§45Q — IRS issues safe harbor for 2025 reporting",
@@ -1065,7 +1190,7 @@ function CreditCard({ credit, onClick, delay = 0 }) {
   const isSunsetting = c.status === "sunsetting";
 
   return (
-    <FadeIn delay={delay}>
+    <FadeIn delay={delay} style={{ height: "100%" }}>
       <div
         onClick={onClick}
         onMouseEnter={() => setHov(true)}
@@ -1073,8 +1198,8 @@ function CreditCard({ credit, onClick, delay = 0 }) {
         style={{
           background: hov ? COLOR.cardHover : COLOR.card,
           border: `1px solid ${hov ? COLOR.borderHover : COLOR.border}`,
-          borderLeft: isSunsetting ? `3px solid ${COLOR.red}` : `1px solid ${hov ? COLOR.borderHover : COLOR.border}`,
           borderRadius: 12, padding: "22px 24px",
+          height: "100%", boxSizing: "border-box",
           cursor: "pointer",
           transition: "all 0.2s ease",
           transform: hov ? "translateY(-2px)" : "translateY(0)",
@@ -1958,7 +2083,7 @@ function MarketOverview({ onNavigate }) {
         background: COLOR.bgSubtle, borderRadius: 8, border: `1px solid ${COLOR.borderSubtle}`,
       }}>
         <p style={{ fontSize: 10, color: COLOR.textMuted, margin: 0, lineHeight: 1.6 }}>
-          <strong style={{ color: COLOR.textTertiary }}>Disclaimer:</strong> CreditPulse is educational only. Not legal, tax, or investment advice. Data sourced from IRA/OBBBA statutory text, IRS/Treasury guidance, and Crux Climate market reports. Last updated {LAST_UPDATED}. Consult qualified advisors before transacting.
+          <strong style={{ color: COLOR.textTertiary }}>Disclaimer:</strong> CreditPulse is educational only. Not legal, tax, or investment advice. Data sourced from IRA/OBBBA statutory text, IRS/Treasury guidance, and Crux Climate market reports including Crux Climate, &ldquo;The State of Clean Energy Finance: 2025 Market Intelligence Report&rdquo; (Feb 2026) &mdash; based on ~$55B in TTC transactions representing ~80% of market activity. Last updated {LAST_UPDATED}. Consult qualified advisors before transacting.
         </p>
       </div>
     </div>
@@ -2016,7 +2141,7 @@ function ctxAll() {
   const all = keys.map(k => ctxFor(k)).join("\n---\n");
   const other = OTHER_CREDITS.map(c => `${c.sec} ${c.name} (${c.type}) — ${c.note}`).join("\n");
   const term = TERMINATED.map(c => `${c.sec} ${c.name} — terminated ${c.date}`).join("\n");
-  return `${all}\n---\nOTHER ACTIVE CREDITS:\n${other}\n---\nTERMINATED:\n${term}\n---\nMARKET OVERVIEW: Post-OBBBA. $55-60B projected market. ITC avg ~89¢ (Q3 2025), PTC avg ~92¢. IG premium ~3¢. Supply-to-demand at 12-mo low — buyer's market. 7 credits terminated by OBBBA, 3 expanded/preserved.`;
+  return all + "\nMARKET 2025: $63B total tax credit monetization (+27% YoY). Transfer market ~$42B (+48%). Tax equity $36.6B (+22%). ~25% of F1000 buying credits. 170 GW wind+solar safe-harbored. $8-10B unsold 2025 credits in 2026. Battery costs $108/kWh. 19 GW storage deployed (+72% YoY). Crux forecasts pricing rebound for solar ITC and §45X in 2026. Market increasingly selective — sponsor quality and project readiness differentiate access to capital. Hybrid TE structures 68% of commitments. Tech-neutral credits trading $0.01-0.02 below legacy.";
 }
 
 // ═══════════════════════════════════════════════════════════
