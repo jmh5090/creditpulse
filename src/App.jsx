@@ -432,6 +432,318 @@ const CREDITS = {
   }
 };
 
+// ═══════════════════════════════════════════════════════════
+// FEOC DECISION TREE DATA
+// ═══════════════════════════════════════════════════════════
+
+const FEOC_SEVERITY = {
+  safe:     { color: COLOR.green, bg: COLOR.greenBg, border: COLOR.greenBorder, icon: "\u2713", label: "COMPLIANT PATH" },
+  moderate: { color: COLOR.amber, bg: COLOR.amberBg, border: COLOR.amberBorder, icon: "!", label: "PARTIAL RESTRICTIONS" },
+  critical: { color: COLOR.red,   bg: COLOR.redBg,   border: COLOR.redBorder,   icon: "\u2715", label: "DISQUALIFIED" },
+  info:     { color: COLOR.blue,  bg: COLOR.blueBg,   border: "rgba(96,165,250,0.25)", icon: "i", label: "INFORMATIONAL" },
+};
+
+const MACR_THRESHOLDS = {
+  "45X": {
+    label: "\u00A745X Manufacturing",
+    rows: [
+      { component: "Solar", thresholds: [["2026", "50%"], ["2027", "55%"], ["2028", "65%"], ["2029", "75%"], ["2030+", "85%"]] },
+      { component: "Wind", thresholds: [["2026", "85%"], ["2027", "90%"], ["After 2027", "N/A"]] },
+      { component: "Inverters", thresholds: [["2026", "50%"], ["2027", "55%"], ["2028", "60%"], ["2029", "65%"], ["2030+", "70%"]] },
+      { component: "Battery", thresholds: [["2026", "60%"], ["2027", "65%"], ["2028", "70%"], ["2029", "75%"], ["2030+", "85%"]] },
+      { component: "Critical minerals", thresholds: [["2026\u20132029", "0%"], ["2030", "25%"], ["2031", "30%"], ["2032", "40%"], ["After 2032", "50%+"]] },
+    ],
+  },
+  "48E": {
+    label: "\u00A748E Investment",
+    rows: [
+      { component: "Qualified facilities", thresholds: [["2026", "40%"], ["2027", "45%"], ["2028", "50%"], ["2029", "55%"], ["2030+", "60%"]] },
+      { component: "Energy storage", thresholds: [["2026", "55%"], ["2027", "60%"], ["2028", "65%"], ["2029", "70%"], ["2030+", "75%"]] },
+    ],
+  },
+};
+
+const FEOC_TREE = {
+  "construction-date": {
+    type: "question",
+    step: 1,
+    label: "Construction Date",
+    question: "When did construction begin on your project or facility?",
+    description: "The new foreign entity rules only apply to projects that started construction in 2026 or later. If your project broke ground before then, these rules generally don't affect you.",
+    options: [
+      {
+        id: "pre-2026",
+        label: "Before 2026",
+        sublabel: "Construction started before January 1, 2026",
+        next: "outcome-not-applicable",
+      },
+      {
+        id: "2026-or-later",
+        label: "2026 or later",
+        sublabel: "Construction started (or will start) on or after January 1, 2026",
+        next: "pfe-check",
+      },
+    ],
+  },
+
+  "pfe-check": {
+    type: "question",
+    step: 2,
+    label: "Foreign Entity Check",
+    question: "Is your company owned or controlled by China, Russia, Iran, or North Korea?",
+    description: "The government calls this being a \"Prohibited Foreign Entity\" (PFE). It includes companies that are subsidiaries of, or subject to effective control by, entities in these four countries. If any of these apply, the credit is completely unavailable.",
+    options: [
+      {
+        id: "yes-pfe",
+        label: "Yes, or not sure",
+        sublabel: "Owned, controlled, or subject to jurisdiction of one of these countries",
+        severity: "high",
+        next: "outcome-fully-disqualified",
+      },
+      {
+        id: "no-pfe",
+        label: "No",
+        sublabel: "Not owned or controlled by any of these countries",
+        severity: "safe",
+        next: "credit-selection",
+      },
+    ],
+  },
+
+  "credit-selection": {
+    type: "question",
+    step: 3,
+    label: "Credit Type",
+    question: "Which credit are you evaluating?",
+    description: "The compliance requirements depend on the credit. Manufacturing (\u00A745X) and investment (\u00A748E) credits require a detailed supply chain analysis. Fuel (\u00A745Z) and carbon capture (\u00A745Q) credits only require an entity-level check \u2014 no component testing.",
+    options: [
+      {
+        id: "45X",
+        label: "\u00A745X",
+        sublabel: "Advanced Manufacturing Production Credit",
+        creditKey: "45X",
+        next: "safe-harbor-check",
+      },
+      {
+        id: "48E",
+        label: "\u00A748E",
+        sublabel: "Clean Electricity Investment Credit",
+        creditKey: "48E",
+        next: "safe-harbor-check",
+      },
+      {
+        id: "45Z",
+        label: "\u00A745Z",
+        sublabel: "Clean Fuel Production Credit",
+        creditKey: "45Z",
+        next: "outcome-entity-only-45Z",
+      },
+      {
+        id: "45Q",
+        label: "\u00A745Q",
+        sublabel: "Carbon Dioxide Sequestration",
+        creditKey: "45Q",
+        next: "outcome-entity-only-45Q",
+      },
+    ],
+  },
+
+  "safe-harbor-check": {
+    type: "question",
+    step: 4,
+    label: "Safe Harbor Tables",
+    question: "Is your technology listed in the IRS safe harbor tables?",
+    description: "The IRS published tables that cover common clean energy technologies. If your technology is listed, you follow a simpler compliance path that uses pre-set cost weights instead of tracking every dollar yourself.",
+    examples: [
+      { label: "Listed technologies", items: ["Utility-scale solar", "Rooftop solar", "Onshore and offshore wind", "Battery storage", "\u00A745X solar and battery modules"] },
+      { label: "Not yet listed", items: ["Geothermal", "Nuclear", "Fuel cells", "Other emerging technologies"] },
+    ],
+    options: [
+      {
+        id: "in-tables",
+        label: "Yes \u2014 listed in safe harbor tables",
+        sublabel: "Solar, wind, battery storage, or \u00A745X solar/battery modules",
+        next: "outcome-streamlined-path",
+      },
+      {
+        id: "not-in-tables",
+        label: "No \u2014 not listed yet",
+        sublabel: "Geothermal, nuclear, fuel cells, or other technologies",
+        next: "outcome-full-cost-path",
+      },
+    ],
+  },
+
+  // ── OUTCOMES ──
+
+  "outcome-not-applicable": {
+    type: "outcome",
+    severity: "info",
+    title: "These rules likely don't apply to you",
+    headline: "Pre-2026 construction",
+    summary: "Because your project started construction before 2026, the new foreign entity restrictions generally do not apply. For \u00A745X manufacturers, the supply chain content rules don't kick in until tax year 2028.",
+    details: [
+      "The PFE and SFE prohibitions take effect for tax years beginning after July 4, 2025 (January 1, 2026 for calendar-year taxpayers).",
+      "\u00A745X material assistance (MACR) rules become effective January 1, 2026 for new production.",
+      "If you have a binding contract signed before June 16, 2025, those components may be excluded from any future FEOC calculation.",
+    ],
+    caveats: [
+      "Make sure your construction start date is properly documented \u2014 the IRS has specific requirements for what counts.",
+      "Talk to your tax advisor about whether safe harbor protections cover your particular situation.",
+    ],
+    relatedCredits: ["45X", "48E", "45Z", "45Q"],
+  },
+
+  "outcome-fully-disqualified": {
+    type: "outcome",
+    severity: "critical",
+    title: "Credit fully disqualified",
+    headline: "Prohibited Foreign Entity status blocks all credits",
+    summary: "If your company is a Prohibited Foreign Entity \u2014 meaning it's owned by, controlled by, or subject to the jurisdiction of China, Russia, Iran, or North Korea \u2014 the credit is completely unavailable. There's no partial credit and no workaround.",
+    details: [
+      "This applies to all four credits tracked here: \u00A745X, \u00A748E, \u00A745Z, and \u00A745Q.",
+      "The prohibition extends to subsidiaries and entities under effective control at any level in the corporate chain.",
+      "Separate restrictions (SFE and FIE rules) also apply with their own effective dates and may affect additional entities.",
+    ],
+    caveats: [
+      "If your PFE status is borderline, consult a tax attorney \u2014 the ownership and control tests have specific thresholds (e.g., 25% voting interest, board representation).",
+      "Corporate restructuring may change PFE status, but it must be done for legitimate business reasons.",
+    ],
+    relatedCredits: [],
+  },
+
+  "outcome-entity-only-45Z": {
+    type: "outcome",
+    severity: "moderate",
+    title: "Entity-level restrictions only",
+    headline: "\u00A745Z \u2014 No supply chain testing required",
+    summary: "Good news: \u00A745Z doesn't require the detailed component-by-component supply chain analysis that manufacturing and investment credits do. You've passed the PFE check. The remaining restrictions are about who you are as an entity, not what's in your supply chain.",
+    details: [
+      "PFE/SFE prohibition is already in effect (January 1, 2026 for calendar-year taxpayers).",
+      "FIE (Foreign-Influenced Entity) prohibition has a later phase-in \u2014 effective for tax years beginning after July 4, 2027 (January 1, 2028 for calendar-year taxpayers).",
+      "No MACR (Material Assistance Cost Ratio) test is required for \u00A745Z.",
+      "Credit is active through December 31, 2029.",
+    ],
+    nextSteps: [
+      "Confirm your entity is not a Specified Foreign Entity (SFE).",
+      "Plan ahead for FIE compliance \u2014 the 2028 deadline will arrive quickly.",
+      "Focus your diligence on carbon intensity scoring using the 45ZCF-GREET tool.",
+    ],
+    relatedCredits: ["45Z"],
+    linkedCredit: "45Z",
+  },
+
+  "outcome-entity-only-45Q": {
+    type: "outcome",
+    severity: "moderate",
+    title: "Entity-level restrictions only",
+    headline: "\u00A745Q \u2014 No supply chain testing required",
+    summary: "\u00A745Q has entity-level restrictions (PFE, SFE, and FIE), but doesn't require any supply chain component analysis. You've passed the PFE check. The OBBBA made no changes to \u00A745Q's FEOC framework.",
+    details: [
+      "All entity-level prohibitions (PFE, SFE, and FIE) are already in effect for tax years beginning after July 4, 2025 (January 1, 2026 for calendar-year taxpayers).",
+      "No MACR test is required for \u00A745Q.",
+      "OBBBA left \u00A745Q's FEOC rules unchanged \u2014 a signal of policy durability.",
+      "Construction must begin by end of 2032 to qualify for enhanced IRA rates.",
+    ],
+    nextSteps: [
+      "Confirm your entity is not an SFE or FIE.",
+      "Focus your compliance efforts on MRV (measurement, reporting, and verification).",
+      "The IRS safe harbor from Notice 2026-01 is available for 2025 reporting.",
+    ],
+    relatedCredits: ["45Q"],
+    linkedCredit: "45Q",
+  },
+
+  "outcome-streamlined-path": {
+    type: "outcome",
+    severity: "safe",
+    title: "Streamlined compliance path",
+    headline: "Your technology is in the safe harbor tables",
+    summary: "Because your technology is covered by the IRS safe harbor tables, you can use pre-set cost weights instead of tracking actual costs for every component. This is significantly easier than the alternative. The tables define which parts to check and how to weigh them.",
+    steps: [
+      {
+        label: "A",
+        title: "Look up your threshold",
+        description: "Find the minimum percentage of non-foreign-entity content required for your technology type and construction year. These thresholds increase over time.",
+        data: "thresholds",
+      },
+      {
+        label: "B",
+        title: "Identify which components to check",
+        description: "Use the IRS tables to determine which parts need FEOC review. Only table-listed components count \u2014 most steel and iron products drop out of the calculation entirely.",
+      },
+      {
+        label: "C.1",
+        title: "Use table cost weights (not actual costs)",
+        description: "Each component has a pre-assigned percentage of total cost in the safe harbor tables. Use these weights instead of your actual procurement costs. If the table weights work against you, you can opt to use actual costs instead.",
+      },
+      {
+        label: "C.2",
+        title: "Get certifications from your direct suppliers",
+        description: "Each direct (Tier 1) supplier must certify they are not a PFE. You only need to go one level deep \u2014 no tracing further up the supply chain. Notice 2026-15 established three certification pathways.",
+      },
+      {
+        label: "D",
+        title: "Calculate your ratio and compare",
+        description: "The formula is: (Total cost \u2212 PFE cost) \u00F7 Total cost. If your ratio meets or exceeds the threshold, you get the full credit. If it falls short, you get nothing \u2014 this is all-or-nothing.",
+        formula: true,
+      },
+      {
+        label: "E",
+        title: "Document everything and keep records for 6 years",
+        description: "Attach supplier certifications to your tax return. The IRS has a 6-year audit window, so your records need to last at least that long.",
+      },
+    ],
+    contractException: "Components under a binding contract signed before June 16, 2025 can be excluded from the PFE calculation.",
+    relatedCredits: ["45X", "48E"],
+  },
+
+  "outcome-full-cost-path": {
+    type: "outcome",
+    severity: "info",
+    title: "Full-cost calculation path",
+    headline: "Your technology is not yet in the safe harbor tables",
+    summary: "Without safe harbor tables for your technology, you'll need to build the analysis from scratch using actual costs for every component. This is more work than the streamlined path, but the same formula and threshold logic apply. Updated tables are expected by end of 2026 \u2014 your technology may qualify for the simpler path once they're published.",
+    steps: [
+      {
+        label: "A",
+        title: "Look up your threshold",
+        description: "Same process as the streamlined path \u2014 find the minimum non-foreign-entity content percentage for your technology type and construction year.",
+        data: "thresholds",
+      },
+      {
+        label: "B",
+        title: "Build a complete component inventory",
+        description: "Without tables to tell you what counts, you need to map every manufactured input. Work with your engineering and procurement teams to identify all components.",
+      },
+      {
+        label: "C",
+        title: "Track actual dollar costs for each component",
+        description: "No table-based cost weights are available. You need real procurement data and cost allocation for every input \u2014 this is the main difference from the streamlined path.",
+      },
+      {
+        label: "D",
+        title: "Get certifications from your direct suppliers",
+        description: "Same as the streamlined path \u2014 direct suppliers only, no cascading up the supply chain.",
+      },
+      {
+        label: "E",
+        title: "Calculate your ratio and compare",
+        description: "Same formula: (Total cost \u2212 PFE cost) \u00F7 Total cost. Same all-or-nothing outcome. The difference is you're using your actual tracked costs rather than table weights.",
+        formula: true,
+      },
+      {
+        label: "F",
+        title: "Document everything and keep records for 6 years",
+        description: "Even more important here \u2014 since the entire calculation rests on your own cost tracking, your documentation needs to be airtight.",
+      },
+    ],
+    contractException: "Components under a binding contract signed before June 16, 2025 can be excluded from the PFE calculation.",
+    pendingNote: "Updated safe harbor tables are expected by end of 2026. Once published, your technology may move to the streamlined path.",
+    relatedCredits: ["45X", "48E"],
+  },
+};
+
 const TIMELINE = [
   { d: "Jul 4, 2025", e: "OBBBA signed into law", past: true },
   { d: "Sep 30, 2025", e: "EV credits terminated", past: true },
@@ -1437,7 +1749,7 @@ function TimelineItem({ item, isLast, onNavigate }) {
 // DEEP DIVE PAGE
 // ═══════════════════════════════════════════════════════════
 
-function DeepDive({ creditKey, onBack }) {
+function DeepDive({ creditKey, onBack, onNavigate }) {
   const c = CREDITS[creditKey];
   const [tab, setTab] = useState("overview");
 
@@ -1835,6 +2147,38 @@ function DeepDive({ creditKey, onBack }) {
               <p style={{ fontSize: 13, color: COLOR.textSecondary, lineHeight: 1.65, margin: 0 }}>{c.feoc}</p>
             </div>
 
+            {/* FEOC compliance tool CTA */}
+            {onNavigate && (
+              <div style={{
+                background: COLOR.goldBg, border: `1px solid ${COLOR.goldBorder}`,
+                borderRadius: 10, padding: "16px 22px", marginBottom: 16,
+                display: "flex", alignItems: "center", justifyContent: "space-between",
+                flexWrap: "wrap", gap: 12,
+              }}>
+                <div>
+                  <div style={{
+                    fontSize: 11, fontWeight: 700, color: COLOR.gold,
+                    letterSpacing: "0.08em", marginBottom: 4,
+                  }}>FEOC COMPLIANCE CHECK</div>
+                  <div style={{ fontSize: 14, color: COLOR.textSecondary }}>
+                    Walk through the foreign entity decision tree for {c.sec}
+                  </div>
+                </div>
+                <button
+                  onClick={() => onNavigate("feocCheck:" + creditKey)}
+                  onMouseEnter={(e) => { e.currentTarget.style.opacity = "0.85"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.opacity = "1"; }}
+                  style={{
+                    background: COLOR.gold, color: COLOR.bg, border: "none", borderRadius: 6,
+                    padding: "9px 18px", fontSize: 13, fontWeight: 700,
+                    cursor: "pointer", fontFamily: FONT.body, transition: "opacity 0.15s",
+                  }}
+                >
+                  Check compliance →
+                </button>
+              </div>
+            )}
+
             {/* Guidance status */}
             <div style={{
               background: COLOR.card, border: `1px solid ${COLOR.border}`,
@@ -1865,6 +2209,733 @@ function DeepDive({ creditKey, onBack }) {
       }}>
         <p style={{ fontSize: 10, color: COLOR.textMuted, margin: 0, lineHeight: 1.6 }}>
           <strong style={{ color: COLOR.textTertiary }}>Disclaimer:</strong> CreditPulse is educational only. Not legal, tax, or investment advice. Consult qualified advisors. Data as of {LAST_UPDATED}.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════
+// FEOC DECISION TREE
+// ═══════════════════════════════════════════════════════════
+
+function FEOCOptionCard({ option, onClick }) {
+  const [hov, setHov] = useState(false);
+  const sev = option.severity;
+  const borderColor = sev === "high" ? COLOR.red : sev === "safe" ? COLOR.green : COLOR.gold;
+
+  return (
+    <div
+      onClick={onClick}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{
+        background: hov ? COLOR.cardHover : COLOR.card,
+        border: `1px solid ${hov ? COLOR.borderHover : COLOR.border}`,
+        borderLeft: `3px solid ${borderColor}`,
+        borderRadius: 10, padding: "20px 22px",
+        cursor: "pointer",
+        transition: "all 0.2s ease",
+        transform: hov ? "translateY(-2px)" : "translateY(0)",
+        boxShadow: hov ? "0 8px 32px rgba(0,0,0,0.3)" : "0 2px 8px rgba(0,0,0,0.15)",
+        flex: 1, minWidth: 200,
+      }}
+    >
+      <div style={{
+        fontSize: 16, fontWeight: 700, color: COLOR.text,
+        fontFamily: FONT.body, marginBottom: 6,
+      }}>
+        {option.label}
+      </div>
+      <div style={{
+        fontSize: 13, color: COLOR.textSecondary, lineHeight: 1.55,
+      }}>
+        {option.sublabel}
+      </div>
+    </div>
+  );
+}
+
+function FEOCQuestion({ node, onSelect }) {
+  return (
+    <div>
+      <div style={{
+        fontSize: 11, fontWeight: 700, letterSpacing: "0.1em",
+        color: COLOR.gold, fontFamily: FONT.mono, marginBottom: 10,
+      }}>
+        STEP {node.step} · {node.label.toUpperCase()}
+      </div>
+      <h2 style={{
+        fontFamily: FONT.display, fontSize: 28, fontWeight: 400,
+        color: COLOR.text, margin: "0 0 14px", lineHeight: 1.35,
+      }}>
+        {node.question}
+      </h2>
+      <p style={{
+        fontSize: 15, color: COLOR.textSecondary, lineHeight: 1.65,
+        margin: "0 0 28px", maxWidth: 700,
+      }}>
+        {node.description}
+      </p>
+
+      {/* Technology examples for safe harbor check */}
+      {node.examples && (
+        <div style={{
+          display: "flex", gap: 16, marginBottom: 28, flexWrap: "wrap",
+        }}>
+          {node.examples.map((group, i) => (
+            <div key={i} style={{
+              flex: 1, minWidth: 200, padding: "14px 18px",
+              background: COLOR.bgSubtle, borderRadius: 8,
+              border: `1px solid ${COLOR.borderSubtle}`,
+            }}>
+              <div style={{
+                fontSize: 11, fontWeight: 700, letterSpacing: "0.08em",
+                color: COLOR.textTertiary, marginBottom: 8,
+              }}>
+                {group.label.toUpperCase()}
+              </div>
+              {group.items.map((item, j) => (
+                <div key={j} style={{
+                  fontSize: 13, color: COLOR.textSecondary, lineHeight: 1.7,
+                }}>
+                  {item}
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Option cards */}
+      <div className="feoc-options" style={{
+        display: "flex", gap: 14, flexWrap: "wrap",
+      }}>
+        {node.options.map((opt) => (
+          <FEOCOptionCard
+            key={opt.id}
+            option={opt}
+            onClick={() => onSelect(opt)}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function MACRThresholdTable({ creditKey }) {
+  const data = MACR_THRESHOLDS[creditKey];
+  if (!data) return null;
+
+  return (
+    <div style={{
+      background: COLOR.bgSubtle, borderRadius: 8,
+      border: `1px solid ${COLOR.borderSubtle}`,
+      overflow: "hidden", marginTop: 12,
+    }}>
+      <div style={{
+        padding: "10px 16px",
+        borderBottom: `1px solid ${COLOR.borderSubtle}`,
+        fontSize: 11, fontWeight: 700, letterSpacing: "0.08em",
+        color: COLOR.gold, fontFamily: FONT.mono,
+      }}>
+        {data.label} — MINIMUM NON-PFE CONTENT BY YEAR
+      </div>
+      <div style={{ overflowX: "auto" }}>
+        <table style={{
+          width: "100%", borderCollapse: "collapse",
+          fontSize: 13, fontFamily: FONT.mono,
+        }}>
+          <thead>
+            <tr>
+              <th style={{
+                textAlign: "left", padding: "10px 16px",
+                color: COLOR.textTertiary, fontWeight: 600, fontSize: 11,
+                letterSpacing: "0.05em", borderBottom: `1px solid ${COLOR.borderSubtle}`,
+              }}>
+                Component
+              </th>
+              {data.rows[0].thresholds.map(([year], i) => (
+                <th key={i} style={{
+                  textAlign: "center", padding: "10px 12px",
+                  color: COLOR.textTertiary, fontWeight: 600, fontSize: 11,
+                  letterSpacing: "0.05em", borderBottom: `1px solid ${COLOR.borderSubtle}`,
+                }}>
+                  {year}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {data.rows.map((row, i) => (
+              <tr key={i}>
+                <td style={{
+                  padding: "9px 16px", color: COLOR.textSecondary,
+                  fontFamily: FONT.body, fontSize: 13,
+                  borderBottom: i < data.rows.length - 1 ? `1px solid ${COLOR.borderSubtle}` : "none",
+                }}>
+                  {row.component}
+                </td>
+                {row.thresholds.map(([, val], j) => (
+                  <td key={j} style={{
+                    textAlign: "center", padding: "9px 12px",
+                    color: val === "N/A" ? COLOR.textMuted : COLOR.text,
+                    fontWeight: 600,
+                    borderBottom: i < data.rows.length - 1 ? `1px solid ${COLOR.borderSubtle}` : "none",
+                  }}>
+                    {val}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+function FEOCOutcome({ node, selectedCredit, onNavigate, onRestart }) {
+  const sev = FEOC_SEVERITY[node.severity] || FEOC_SEVERITY.info;
+
+  return (
+    <div>
+      {/* Severity banner */}
+      <div style={{
+        background: sev.bg, border: `1px solid ${sev.border}`,
+        borderRadius: 10, padding: "20px 24px", marginBottom: 24,
+        display: "flex", alignItems: "center", gap: 16,
+      }}>
+        <div style={{
+          width: 40, height: 40, borderRadius: 10,
+          background: `${sev.color}20`, border: `1px solid ${sev.color}40`,
+          display: "flex", alignItems: "center", justifyContent: "center",
+          fontSize: 20, fontWeight: 700, color: sev.color, flexShrink: 0,
+        }}>
+          {sev.icon}
+        </div>
+        <div>
+          <div style={{
+            fontSize: 11, fontWeight: 700, letterSpacing: "0.08em",
+            color: sev.color, marginBottom: 4,
+          }}>
+            {sev.label}
+          </div>
+          <div style={{
+            fontFamily: FONT.display, fontSize: 24, fontWeight: 400,
+            color: COLOR.text, lineHeight: 1.3,
+          }}>
+            {node.title}
+          </div>
+        </div>
+      </div>
+
+      {/* Headline + summary */}
+      <div style={{
+        background: COLOR.card, border: `1px solid ${COLOR.border}`,
+        borderRadius: 10, padding: "20px 24px", marginBottom: 20,
+      }}>
+        <div style={{
+          fontSize: 11, fontWeight: 700, letterSpacing: "0.08em",
+          color: COLOR.gold, fontFamily: FONT.mono, marginBottom: 8,
+        }}>
+          {node.headline.toUpperCase()}
+        </div>
+        <p style={{
+          fontSize: 15, color: COLOR.textSecondary, lineHeight: 1.65, margin: 0,
+        }}>
+          {node.summary}
+        </p>
+      </div>
+
+      {/* Details */}
+      {node.details && (
+        <div style={{
+          background: COLOR.card, border: `1px solid ${COLOR.border}`,
+          borderRadius: 10, padding: "20px 24px", marginBottom: 20,
+        }}>
+          <div style={{
+            fontSize: 11, fontWeight: 700, letterSpacing: "0.08em",
+            color: COLOR.textTertiary, marginBottom: 14,
+          }}>
+            KEY DETAILS
+          </div>
+          {node.details.map((d, i) => (
+            <div key={i} style={{
+              display: "flex", gap: 10, marginBottom: i < node.details.length - 1 ? 12 : 0,
+            }}>
+              <span style={{ color: COLOR.gold, fontSize: 14, flexShrink: 0, marginTop: 1 }}>·</span>
+              <span style={{ fontSize: 14, color: COLOR.textSecondary, lineHeight: 1.6 }}>{d}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Compliance steps (for streamlined / full-cost paths) */}
+      {node.steps && (
+        <div style={{
+          background: COLOR.card, border: `1px solid ${COLOR.border}`,
+          borderRadius: 10, padding: "20px 24px", marginBottom: 20,
+        }}>
+          <div style={{
+            fontSize: 11, fontWeight: 700, letterSpacing: "0.08em",
+            color: COLOR.textTertiary, marginBottom: 18,
+          }}>
+            COMPLIANCE STEPS
+          </div>
+          {node.steps.map((step, i) => (
+            <div key={i} style={{
+              marginBottom: i < node.steps.length - 1 ? 22 : 0,
+              paddingBottom: i < node.steps.length - 1 ? 22 : 0,
+              borderBottom: i < node.steps.length - 1 ? `1px solid ${COLOR.borderSubtle}` : "none",
+            }}>
+              <div style={{ display: "flex", gap: 14, alignItems: "flex-start" }}>
+                <div style={{
+                  width: 32, height: 32, borderRadius: 8,
+                  background: COLOR.goldBg, border: `1px solid ${COLOR.goldBorder}`,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontFamily: FONT.mono, fontSize: 13, fontWeight: 700,
+                  color: COLOR.gold, flexShrink: 0,
+                }}>
+                  {step.label}
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{
+                    fontSize: 15, fontWeight: 600, color: COLOR.text, marginBottom: 4,
+                  }}>
+                    {step.title}
+                  </div>
+                  <div style={{
+                    fontSize: 14, color: COLOR.textSecondary, lineHeight: 1.6,
+                  }}>
+                    {step.description}
+                  </div>
+
+                  {/* Inline threshold table */}
+                  {step.data === "thresholds" && selectedCredit && (
+                    <MACRThresholdTable creditKey={selectedCredit} />
+                  )}
+
+                  {/* Formula callout */}
+                  {step.formula && (
+                    <div style={{
+                      marginTop: 12, padding: "14px 18px",
+                      background: COLOR.bgSubtle, borderRadius: 8,
+                      border: `1px solid ${COLOR.goldBorder}`,
+                    }}>
+                      <div style={{
+                        fontFamily: FONT.mono, fontSize: 14, fontWeight: 600,
+                        color: COLOR.gold, marginBottom: 6,
+                      }}>
+                        (Total cost − PFE cost) ÷ Total cost ≥ threshold
+                      </div>
+                      <div style={{
+                        fontSize: 13, color: COLOR.textSecondary,
+                      }}>
+                        All-or-nothing: meet the threshold and you get 100% of the credit. Fall short and you get 0%.
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Next steps (for entity-only outcomes) */}
+      {node.nextSteps && (
+        <div style={{
+          background: COLOR.card, border: `1px solid ${COLOR.border}`,
+          borderRadius: 10, padding: "20px 24px", marginBottom: 20,
+        }}>
+          <div style={{
+            fontSize: 11, fontWeight: 700, letterSpacing: "0.08em",
+            color: COLOR.textTertiary, marginBottom: 14,
+          }}>
+            RECOMMENDED NEXT STEPS
+          </div>
+          {node.nextSteps.map((s, i) => (
+            <div key={i} style={{
+              display: "flex", gap: 10, marginBottom: i < node.nextSteps.length - 1 ? 12 : 0,
+            }}>
+              <span style={{
+                fontFamily: FONT.mono, fontSize: 12, fontWeight: 700,
+                color: COLOR.gold, flexShrink: 0, marginTop: 2,
+              }}>
+                {i + 1}.
+              </span>
+              <span style={{ fontSize: 14, color: COLOR.textSecondary, lineHeight: 1.6 }}>{s}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Contract exception callout */}
+      {node.contractException && (
+        <div style={{
+          background: COLOR.amberBg, border: `1px solid ${COLOR.amberBorder}`,
+          borderRadius: 10, padding: "16px 20px", marginBottom: 20,
+        }}>
+          <div style={{
+            fontSize: 11, fontWeight: 700, letterSpacing: "0.08em",
+            color: COLOR.amber, marginBottom: 6,
+          }}>
+            EXISTING CONTRACT EXCEPTION
+          </div>
+          <div style={{
+            fontSize: 14, color: COLOR.textSecondary, lineHeight: 1.6,
+          }}>
+            {node.contractException}
+          </div>
+        </div>
+      )}
+
+      {/* Pending note (for full-cost path) */}
+      {node.pendingNote && (
+        <div style={{
+          background: COLOR.blueBg, border: `1px solid rgba(96,165,250,0.25)`,
+          borderRadius: 10, padding: "16px 20px", marginBottom: 20,
+        }}>
+          <div style={{
+            fontSize: 14, color: COLOR.blue, lineHeight: 1.6,
+          }}>
+            {node.pendingNote}
+          </div>
+        </div>
+      )}
+
+      {/* Caveats */}
+      {node.caveats && (
+        <div style={{
+          background: COLOR.card, border: `1px solid ${COLOR.border}`,
+          borderRadius: 10, padding: "20px 24px", marginBottom: 20,
+        }}>
+          <div style={{
+            fontSize: 11, fontWeight: 700, letterSpacing: "0.08em",
+            color: COLOR.textTertiary, marginBottom: 14,
+          }}>
+            IMPORTANT TO KNOW
+          </div>
+          {node.caveats.map((c, i) => (
+            <div key={i} style={{
+              display: "flex", gap: 10, marginBottom: i < node.caveats.length - 1 ? 12 : 0,
+            }}>
+              <span style={{ color: COLOR.amber, fontSize: 14, flexShrink: 0, marginTop: 1 }}>!</span>
+              <span style={{ fontSize: 14, color: COLOR.textSecondary, lineHeight: 1.6 }}>{c}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Related credit links */}
+      {node.relatedCredits && node.relatedCredits.length > 0 && (
+        <div style={{
+          background: COLOR.card, border: `1px solid ${COLOR.border}`,
+          borderRadius: 10, padding: "18px 22px", marginBottom: 20,
+          display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap",
+        }}>
+          <span style={{
+            fontSize: 13, color: COLOR.textTertiary, fontWeight: 500,
+          }}>
+            Explore related credits:
+          </span>
+          {node.relatedCredits.map((cr) => (
+            <span
+              key={cr}
+              onClick={() => onNavigate(cr)}
+              onMouseEnter={(e) => { e.currentTarget.style.background = COLOR.goldBorder; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = COLOR.goldBg; }}
+              style={{
+                fontSize: 13, padding: "5px 14px", borderRadius: 6,
+                fontFamily: FONT.mono, fontWeight: 700,
+                background: COLOR.goldBg, color: COLOR.gold,
+                border: `1px solid ${COLOR.goldBorder}`,
+                cursor: "pointer", transition: "all 0.15s",
+              }}
+            >
+              §{cr}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {/* Start over */}
+      <button
+        onClick={onRestart}
+        onMouseEnter={(e) => { e.currentTarget.style.background = COLOR.active; }}
+        onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
+        style={{
+          background: "transparent", border: `1px solid ${COLOR.border}`,
+          borderRadius: 8, padding: "10px 20px",
+          fontSize: 14, fontWeight: 600, color: COLOR.textSecondary,
+          cursor: "pointer", fontFamily: FONT.body,
+          transition: "all 0.15s",
+        }}
+      >
+        Start over
+      </button>
+    </div>
+  );
+}
+
+function FEOCDecisionTree({ onBack, onNavigate, preselectedCredit }) {
+  const getInitialState = (preselected) => {
+    if (!preselected) return { node: "construction-date", history: [], answers: {}, credit: null };
+    if (preselected === "45X" || preselected === "48E") {
+      return {
+        node: "safe-harbor-check",
+        history: ["construction-date", "pfe-check", "credit-selection"],
+        answers: { "construction-date": "2026-or-later", "pfe-check": "no-pfe", "credit-selection": preselected },
+        credit: preselected,
+      };
+    }
+    if (preselected === "45Z") {
+      return {
+        node: "outcome-entity-only-45Z",
+        history: ["construction-date", "pfe-check", "credit-selection"],
+        answers: { "construction-date": "2026-or-later", "pfe-check": "no-pfe", "credit-selection": "45Z" },
+        credit: "45Z",
+      };
+    }
+    if (preselected === "45Q") {
+      return {
+        node: "outcome-entity-only-45Q",
+        history: ["construction-date", "pfe-check", "credit-selection"],
+        answers: { "construction-date": "2026-or-later", "pfe-check": "no-pfe", "credit-selection": "45Q" },
+        credit: "45Q",
+      };
+    }
+    return { node: "construction-date", history: [], answers: {}, credit: null };
+  };
+
+  const init = getInitialState(preselectedCredit);
+  const [currentNodeId, setCurrentNodeId] = useState(init.node);
+  const [history, setHistory] = useState(init.history);
+  const [answers, setAnswers] = useState(init.answers);
+  const [selectedCredit, setSelectedCredit] = useState(init.credit);
+  const [animating, setAnimating] = useState(false);
+
+  const currentNode = FEOC_TREE[currentNodeId];
+  const isOutcome = currentNode.type === "outcome";
+
+  // Max steps depends on whether you reach step 4
+  const totalSteps = 4;
+  const progressPct = isOutcome ? 100 : ((currentNode.step - 1) / totalSteps) * 100;
+
+  function handleSelect(option) {
+    if (option.creditKey) setSelectedCredit(option.creditKey);
+    setAnimating(true);
+    setTimeout(() => {
+      setAnswers(prev => ({ ...prev, [currentNodeId]: option.id }));
+      setHistory(prev => [...prev, currentNodeId]);
+      setCurrentNodeId(option.next);
+      setAnimating(false);
+    }, 200);
+  }
+
+  function handleBack() {
+    if (history.length === 0) {
+      onBack();
+      return;
+    }
+    setAnimating(true);
+    setTimeout(() => {
+      const prevHistory = [...history];
+      const prevNodeId = prevHistory.pop();
+      const newAnswers = { ...answers };
+      delete newAnswers[prevNodeId];
+      // Reset credit if we're going back past credit selection
+      if (prevNodeId === "credit-selection") setSelectedCredit(null);
+      setHistory(prevHistory);
+      setCurrentNodeId(prevNodeId);
+      setAnswers(newAnswers);
+      setAnimating(false);
+    }, 200);
+  }
+
+  function handleRestart() {
+    setAnimating(true);
+    setTimeout(() => {
+      setCurrentNodeId("construction-date");
+      setHistory([]);
+      setAnswers({});
+      setSelectedCredit(null);
+      setAnimating(false);
+    }, 200);
+  }
+
+  // Build breadcrumb trail from history
+  const breadcrumbs = history.map((nodeId) => {
+    const n = FEOC_TREE[nodeId];
+    const answerId = answers[nodeId];
+    const answerLabel = n.options?.find(o => o.id === answerId)?.label || answerId;
+    return { nodeId, stepLabel: n.label, answer: answerLabel };
+  });
+
+  return (
+    <div style={{ maxWidth: 980, margin: "0 auto" }}>
+      {/* Back button */}
+      <FadeIn>
+        <button
+          onClick={handleBack}
+          onMouseEnter={(e) => { e.currentTarget.style.color = COLOR.text; }}
+          onMouseLeave={(e) => { e.currentTarget.style.color = COLOR.textTertiary; }}
+          style={{
+            background: "none", border: "none", cursor: "pointer",
+            fontSize: 14, color: COLOR.textTertiary,
+            fontFamily: FONT.body, fontWeight: 500,
+            marginBottom: 20, padding: 0,
+            transition: "color 0.15s",
+            display: "flex", alignItems: "center", gap: 6,
+          }}
+        >
+          ← {history.length === 0 ? "Market Overview" : "Back"}
+        </button>
+
+        {/* Title */}
+        <div style={{
+          display: "flex", alignItems: "center", gap: 14, marginBottom: 8,
+        }}>
+          <div style={{
+            width: 36, height: 36, borderRadius: 8,
+            background: COLOR.goldBg, border: `1px solid ${COLOR.goldBorder}`,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            fontSize: 16, color: COLOR.gold, flexShrink: 0,
+          }}>
+            ◆
+          </div>
+          <h1 style={{
+            fontFamily: FONT.display, fontSize: 30, fontWeight: 400,
+            color: COLOR.text, margin: 0,
+          }}>
+            FEOC Compliance Check
+          </h1>
+        </div>
+        <p style={{
+          fontSize: 14, color: COLOR.textTertiary, margin: "0 0 20px",
+        }}>
+          Do the new foreign entity rules affect your credit?
+        </p>
+
+        {/* Progress bar */}
+        <div style={{
+          height: 3, background: COLOR.borderSubtle, borderRadius: 2,
+          marginBottom: 10, overflow: "hidden",
+        }}>
+          <div style={{
+            height: "100%", background: COLOR.gold, borderRadius: 2,
+            width: `${progressPct}%`,
+            transition: "width 0.3s ease",
+          }} />
+        </div>
+
+        {/* Breadcrumbs */}
+        {breadcrumbs.length > 0 && (
+          <div style={{
+            display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 20,
+            alignItems: "center",
+          }}>
+            {breadcrumbs.map((bc, i) => (
+              <span key={bc.nodeId} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <span
+                  onClick={() => {
+                    // Jump back to this step
+                    const idx = history.indexOf(bc.nodeId);
+                    const newHistory = history.slice(0, idx);
+                    const newAnswers = {};
+                    newHistory.forEach(h => { if (answers[h]) newAnswers[h] = answers[h]; });
+                    if (bc.nodeId === "credit-selection" || !newHistory.includes("credit-selection")) {
+                      setSelectedCredit(null);
+                    }
+                    setHistory(newHistory);
+                    setCurrentNodeId(bc.nodeId);
+                    setAnswers(newAnswers);
+                  }}
+                  style={{
+                    fontSize: 12, color: COLOR.gold, cursor: "pointer",
+                    fontFamily: FONT.mono, fontWeight: 600,
+                    padding: "3px 8px", borderRadius: 4,
+                    background: COLOR.goldBg, border: `1px solid ${COLOR.goldBorder}`,
+                    transition: "all 0.15s",
+                  }}
+                >
+                  {bc.answer}
+                </span>
+                {i < breadcrumbs.length - 1 && (
+                  <span style={{ color: COLOR.textMuted, fontSize: 11 }}>→</span>
+                )}
+              </span>
+            ))}
+            {isOutcome && (
+              <>
+                <span style={{ color: COLOR.textMuted, fontSize: 11 }}>→</span>
+                <span style={{
+                  fontSize: 12, fontFamily: FONT.mono, fontWeight: 600,
+                  color: FEOC_SEVERITY[currentNode.severity]?.color || COLOR.textSecondary,
+                  padding: "3px 8px", borderRadius: 4,
+                  background: FEOC_SEVERITY[currentNode.severity]?.bg || COLOR.active,
+                  border: `1px solid ${FEOC_SEVERITY[currentNode.severity]?.border || COLOR.border}`,
+                }}>
+                  Result
+                </span>
+              </>
+            )}
+          </div>
+        )}
+
+        {/* Pre-selected credit info banner */}
+        {preselectedCredit && history.length > 0 && currentNodeId !== "construction-date" && (
+          <div style={{
+            background: COLOR.blueBg, border: `1px solid rgba(96,165,250,0.25)`,
+            borderRadius: 8, padding: "10px 16px", marginBottom: 20,
+            display: "flex", alignItems: "center", justifyContent: "space-between",
+            flexWrap: "wrap", gap: 8,
+          }}>
+            <span style={{ fontSize: 13, color: COLOR.blue }}>
+              Pre-selected for §{preselectedCredit}. Assumes: construction 2026+, not a PFE.
+            </span>
+            <span
+              onClick={handleRestart}
+              style={{
+                fontSize: 13, color: COLOR.blue, cursor: "pointer",
+                textDecoration: "underline", fontWeight: 600,
+              }}
+            >
+              Start from beginning
+            </span>
+          </div>
+        )}
+      </FadeIn>
+
+      {/* Main content — question or outcome */}
+      <div style={{
+        opacity: animating ? 0 : 1,
+        transition: "opacity 0.2s ease",
+      }}>
+        {currentNode.type === "question" ? (
+          <FadeIn key={currentNodeId}>
+            <FEOCQuestion node={currentNode} onSelect={handleSelect} />
+          </FadeIn>
+        ) : (
+          <FadeIn key={currentNodeId}>
+            <FEOCOutcome
+              node={currentNode}
+              selectedCredit={selectedCredit}
+              onNavigate={onNavigate}
+              onRestart={handleRestart}
+            />
+          </FadeIn>
+        )}
+      </div>
+
+      {/* Disclaimer */}
+      <div style={{
+        marginTop: 32, padding: "12px 16px",
+        background: COLOR.bgSubtle, borderRadius: 8, border: `1px solid ${COLOR.borderSubtle}`,
+      }}>
+        <p style={{ fontSize: 10, color: COLOR.textMuted, margin: 0, lineHeight: 1.6 }}>
+          <strong style={{ color: COLOR.textTertiary }}>Disclaimer:</strong> This tool is for educational purposes only. It does not constitute legal, tax, or investment advice. Consult qualified advisors for decisions about your specific situation. Based on guidance available as of {LAST_UPDATED}.
         </p>
       </div>
     </div>
@@ -2036,7 +3107,44 @@ function MarketOverview({ onNavigate }) {
         <TerminatedSection />
       </FadeIn>
 
-      <div style={{ marginBottom: 48 }} />
+      {/* ── FEOC Decision Tree CTA ── */}
+      <FadeIn delay={600}>
+        <div
+          onClick={() => onNavigate("feocCheck")}
+          onMouseEnter={(e) => { e.currentTarget.style.borderColor = COLOR.gold; }}
+          onMouseLeave={(e) => { e.currentTarget.style.borderColor = COLOR.goldBorder; }}
+          style={{
+            display: "flex", alignItems: "center", justifyContent: "space-between",
+            padding: "16px 22px", marginTop: 28, marginBottom: 48,
+            background: COLOR.card, border: `1px solid ${COLOR.goldBorder}`,
+            borderRadius: 10, borderLeft: `3px solid ${COLOR.gold}`,
+            cursor: "pointer", transition: "all 0.2s",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+            <div style={{
+              width: 36, height: 36, borderRadius: 8,
+              background: COLOR.goldBg, border: `1px solid ${COLOR.goldBorder}`,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontSize: 16, color: COLOR.gold, flexShrink: 0,
+            }}>◆</div>
+            <div>
+              <div style={{ fontSize: 14, fontWeight: 600, color: COLOR.text }}>
+                FEOC Compliance Check
+              </div>
+              <div style={{ fontSize: 13, color: COLOR.textSecondary }}>
+                Do the new foreign entity rules affect your credit? Walk through the decision tree.
+              </div>
+            </div>
+          </div>
+          <span style={{
+            fontSize: 13, fontWeight: 700, color: COLOR.gold,
+            fontFamily: FONT.body, flexShrink: 0,
+          }}>
+            Start →
+          </span>
+        </div>
+      </FadeIn>
 
       {/* Two-column: Timeline + News */}
       <div className="cp-two-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, marginBottom: 48 }}>
@@ -2561,7 +3669,9 @@ export default function CreditPulse() {
     }, 200);
   }
 
-  const ctx = view === "home" ? ctxAll() : ctxFor(view);
+  const ctx = view === "home" ? ctxAll() :
+              view === "feocCheck" || view.startsWith("feocCheck:") ? ctxAll() + "\n\nThe user is currently using the FEOC Compliance Check tool. They may have questions about Prohibited Foreign Entities (PFE), the MACR (Material Assistance Cost Ratio) test, safe harbor tables, supplier certifications, or the foreign entity content threshold calculations. Help them understand the compliance requirements for their specific credit and technology." :
+              ctxFor(view);
 
   return (
     <div ref={ref} style={{
@@ -2601,6 +3711,7 @@ export default function CreditPulse() {
           .cp-other-row { grid-template-columns: 60px 1fr !important; }
           .cp-other-status { display: none; }
           .cp-metric-strip { grid-template-columns: 1fr !important; }
+          .feoc-options { flex-direction: column; }
         }
         @media (max-width: 480px) {
           .cp-container { padding: 16px 12px 50px !important; }
@@ -2685,8 +3796,14 @@ export default function CreditPulse() {
         {/* Content */}
         {view === "home" ? (
           <MarketOverview onNavigate={nav} />
+        ) : view === "feocCheck" || view.startsWith("feocCheck:") ? (
+          <FEOCDecisionTree
+            onBack={() => nav("home")}
+            onNavigate={nav}
+            preselectedCredit={view.includes(":") ? view.split(":")[1] : null}
+          />
         ) : (
-          <DeepDive creditKey={view} onBack={() => nav("home")} />
+          <DeepDive creditKey={view} onBack={() => nav("home")} onNavigate={nav} />
         )}
       </div>
 
