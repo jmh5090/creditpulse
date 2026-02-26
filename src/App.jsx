@@ -16,55 +16,62 @@ import { useState, useRef, useEffect } from "react";
 // DESIGN SYSTEM
 // ═══════════════════════════════════════════════════════════
 
-// Color System — deep navy authority with warm gold accent
+// Color System — light, warm-neutral palette
 const COLOR = {
   // Surfaces
-  bg: "#0C1117",
-  bgSubtle: "#111820",
-  card: "#161D27",
-  cardHover: "#1A2332",
-  cardElevated: "#1E2738",
-  
+  bg: "#FAFAF8",
+  bgSubtle: "#F9F8F5",
+  card: "#FFFFFF",
+  cardHover: "#FAFAF8",
+  cardElevated: "#FFFFFF",
+
   // Borders
-  border: "#1E2A3A",
-  borderSubtle: "#162030",
-  borderHover: "#2A3A50",
-  
+  border: "#e8e6e1",
+  borderSubtle: "#f0ede8",
+  borderHover: "#d5d0c8",
+
   // Text
-  text: "#E8ECF1",
-  textSecondary: "#8A95A5",
-  textTertiary: "#5A6577",
-  textMuted: "#3D4A5C",
-  
+  text: "#1a1a1a",
+  textSecondary: "#5a5650",
+  textTertiary: "#9a958e",
+  textMuted: "#b5b0a8",
+
   // Accent
-  gold: "#D4A843",
-  goldDim: "#A68432",
-  goldBg: "rgba(212,168,67,0.08)",
-  goldBorder: "rgba(212,168,67,0.20)",
-  
+  gold: "#D4872C",
+  goldDim: "#B8741F",
+  goldBg: "rgba(212,135,44,0.06)",
+  goldBorder: "rgba(212,135,44,0.18)",
+
   // Status
-  green: "#34D399",
-  greenBg: "rgba(52,211,153,0.10)",
-  greenBorder: "rgba(52,211,153,0.25)",
-  amber: "#F59E0B",
-  amberBg: "rgba(245,158,11,0.10)",
-  amberBorder: "rgba(245,158,11,0.25)",
-  red: "#EF4444",
-  redBg: "rgba(239,68,68,0.10)",
-  redBorder: "rgba(239,68,68,0.25)",
-  blue: "#60A5FA",
-  blueBg: "rgba(96,165,250,0.10)",
-  
+  green: "#047857",
+  greenBg: "#ECFDF5",
+  greenBorder: "rgba(4,120,87,0.20)",
+  amber: "#D97706",
+  amberBg: "#FFF7ED",
+  amberBorder: "rgba(217,119,6,0.20)",
+  red: "#DC2626",
+  redBg: "rgba(220,38,38,0.06)",
+  redBorder: "rgba(220,38,38,0.18)",
+  blue: "#2563EB",
+  blueBg: "rgba(37,99,235,0.06)",
+
+  // Sunsetting tag
+  sunsetBg: "#FFF7ED",
+  sunsetText: "#C2410C",
+  // Active/positive tag
+  activeBg: "#ECFDF5",
+  activeText: "#047857",
+
   // Interactive
-  hover: "rgba(255,255,255,0.03)",
-  active: "rgba(255,255,255,0.06)",
+  hover: "rgba(0,0,0,0.02)",
+  active: "rgba(0,0,0,0.04)",
 };
 
 // Typography
 const FONT = {
-  display: "'Instrument Serif', Georgia, serif",
+  display: "'DM Serif Display', Georgia, serif",
   body: "'DM Sans', -apple-system, sans-serif",
-  mono: "'IBM Plex Mono', 'SF Mono', monospace",
+  mono: "'DM Sans', -apple-system, sans-serif",
 };
 
 // Spacing scale
@@ -77,10 +84,10 @@ const SP = { xs: 4, sm: 8, md: 12, lg: 16, xl: 24, xxl: 32, xxxl: 48 };
 const LAST_UPDATED = "February 2026";
 
 const STATUS_MAP = {
-  expanded: { color: COLOR.green, bg: COLOR.greenBg, border: COLOR.greenBorder, label: "EXPANDED" },
+  expanded: { color: COLOR.activeText, bg: COLOR.activeBg, border: COLOR.greenBorder, label: "EXPANDED" },
   active: { color: COLOR.textSecondary, bg: COLOR.active, border: COLOR.borderHover, label: "ACTIVE" },
   modified: { color: COLOR.amber, bg: COLOR.amberBg, border: COLOR.amberBorder, label: "MODIFIED" },
-  sunsetting: { color: COLOR.red, bg: COLOR.redBg, border: COLOR.redBorder, label: "SUNSETTING" },
+  sunsetting: { color: COLOR.sunsetText, bg: COLOR.sunsetBg, border: "rgba(194,65,12,0.20)", label: "SUNSETTING" },
 };
 
 const RISK_MAP = {
@@ -89,22 +96,177 @@ const RISK_MAP = {
   Elevated: { color: COLOR.red, level: 3, label: "ELEVATED" },
 };
 
+// ═══════════════════════════════════════════════════════════
+// PERSONA SEGMENTATION
+// ═══════════════════════════════════════════════════════════
+
+const PERSONAS = {
+  buyer: {
+    label: "Buyer",
+    shortLabel: "Buyer",
+    headerLabel: "Buyer",
+    desc: "Corporations, tax departments, CFOs",
+    question: "I'm looking to purchase tax credits to reduce my federal tax liability",
+  },
+  "seller-developer": {
+    label: "Seller — Project Developer",
+    shortLabel: "Seller — Developer",
+    headerLabel: "Developer",
+    desc: "Solar, wind, biogas, SAF, renewable energy developers",
+    question: "I generate credits through clean energy projects and want to monetize them",
+  },
+  "seller-manufacturer": {
+    label: "Seller — Manufacturer",
+    shortLabel: "Seller — Manufacturer",
+    headerLabel: "Manufacturer",
+    desc: "45X production credits, battery, solar component, critical mineral producers",
+    question: "I earn credits through domestic clean energy manufacturing",
+  },
+  advisor: {
+    label: "Advisor / Intermediary",
+    shortLabel: "Advisor",
+    headerLabel: "Advisor",
+    desc: "Tax equity firms, brokers, law firms, CPAs, consultants",
+    question: "I help clients navigate tax credit transactions",
+  },
+};
+
+const FEOC_CTA_TEXT = {
+  buyer: {
+    title: "Check FEOC compliance before you buy",
+    desc: "Foreign entity rules can disqualify credits entirely. Verify before you transact.",
+  },
+  "seller-developer": {
+    title: "Prove your project credits are FEOC-compliant",
+    desc: "Buyers are requiring supply chain verification. Demonstrate compliance to protect your project\u2019s credit value.",
+  },
+  "seller-manufacturer": {
+    title: "Check your supply chain against FEOC thresholds",
+    desc: "MACR thresholds are tightening annually. Verify your component supply chain now.",
+  },
+  advisor: {
+    title: "FEOC compliance decision tree",
+    desc: "Walk your clients through foreign entity restrictions. Step-by-step guidance for each credit.",
+  },
+};
+
+const BRIDGE_CTA = {
+  buyer: {
+    pretext: "Ready to reduce your tax bill?",
+    cta: "See how much you could save",
+    secondaryCta: "Talk to a marketplace specialist",
+    desc: "Explore credits on Crux \u2014 compare pricing, connect with verified sellers, and reduce your federal tax liability.",
+  },
+  "seller-developer": {
+    pretext: "Ready to monetize your credits?",
+    cta: "List your credits",
+    secondaryCta: "Get a valuation",
+    desc: "Reach qualified corporate buyers, set your price, and close faster on the Crux marketplace.",
+  },
+  "seller-manufacturer": {
+    pretext: "Ready to sell your production credits?",
+    cta: "List your credits",
+    secondaryCta: "Understand your credit value",
+    desc: "Connect directly with corporate buyers for your \u00A745X manufacturing credits on the Crux marketplace.",
+  },
+  advisor: {
+    pretext: "Need deal-ready intelligence for your clients?",
+    cta: "Request partnership information",
+    secondaryCta: "Access full market report",
+    desc: "Access real-time pricing, compliance data, and transaction support through the Crux platform.",
+  },
+  generic: {
+    pretext: "CreditPulse is powered by Crux Climate data.",
+    cta: "Learn about the Crux platform",
+    desc: "The marketplace where clean energy tax credits are bought and sold.",
+  },
+};
+
+const STAT_ORDER = {
+  buyer:                [0, 2, 1],  // Pricing, Timeline, Mkt Share
+  "seller-developer":   [1, 0, 2],  // Mkt Share, Pricing, Timeline
+  "seller-manufacturer": [0, 1, 2], // Pricing, Mkt Share, Timeline
+  advisor:              [2, 0, 1],  // Timeline, Pricing, Mkt Share
+};
+
+// ═══════════════════════════════════════════════════════════
+// LAYER 1 — "THE ANSWER" (hero data per persona)
+// Replaces PERSONA_EDITORIAL + PERSONA_BRIEFING with a single
+// opinionated block answering each persona's #1 question.
+// ═══════════════════════════════════════════════════════════
+
+const PERSONA_HERO = {
+  buyer: {
+    personaLabel: "BUYER MARKET SNAPSHOT",
+    headline: "TTC pricing at 12-month lows \u2014 your savings window is open",
+    body: "Transfer credits are at their cheapest in a year as OBBBA thinned the buyer pool \u2014 but a 2026 rebound is forecast.",
+    statCards: [
+      { creditLabel: "\u00A745X MANUFACTURING", price: "93\u201396\u00A2", subtitle: "per dollar \u00B7 IG pricing", tag: "\u2193 4\u20137% discount to par", tagColor: "green" },
+      { creditLabel: "\u00A748E CLEAN ELECTRICITY", price: "~89\u00A2", subtitle: "per dollar \u00B7 tech-neutral ITC", tag: "SUNSETTING \u00B7 deadline Jul 4", tagColor: "orange" },
+    ],
+  },
+  "seller-developer": {
+    personaLabel: "DEVELOPER MARKET SNAPSHOT",
+    headline: "Your credits are in demand \u2014 here\u2019s what buyers are paying",
+    body: "The transfer market grew 48% YoY to ~$42B, and the Jul 4, 2026 construction deadline is reshaping which credits reach market.",
+    statCards: [
+      { creditLabel: "\u00A748E CLEAN ELECTRICITY", price: "~89\u00A2", subtitle: "per dollar \u00B7 tech-neutral ITC", tag: "SUNSETTING \u00B7 deadline Jul 4", tagColor: "orange" },
+      { creditLabel: "\u00A745Z CLEAN FUEL", price: "Varies", subtitle: "CI-based \u00B7 new market", tag: "48% YoY market growth", tagColor: "green" },
+    ],
+  },
+  "seller-manufacturer": {
+    personaLabel: "MANUFACTURER MARKET SNAPSHOT",
+    headline: "\u00A745X is the most actively traded credit \u2014 your monetization window",
+    body: "Manufacturing production credits command top-of-market pricing at 93\u201396\u00A2, with 30% of listings receiving bids on day one.",
+    statCards: [
+      { creditLabel: "\u00A745X MANUFACTURING", price: "93\u201396\u00A2", subtitle: "per dollar (IG) \u00B7 top of market", tag: "30% of listings get bids day one", tagColor: "green" },
+      { creditLabel: "MARKET SHARE", price: "27%", subtitle: "of transfer market volume", tag: "Most actively traded PTC", tagColor: "green" },
+    ],
+  },
+  advisor: {
+    personaLabel: "ADVISOR MARKET SNAPSHOT",
+    headline: "Market at $63B and 12-month pricing lows \u2014 significant inventory in play",
+    body: "Total tax credit monetization reached $63B in 2025 (+27% YoY). Transfer market ~$42B (+48%), with $8\u201310B in unsold 2025-vintage credits still available.",
+    statCards: [
+      { creditLabel: "\u00A745X MANUFACTURING", price: "93\u201396\u00A2", subtitle: "per dollar \u00B7 IG PTC", tag: "\u2193 4\u20137% discount to par", tagColor: "green" },
+      { creditLabel: "\u00A748E CLEAN ELECTRICITY", price: "~89\u00A2", subtitle: "per dollar \u00B7 tech-neutral ITC", tag: "SUNSETTING \u00B7 deadline Jul 4", tagColor: "orange" },
+    ],
+  },
+};
+
+// ═══════════════════════════════════════════════════════════
+// LAYER 2 — "YOUR NEXT MOVE" (curated credit cards per persona)
+// ═══════════════════════════════════════════════════════════
+
+const PERSONA_NEXT_MOVE = {
+  buyer: { credits: ["45X", "48E"], layout: "grid-2" },
+  "seller-developer": { credits: ["48E", "45Z", "45Q"], layout: "grid-3" },
+  "seller-manufacturer": { credits: ["45X"], extraCards: ["48C"], layout: "featured" },
+  advisor: { credits: ["48E", "45X", "45Z", "45Q"], showOther: true, showTerminated: true, layout: "grid-full" },
+};
+
 const CREDITS = {
   "45X": {
     sec: "§45X", name: "Advanced Manufacturing Production", type: "PTC",
     status: "modified",
     tagline: "Per-unit payment to U.S. clean energy manufacturers",
-    pricing: "93.5–96¢", pricingCtx: "per $1",
+    personaTaglines: {
+      buyer: "Most actively traded credit \u2014 30% of listings get bids on day one.",
+      "seller-developer": "Strong buyer demand if you\u2019re transferring credits from project partnerships.",
+      "seller-manufacturer": "This is your core credit. 27% of the transfer market, fastest execution.",
+      advisor: "Supply chain compliance (FEOC) is the dominant diligence issue.",
+    },
+    pricing: "93.5\u201396\u00A2", pricingCtx: "per $1",
     pricingDetail: {
       type: "ig_split",
-      ig: { low: 93, high: 96, label: "93–96¢" },
-      nonIg: { low: 90, high: 93, label: "90–93¢" },
-      spread: "~3¢",
+      ig: { low: 93, high: 96, label: "93\u201396\u00A2" },
+      nonIg: { low: 90, high: 93, label: "90\u201393\u00A2" },
+      spread: "~3\u00A2",
       source: "Crux 2025 market data",
       note: "Most actively traded credit. 30% of listings get bids on day one."
     },
     share: "27%", shareCtx: "of transfer market",
-    timeline: "8–16 wks", timelineCtx: "listing → close",
+    timeline: "8\u201316 wks", timelineCtx: "listing \u2192 close",
     risk: "Low",
     keyDate: "12/31/2029", keyDateLabel: "Full credit expires",
     nextDate: { date: "Late 2026", label: "Final FEOC rules expected", urgent: false },
@@ -179,7 +341,13 @@ const CREDITS = {
     sec: "§48E", name: "Clean Electricity Investment", type: "ITC",
     status: "sunsetting",
     tagline: "Up to 30%+ of clean power & storage project costs",
-    pricing: "~89¢", pricingCtx: "per $1",
+    personaTaglines: {
+      buyer: "Largest credit segment \u2014 $42B transfer market. Trading at a discount to legacy credits.",
+      "seller-developer": "Energy storage nearly tripled market share. Wind/solar deadline is July 4, 2026.",
+      "seller-manufacturer": "ITC credits from projects using your manufactured components. Drives demand for your \u00A745X credits.",
+      advisor: "Recapture risk, PWA compliance, and FEOC are the three key advisory issues.",
+    },
+    pricing: "~89\u00A2", pricingCtx: "per $1",
     pricingDetail: {
       type: "ig_split",
       ig: { low: 90, high: 93, label: "90–93¢" },
@@ -266,7 +434,13 @@ const CREDITS = {
   "45Z": {
     sec: "§45Z", name: "Clean Fuel Production", type: "PTC",
     status: "expanded",
-    tagline: "The only credit OBBBA expanded — pays per gallon by cleanliness",
+    tagline: "The only credit OBBBA expanded \u2014 pays per gallon by cleanliness",
+    personaTaglines: {
+      buyer: "New to the transfer market \u2014 trading at a discount as the market develops.",
+      "seller-developer": "Extended through 2029. Corn ethanol and soy biodiesel benefit from ILUC exclusion.",
+      "seller-manufacturer": "Production credit for clean fuels. Rules still in proposed form \u2014 CI scoring determines credit value.",
+      advisor: "Carbon intensity scoring is still in proposed form \u2014 final rules will shift credit values.",
+    },
     pricing: "Discount", pricingCtx: "to established credits",
     pricingDetail: {
       type: "early_stage",
@@ -350,8 +524,14 @@ const CREDITS = {
   "45Q": {
     sec: "§45Q", name: "Carbon Dioxide Sequestration", type: "PTC",
     status: "expanded",
-    tagline: "Per-ton payment for capturing and permanently storing CO₂",
-    pricing: "85–90¢", pricingCtx: "per $1 (larger discount)",
+    tagline: "Per-ton payment for capturing and permanently storing CO\u2082",
+    personaTaglines: {
+      buyer: "Larger discount than power-sector credits \u2014 reflects technology risk and 12-year commitment.",
+      "seller-developer": "Up to $180/ton for DAC. OBBBA left \u00A745Q intact \u2014 strong political durability signal.",
+      "seller-manufacturer": "Not directly a manufacturing credit, but CCS equipment manufacturers benefit from project demand.",
+      advisor: "MRV compliance is the dominant diligence issue. IRS safe harbor available for 2025 reporting.",
+    },
+    pricing: "85\u201390\u00A2", pricingCtx: "per $1 (larger discount)",
     pricingDetail: {
       type: "range_only",
       low: 85, high: 90, label: "85–90¢",
@@ -745,17 +925,17 @@ const FEOC_TREE = {
 };
 
 const TIMELINE = [
-  { d: "Jul 4, 2025", e: "OBBBA signed into law", past: true },
-  { d: "Sep 30, 2025", e: "EV credits terminated", past: true },
-  { d: "Dec 31, 2025", e: "Home energy credits ended; FEOC rules took effect", past: true },
-  { d: "Feb 2026", e: "Interim FEOC guidance & proposed §45Z rules", past: true, type: "guidance" },
-  { d: "May 28, 2026", e: "Public hearing on §45Z regulations", type: "guidance", credits: ["45Z"] },
-  { d: "Jun 30, 2026", e: "§30C, §45L, §179D terminate", next: true },
-  { d: "Jul 4, 2026", e: "Hard deadline: begin construction for wind/solar", urgent: true, credits: ["48E"] },
-  { d: "Late 2026", e: "Final FEOC rules expected", type: "guidance", credits: ["45X", "48E"] },
-  { d: "Dec 31, 2026", e: "Domestic content requirement rises to 55%", credits: ["48E"] },
-  { d: "Dec 31, 2027", e: "Wind/solar operational deadline; §45X wind credits end", credits: ["48E", "45X"] },
-  { d: "Dec 31, 2029", e: "§45Z and §45X full-value credits expire", credits: ["45Z", "45X"] },
+  { d: "Jul 4, 2025", e: "OBBBA signed into law", past: true, feedType: "deadline" },
+  { d: "Sep 30, 2025", e: "EV credits terminated", past: true, feedType: "deadline" },
+  { d: "Dec 31, 2025", e: "Home energy credits ended; FEOC rules took effect", past: true, feedType: "deadline" },
+  { d: "Feb 2026", e: "Interim FEOC guidance & proposed §45Z rules", past: true, type: "guidance", feedType: "guidance" },
+  { d: "May 28, 2026", e: "Public hearing on §45Z regulations", type: "guidance", feedType: "guidance", credits: ["45Z"], personaRelevance: { buyer: "low", "seller-developer": "medium", "seller-manufacturer": "low", advisor: "high" } },
+  { d: "Jun 30, 2026", e: "§30C, §45L, §179D terminate", feedType: "deadline", next: true, personaRelevance: { buyer: "low", "seller-developer": "low", "seller-manufacturer": "low", advisor: "medium" } },
+  { d: "Jul 4, 2026", e: "Hard deadline: begin construction for wind/solar", feedType: "deadline", urgent: true, credits: ["48E"], personaRelevance: { buyer: "high", "seller-developer": "high", "seller-manufacturer": "medium", advisor: "high" } },
+  { d: "Late 2026", e: "Final FEOC rules expected", type: "guidance", feedType: "guidance", credits: ["45X", "48E"], personaRelevance: { buyer: "high", "seller-developer": "high", "seller-manufacturer": "high", advisor: "high" } },
+  { d: "Dec 31, 2026", e: "Domestic content requirement rises to 55%", feedType: "regulatory", credits: ["48E"], personaRelevance: { buyer: "medium", "seller-developer": "high", "seller-manufacturer": "high", advisor: "high" } },
+  { d: "Dec 31, 2027", e: "Wind/solar operational deadline; §45X wind credits end", feedType: "deadline", credits: ["48E", "45X"], personaRelevance: { buyer: "medium", "seller-developer": "high", "seller-manufacturer": "high", advisor: "medium" } },
+  { d: "Dec 31, 2029", e: "§45Z and §45X full-value credits expire", feedType: "deadline", credits: ["45Z", "45X"], personaRelevance: { buyer: "medium", "seller-developer": "high", "seller-manufacturer": "high", advisor: "medium" } },
 ];
 
 const NEWS = [
@@ -773,7 +953,8 @@ const NEWS = [
       enterprise: "Crux forecasts a pricing rebound in 2026 as large corporate buyers return and compete for a finite credit pool. Solar ITC and §45X credits expected to see strongest recovery.",
       midMarket: "The $8–10B in unsold 2025-vintage credits may present buying opportunities at favorable pricing before the expected rebound.",
       sellers: "H2 softness reflects OBBBA digestion, not demand destruction. Position for 2026 recovery."
-    }
+    },
+    personaRelevance: { buyer: "high", "seller-developer": "high", "seller-manufacturer": "high", advisor: "medium" }
   },
   {
     date: "Feb 2026", source: "Treasury / IRS", severity: "high", credits: ["48E", "45X"],
@@ -789,7 +970,8 @@ const NEWS = [
       enterprise: "Key open questions: constructive ownership rules, debt threshold testing for foreign-influenced entity status, safe harbor tables for nuclear/fuel cells/geothermal.",
       midMarket: "90%+ of developers already initiated supply chain mapping. Start now if you haven't.",
       sellers: "80% report no SFE/FIE exposure. Demonstrate compliance to maintain credit value."
-    }
+    },
+    personaRelevance: { buyer: "medium", "seller-developer": "high", "seller-manufacturer": "high", advisor: "high" }
   },
   {
     date: "Feb 2026", source: "Treasury / IRS", severity: "high", credits: ["48E"],
@@ -805,7 +987,8 @@ const NEWS = [
       enterprise: "Crux estimates 170 GW already safe-harbored (147 GW solar + 23 GW wind) — sufficient pipeline for several years.",
       midMarket: "Verify safe harbor status of any project credits you're evaluating. Pre-Sept 2025 construction start is key.",
       sellers: "July 4, 2026 hard deadline. Ensure construction documentation is airtight."
-    }
+    },
+    personaRelevance: { buyer: "medium", "seller-developer": "high", "seller-manufacturer": "medium", advisor: "high" }
   },
   {
     date: "Feb 2026", source: "Crux Climate", severity: "medium", credits: ["48E"],
@@ -821,7 +1004,8 @@ const NEWS = [
       enterprise: "Crux expects gradual shift toward tech-neutral credits beyond 2026 as safe-harbored legacy pipeline reaches commercial operation. FEOC clarity is the key unlock.",
       midMarket: "Legacy credits offer less FEOC risk. Consider the discount on tech-neutral credits against your risk tolerance.",
       sellers: "Demonstrate FEOC compliance to close the pricing gap on tech-neutral credits."
-    }
+    },
+    personaRelevance: { buyer: "high", "seller-developer": "medium", "seller-manufacturer": "medium", advisor: "medium" }
   },
   {
     date: "Feb 2026", source: "Crux Climate", severity: "medium", credits: ["48E"],
@@ -837,7 +1021,8 @@ const NEWS = [
       enterprise: "FEOC material assistance thresholds for energy storage start at 55% in 2026, rising to 75% by 2030+. Falling costs and grid volatility position storage as central to new capacity.",
       midMarket: "Storage credits offer long runway through 2034. Battery cost declines improve project economics.",
       sellers: "Contracted projects get best financing terms. Focus on offtake agreements."
-    }
+    },
+    personaRelevance: { buyer: "medium", "seller-developer": "high", "seller-manufacturer": "medium", advisor: "low" }
   },
   {
     date: "Feb 2026", source: "Crux Climate", severity: "high", credits: ["48E", "45X", "45Z"],
@@ -853,7 +1038,8 @@ const NEWS = [
       enterprise: "Transfer market increasingly functions as complement to tax equity. Integrated capital stacks are the new norm for project finance.",
       midMarket: "Hybrid structures offer flexible entry points for credit buyers at various scales.",
       sellers: "Integrated capital stacks are the new norm. Structure deals to accommodate both TE and transfer buyers."
-    }
+    },
+    personaRelevance: { buyer: "high", "seller-developer": "high", "seller-manufacturer": "medium", advisor: "medium" }
   },
   {
     date: "Feb 18, 2026", source: "Treasury / IRS", severity: "medium", credits: ["45Q"],
@@ -869,7 +1055,8 @@ const NEWS = [
       enterprise: "Positive signal — the IRS is actively protecting §45Q credit eligibility during reporting transitions. If you're evaluating CCS/DAC credit purchases, this reduces near-term regulatory risk.",
       midMarket: "Helpful for due diligence. Companies considering first-time §45Q credit purchases can point to this safe harbor as evidence of regulatory commitment to keeping the credit functional.",
       sellers: "Good news. Developers and facility operators won't lose 2025 credits due to EPA reporting system issues. Maintain your independent MRV documentation as backup."
-    }
+    },
+    personaRelevance: { buyer: "low", "seller-developer": "medium", "seller-manufacturer": "low", advisor: "high" }
   },
   {
     date: "Feb 12, 2026", source: "Treasury / IRS", severity: "high", credits: ["45X", "48E"],
@@ -885,7 +1072,8 @@ const NEWS = [
       enterprise: "Action required. Map your supply chains now. The safe harbor protects you temporarily, but final rules could tighten the 25% threshold. Companies that wait risk losing credit eligibility.",
       midMarket: "Start supply chain mapping immediately even if you're not currently claiming credits. The FEOC framework will be the defining compliance issue for manufacturing and investment credits going forward.",
       sellers: "Critical. Manufacturers must demonstrate supply chain compliance to maintain credit value. Third-party supply chain verification is becoming a standard buyer requirement."
-    }
+    },
+    personaRelevance: { buyer: "high", "seller-developer": "high", "seller-manufacturer": "high", advisor: "high" }
   },
   {
     date: "Feb 5, 2026", source: "Treasury / IRS", severity: "high", credits: ["45Z"],
@@ -901,7 +1089,8 @@ const NEWS = [
       enterprise: "Watch closely. §45Z is the only credit OBBBA extended through 2029. The CI scoring methodology will determine which fuels qualify and at what credit value. Model your exposure now.",
       midMarket: "Don't wait for final rules. Start CI modeling immediately using 45ZCF-GREET. The 90-day registration lead time means companies that delay could miss entire quarters of credit generation.",
       sellers: "Critical. Producers must begin registration and third-party verification engagement now. The proposed CI benchmarks will directly determine your credit value per gallon."
-    }
+    },
+    personaRelevance: { buyer: "medium", "seller-developer": "high", "seller-manufacturer": "medium", advisor: "high" }
   },
   {
     date: "Jan 22, 2026", source: "DOE", severity: "low", credits: ["48E"],
@@ -917,7 +1106,8 @@ const NEWS = [
       enterprise: "Minor update. If you're buying credits from projects in newly-designated energy communities, the 10% bonus may apply. Update your internal qualifying project maps.",
       midMarket: "Useful for evaluating specific project deals. New census tracts could make previously-borderline projects eligible for bonus credit amounts.",
       sellers: "Developers in or near the 12 new MSAs should reassess project eligibility for the energy community bonus."
-    }
+    },
+    personaRelevance: { buyer: "low", "seller-developer": "medium", "seller-manufacturer": "low", advisor: "medium" }
   },
   {
     date: "Jan 15, 2026", source: "Congress", severity: "medium", credits: ["45X", "48E", "45Z", "45Q"],
@@ -933,7 +1123,8 @@ const NEWS = [
       enterprise: "Low immediate impact, but signals future regulatory direction. Document your pricing methodology and broker selection processes now.",
       midMarket: "Net positive. More transparency generally benefits mid-market buyers who lack deal volume to command premium pricing.",
       sellers: "Minimal near-term effect. Watch the GAO report's recommendations — mandatory pricing disclosure could compress margins."
-    }
+    },
+    personaRelevance: { buyer: "medium", "seller-developer": "low", "seller-manufacturer": "low", advisor: "high" }
   },
 ];
 
@@ -1018,64 +1209,16 @@ function TerminatedSection() {
   );
 }
 
-// Regulatory monitor — slim clickable row (modal handled by parent)
-function RegCardRow({ item, onClick, isLast }) {
-  const [hov, setHov] = useState(false);
-
-  return (
-    <div
-      onClick={onClick}
-      onMouseEnter={() => setHov(true)}
-      onMouseLeave={() => setHov(false)}
-      style={{
-        padding: "12px 8px",
-        margin: "0 -8px",
-        borderBottom: isLast ? "none" : `1px solid ${COLOR.borderSubtle}`,
-        cursor: "pointer",
-        borderRadius: 6,
-        background: hov ? COLOR.hover : "transparent",
-        transition: "background 0.15s",
-      }}
-    >
-      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 5 }}>
-        <SeverityDot severity={item.severity} />
-        <span style={{ fontSize: 11, color: COLOR.textTertiary, fontFamily: FONT.mono }}>{item.date}</span>
-        <span style={{ fontSize: 10, color: COLOR.textMuted }}>·</span>
-        <span style={{ fontSize: 11, color: COLOR.textTertiary }}>{item.source}</span>
-        <div style={{ flex: 1 }} />
-        <div style={{ display: "flex", gap: 3 }}>
-          {item.credits.map((cr, j) => (
-            <span key={j} style={{
-              fontSize: 9, padding: "1px 5px", borderRadius: 3,
-              fontFamily: FONT.mono, fontWeight: 600,
-              background: COLOR.goldBg, color: COLOR.goldDim,
-              border: `1px solid ${COLOR.goldBorder}`,
-            }}>
-              §{cr}
-            </span>
-          ))}
-        </div>
-      </div>
-      <div style={{
-        fontSize: 14, color: COLOR.textSecondary, lineHeight: 1.45,
-        fontWeight: 500,
-      }}>
-        {item.title}
-      </div>
-      <span style={{
-        fontSize: 11, color: hov ? COLOR.gold : COLOR.textTertiary, fontWeight: 500,
-        marginTop: 5, display: "inline-block",
-        transition: "color 0.15s",
-      }}>
-        View details →
-      </span>
-    </div>
-  );
-}
+// ═══════════════════════════════════════════════════════════
+// PERSONA SORT UTILITIES
+// ═══════════════════════════════════════════════════════════
 
 // Regulatory detail modal — rendered at top level, outside all grids/transforms
-function RegModal({ item, onClose, onNavigate }) {
-  const [impactTab, setImpactTab] = useState("enterprise");
+function RegModal({ item, onClose, onNavigate, persona }) {
+  const isSeller = persona === "seller-developer" || persona === "seller-manufacturer";
+  const defaultTab = isSeller ? "sellers" : "enterprise";
+  const [impactTab, setImpactTab] = useState(defaultTab);
+  useEffect(() => { setImpactTab(isSeller ? "sellers" : "enterprise"); }, [persona]);
 
   const IMPACT_LABELS = {
     enterprise: { label: "Enterprise", desc: "Fortune 500 / large-cap" },
@@ -1092,7 +1235,7 @@ function RegModal({ item, onClose, onNavigate }) {
       onClick={onClose}
       style={{
         position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
-        background: "rgba(0,0,0,0.65)", backdropFilter: "blur(6px)",
+        background: "rgba(0,0,0,0.25)", backdropFilter: "blur(6px)",
         WebkitBackdropFilter: "blur(6px)",
         zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center",
         padding: 32,
@@ -1105,7 +1248,7 @@ function RegModal({ item, onClose, onNavigate }) {
           background: COLOR.card, border: `1px solid ${COLOR.borderHover}`,
           borderRadius: 16, width: "100%", maxWidth: 720,
           maxHeight: "85vh", overflowY: "auto",
-          boxShadow: "0 32px 100px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.05) inset",
+          boxShadow: "0 16px 48px rgba(0,0,0,0.12)",
         }}
       >
         {/* Header — sticky */}
@@ -1280,6 +1423,171 @@ function FadeIn({ children, delay = 0, style = {} }) {
       ...style
     }}>
       {children}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════
+// CONTENT GATING — "Free the what, gate the how much"
+// ═══════════════════════════════════════════════════════════
+// PMM rationale: CreditPulse gives away the full market narrative (credit names,
+// deadlines, qualitative trends, intelligence headlines) for free. Specific
+// pricing, market share figures, and transaction data — the numbers a buyer,
+// seller, or advisor needs to make a deal — are gated behind a single email
+// field. This creates a clear value exchange: urgency and context are free,
+// decision-grade data converts to a lead.
+
+// PMM rationale: Blur (not a hard block) signals that real data exists behind
+// the gate. Users can see the *shape* of numbers, charts, and columns — creating
+// desire rather than frustration. A hard "locked" icon grid feels like a paywall;
+// a frosted-glass blur feels like a preview.
+function GatedContent({ isUnlocked, onRequestUnlock, children, style = {} }) {
+  const [showOverlay, setShowOverlay] = useState(false);
+  const wrapperRef = useRef(null);
+
+  if (isUnlocked) return <>{children}</>;
+
+  return (
+    <div
+      ref={wrapperRef}
+      style={{ position: "relative", ...style }}
+      onClick={(e) => {
+        e.stopPropagation();
+        setShowOverlay(true);
+      }}
+    >
+      <div style={{
+        filter: "blur(6px)",
+        userSelect: "none",
+        pointerEvents: "none",
+      }}>
+        {children}
+      </div>
+      <div style={{
+        position: "absolute", inset: 0,
+        background: "rgba(250, 250, 248, 0.25)",
+        borderRadius: 8,
+        cursor: "pointer",
+      }} />
+      {showOverlay && (
+        <EmailCaptureOverlay
+          anchorRef={wrapperRef}
+          onSubmit={(email) => {
+            onRequestUnlock(email);
+            setShowOverlay(false);
+          }}
+          onClose={() => setShowOverlay(false)}
+        />
+      )}
+    </div>
+  );
+}
+
+// PMM rationale: Single email field, contextual (not a centered modal), minimal
+// friction. Every additional form field (name, company, phone) reduces conversion
+// rate. The overlay appears anchored to the gated content the user clicked —
+// reinforcing the value exchange at the moment of highest intent.
+function EmailCaptureOverlay({ anchorRef, onSubmit, onClose }) {
+  const [email, setEmail] = useState("");
+  const [error, setError] = useState("");
+  const overlayRef = useRef(null);
+
+  useEffect(() => {
+    function handleClick(e) {
+      if (overlayRef.current && !overlayRef.current.contains(e.target)) {
+        onClose();
+      }
+    }
+    function handleKey(e) {
+      if (e.key === "Escape") onClose();
+    }
+    document.addEventListener("mousedown", handleClick);
+    document.addEventListener("keydown", handleKey);
+    return () => {
+      document.removeEventListener("mousedown", handleClick);
+      document.removeEventListener("keydown", handleKey);
+    };
+  }, [onClose]);
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    const trimmed = email.trim();
+    if (!trimmed || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
+      setError("Please enter a valid email address");
+      return;
+    }
+    onSubmit(trimmed);
+  }
+
+  return (
+    <div
+      ref={overlayRef}
+      onClick={(e) => e.stopPropagation()}
+      style={{
+        position: "absolute",
+        top: "50%", left: "50%",
+        transform: "translate(-50%, -50%)",
+        zIndex: 200,
+        background: "#FFFFFF",
+        borderRadius: 14,
+        padding: "28px 28px 22px",
+        boxShadow: "0 12px 40px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06)",
+        border: `1px solid ${COLOR.border}`,
+        width: "min(360px, 90%)",
+        animation: "gateOverlayIn 0.2s ease",
+      }}
+    >
+      <h3 style={{
+        fontFamily: FONT.display, fontSize: 22, fontWeight: 400,
+        color: COLOR.text, margin: "0 0 8px", lineHeight: 1.3,
+      }}>
+        Unlock full market intelligence
+      </h3>
+      <p style={{
+        fontSize: 14, color: COLOR.textSecondary, lineHeight: 1.5,
+        margin: "0 0 18px",
+      }}>
+        Enter your email to access pricing data, market trends, and transaction insights.
+      </p>
+      <form onSubmit={handleSubmit} style={{ display: "flex", gap: 8 }}>
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => { setEmail(e.target.value); setError(""); }}
+          placeholder="you@company.com"
+          autoFocus
+          style={{
+            flex: 1, padding: "10px 14px",
+            fontFamily: FONT.body, fontSize: 14,
+            border: `1px solid ${error ? COLOR.red : COLOR.border}`,
+            borderRadius: 8, outline: "none",
+            transition: "border-color 0.15s",
+            color: COLOR.text,
+            background: "#FFFFFF",
+          }}
+          onFocus={(e) => { e.currentTarget.style.borderColor = error ? COLOR.red : COLOR.goldBorder; }}
+          onBlur={(e) => { e.currentTarget.style.borderColor = error ? COLOR.red : COLOR.border; }}
+        />
+        <button type="submit" style={{
+          background: COLOR.gold, color: "#fff",
+          border: "none", borderRadius: 8,
+          padding: "10px 20px", fontWeight: 700, fontSize: 14,
+          cursor: "pointer", fontFamily: FONT.body,
+          whiteSpace: "nowrap", transition: "background 0.15s",
+          flexShrink: 0,
+        }}>
+          Unlock
+        </button>
+      </form>
+      {error && (
+        <div style={{ fontSize: 12, color: COLOR.red, marginTop: 6 }}>{error}</div>
+      )}
+      <p style={{
+        fontSize: 11, color: COLOR.textMuted, margin: "14px 0 0",
+        textAlign: "center",
+      }}>
+        Join 2,000+ clean energy professionals
+      </p>
     </div>
   );
 }
@@ -1464,7 +1772,23 @@ function PricingChart({ detail }) {
 }
 
 // Metric card used in hero strip and deep dives
-function MetricCard({ label, value, sublabel, style = {} }) {
+function MetricCard({ label, value, sublabel, style = {}, isUnlocked, onRequestUnlock }) {
+  const valueContent = (
+    <>
+      <div style={{
+        fontFamily: FONT.mono, fontSize: 24, fontWeight: 700,
+        color: COLOR.text, marginBottom: 3,
+      }}>
+        {value}
+      </div>
+      {sublabel && (
+        <div style={{ fontSize: 12, color: COLOR.textTertiary, lineHeight: 1.3 }}>
+          {sublabel}
+        </div>
+      )}
+    </>
+  );
+
   return (
     <div style={{
       padding: "20px 18px",
@@ -1478,25 +1802,20 @@ function MetricCard({ label, value, sublabel, style = {} }) {
       }}>
         {label}
       </div>
-      <div style={{
-        fontFamily: FONT.mono, fontSize: 24, fontWeight: 700,
-        color: COLOR.text, marginBottom: 3,
-      }}>
-        {value}
-      </div>
-      {sublabel && (
-        <div style={{ fontSize: 12, color: COLOR.textTertiary, lineHeight: 1.3 }}>
-          {sublabel}
-        </div>
-      )}
+      {isUnlocked !== undefined ? (
+        <GatedContent isUnlocked={isUnlocked} onRequestUnlock={onRequestUnlock}>
+          {valueContent}
+        </GatedContent>
+      ) : valueContent}
     </div>
   );
 }
 
 // Credit card — clean, scannable, no jargon
-function CreditCard({ credit, onClick, delay = 0 }) {
+function CreditCard({ credit, onClick, delay = 0, persona, isUnlocked, onRequestUnlock }) {
   const [hov, setHov] = useState(false);
   const c = credit;
+  const tagline = (persona && c.personaTaglines?.[persona]) || c.tagline;
 
   // Determine if sunsetting deserves a visible warning
   const isSunsetting = c.status === "sunsetting";
@@ -1515,7 +1834,7 @@ function CreditCard({ credit, onClick, delay = 0 }) {
           cursor: "pointer",
           transition: "all 0.2s ease",
           transform: hov ? "translateY(-2px)" : "translateY(0)",
-          boxShadow: hov ? "0 8px 32px rgba(0,0,0,0.3)" : "0 2px 8px rgba(0,0,0,0.15)",
+          boxShadow: hov ? "0 8px 24px rgba(0,0,0,0.08)" : "0 1px 3px rgba(0,0,0,0.04)",
         }}
       >
         {/* Top row: section + sunsetting warning only */}
@@ -1530,7 +1849,7 @@ function CreditCard({ credit, onClick, delay = 0 }) {
             <span style={{
               fontSize: 10, fontWeight: 700, letterSpacing: "0.08em",
               padding: "3px 8px", borderRadius: 4,
-              color: COLOR.red, background: COLOR.redBg, border: `1px solid ${COLOR.redBorder}`,
+              color: COLOR.sunsetText, background: COLOR.sunsetBg,
             }}>
               SUNSETTING
             </span>
@@ -1545,30 +1864,40 @@ function CreditCard({ credit, onClick, delay = 0 }) {
           {c.name}
         </h3>
 
-        {/* Tagline */}
+        {/* Tagline — persona-aware */}
         <p style={{
           fontSize: 14, color: COLOR.textSecondary, lineHeight: 1.55,
           margin: "0 0 16px",
         }}>
-          {c.tagline}
+          {tagline}
         </p>
 
-        {/* Mini stats row */}
+        {/* Mini stats row — reordered by persona */}
+        {/* PMM rationale: For Seller — Project Developer, this is the primary gate.
+            Developers want to know "what are buyers paying?" The card name and tagline
+            (free) hook interest; pricing/share/timeline figures (gated) convert.
+            Labels stay visible so users know exactly what's behind the blur. */}
         <div style={{
           display: "grid", gridTemplateColumns: "1fr 1fr 1fr",
           gap: 1, background: COLOR.borderSubtle, borderRadius: 8, overflow: "hidden",
         }}>
-          {[
-            [c.pricing, "Pricing"],
-            [c.share, "Mkt Share"],
-            [c.timeline, "Timeline"],
-          ].map(([val, label], i) => (
+          {(() => {
+            const allStats = [
+              [c.pricing, "Pricing"],
+              [c.share, "Mkt Share"],
+              [c.timeline, "Timeline"],
+            ];
+            const order = (persona && STAT_ORDER[persona]) || [0, 1, 2];
+            return order.map(i => allStats[i]);
+          })().map(([val, label], i) => (
             <div key={i} style={{
               background: COLOR.bgSubtle, padding: "10px 8px", textAlign: "center",
             }}>
-              <div style={{ fontFamily: FONT.mono, fontSize: 14, fontWeight: 700, color: COLOR.text }}>
-                {val}
-              </div>
+              <GatedContent isUnlocked={isUnlocked} onRequestUnlock={onRequestUnlock}>
+                <div style={{ fontFamily: FONT.mono, fontSize: 14, fontWeight: 700, color: COLOR.text }}>
+                  {val}
+                </div>
+              </GatedContent>
               <div style={{ fontSize: 10, color: COLOR.textTertiary, letterSpacing: "0.06em", fontWeight: 600, marginTop: 2 }}>
                 {label.toUpperCase()}
               </div>
@@ -1629,7 +1958,7 @@ function Tabs({ tabs, activeTab, onTabChange }) {
               fontFamily: FONT.body, fontSize: 13, fontWeight: active ? 700 : 500,
               color: active ? COLOR.text : COLOR.textTertiary,
               transition: "all 0.2s",
-              boxShadow: active ? "0 2px 8px rgba(0,0,0,0.2)" : "none",
+              boxShadow: active ? "0 1px 3px rgba(0,0,0,0.06)" : "none",
             }}
           >
             {tab.label}
@@ -1640,116 +1969,11 @@ function Tabs({ tabs, activeTab, onTabChange }) {
   );
 }
 
-// Severity dot for news items
-function SeverityDot({ severity }) {
-  const colors = { high: COLOR.red, medium: COLOR.amber, low: COLOR.textTertiary };
-  return (
-    <div style={{
-      width: 7, height: 7, borderRadius: "50%",
-      background: colors[severity] || COLOR.textTertiary,
-      flexShrink: 0,
-    }} />
-  );
-}
-
-// Timeline visual item
-function TimelineItem({ item, isLast, onNavigate }) {
-  const isPast = item.past;
-  const isUrgent = item.urgent;
-  const isNext = item.next;
-  const isGuidance = item.type === "guidance" && !isPast;
-
-  let dotColor = COLOR.textMuted;
-  if (isUrgent) dotColor = COLOR.red;
-  else if (isNext) dotColor = COLOR.text;
-  else if (isGuidance) dotColor = COLOR.amber;
-  else if (isPast) dotColor = COLOR.textMuted;
-
-  return (
-    <div style={{ display: "flex", gap: 14, paddingBottom: isLast ? 0 : 16 }}>
-      {/* Dot + line */}
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", width: 12, flexShrink: 0 }}>
-        <div style={{
-          width: 10, height: 10,
-          borderRadius: isGuidance ? 2 : "50%",
-          background: dotColor,
-          border: isNext ? `2px solid ${COLOR.text}` : "none",
-          boxShadow: isUrgent ? `0 0 8px ${COLOR.red}40` : "none",
-          flexShrink: 0,
-        }} />
-        {!isLast && (
-          <div style={{ width: 1, flex: 1, background: COLOR.border, marginTop: 4 }} />
-        )}
-      </div>
-      {/* Content */}
-      <div style={{ flex: 1, paddingBottom: 2 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", marginBottom: 2 }}>
-          <span style={{
-            fontFamily: FONT.mono, fontSize: 11,
-            color: isPast ? COLOR.textMuted : isUrgent ? COLOR.red : COLOR.textSecondary,
-            fontWeight: isUrgent || isNext ? 700 : 400,
-            textDecoration: isPast ? "line-through" : "none",
-          }}>
-            {item.d}
-          </span>
-          {isNext && (
-            <span style={{
-              fontSize: 9, padding: "2px 6px", borderRadius: 3,
-              background: COLOR.text, color: COLOR.bg, fontWeight: 700, letterSpacing: "0.05em",
-            }}>NEXT</span>
-          )}
-          {isGuidance && (
-            <span style={{
-              fontSize: 9, padding: "2px 6px", borderRadius: 3,
-              background: COLOR.amberBg, color: COLOR.amber, fontWeight: 700, border: `1px solid ${COLOR.amberBorder}`,
-            }}>GUIDANCE</span>
-          )}
-          {isUrgent && (
-            <span style={{
-              fontSize: 9, padding: "2px 6px", borderRadius: 3,
-              background: COLOR.redBg, color: COLOR.red, fontWeight: 700, border: `1px solid ${COLOR.redBorder}`,
-            }}>URGENT</span>
-          )}
-        </div>
-        <div style={{
-          fontSize: 14, color: isPast ? COLOR.textMuted : COLOR.textSecondary, lineHeight: 1.45,
-        }}>
-          {item.e}
-        </div>
-        {item.credits && (
-          <div style={{ display: "flex", gap: 4, marginTop: 6 }}>
-            {item.credits.map((cr, j) => {
-              const hasDeep = !!CREDITS[cr];
-              return (
-                <span
-                  key={j}
-                  onClick={hasDeep && onNavigate ? () => onNavigate(cr) : undefined}
-                  style={{
-                    fontSize: 10, padding: "2px 6px", borderRadius: 3,
-                    fontFamily: FONT.mono, fontWeight: 600,
-                    background: hasDeep ? COLOR.goldBg : COLOR.active,
-                    color: hasDeep ? COLOR.gold : COLOR.textTertiary,
-                    border: `1px solid ${hasDeep ? COLOR.goldBorder : COLOR.border}`,
-                    cursor: hasDeep ? "pointer" : "default",
-                    transition: "all 0.15s",
-                  }}
-                >
-                  §{cr}{hasDeep ? " →" : ""}
-                </span>
-              );
-            })}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
 // ═══════════════════════════════════════════════════════════
 // DEEP DIVE PAGE
 // ═══════════════════════════════════════════════════════════
 
-function DeepDive({ creditKey, onBack, onNavigate }) {
+function DeepDive({ creditKey, onBack, onNavigate, isUnlocked, onRequestUnlock }) {
   const c = CREDITS[creditKey];
   const [tab, setTab] = useState("overview");
 
@@ -1803,14 +2027,16 @@ function DeepDive({ creditKey, onBack, onNavigate }) {
       </FadeIn>
 
       {/* Stats bar */}
+      {/* PMM rationale: Deep dive stats bar surfaces the same pricing/share/timeline
+          figures gated on credit cards — labels stay visible, only values blur. */}
       <FadeIn delay={80}>
-        <div style={{
+        <div className="cp-metric-strip" style={{
           display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 1,
           background: COLOR.border, borderRadius: 10, overflow: "hidden", marginBottom: 28,
         }}>
-          <MetricCard label="Pricing" value={c.pricing} sublabel={c.pricingCtx} />
-          <MetricCard label="Market Share" value={c.share} sublabel={c.shareCtx} />
-          <MetricCard label="Deal Timeline" value={c.timeline} sublabel={c.timelineCtx} />
+          <MetricCard label="Pricing" value={c.pricing} sublabel={c.pricingCtx} isUnlocked={isUnlocked} onRequestUnlock={onRequestUnlock} />
+          <MetricCard label="Market Share" value={c.share} sublabel={c.shareCtx} isUnlocked={isUnlocked} onRequestUnlock={onRequestUnlock} />
+          <MetricCard label="Deal Timeline" value={c.timeline} sublabel={c.timelineCtx} isUnlocked={isUnlocked} onRequestUnlock={onRequestUnlock} />
         </div>
       </FadeIn>
 
@@ -2035,6 +2261,8 @@ function DeepDive({ creditKey, onBack, onNavigate }) {
         {tab === "market" && (
           <div>
             {/* Pricing */}
+            {/* PMM rationale: The entire pricing chart is gated — it's pure transaction-grade
+                data. The section label stays visible so users know what's behind the blur. */}
             <div style={{
               background: COLOR.card, border: `1px solid ${COLOR.border}`,
               borderRadius: 10, padding: "22px", marginBottom: 16,
@@ -2042,10 +2270,16 @@ function DeepDive({ creditKey, onBack, onNavigate }) {
               <div style={{ fontSize: 12, fontWeight: 700, color: COLOR.gold, letterSpacing: "0.08em", marginBottom: 18 }}>
                 CREDIT PRICING
               </div>
-              <PricingChart detail={c.pricingDetail} />
+              <GatedContent isUnlocked={isUnlocked} onRequestUnlock={onRequestUnlock}>
+                <PricingChart detail={c.pricingDetail} />
+              </GatedContent>
             </div>
 
             {/* Cross-credit comparison */}
+            {/* PMM rationale: For Advisors, the cross-credit comparison is the primary gate.
+                Visible column headers + row labels ("§45X", "Pricing", "Risk") signal exactly
+                what data lives behind the blur — strong conversion for users who need
+                comprehensive, side-by-side figures for client meetings. */}
             <div style={{
               background: COLOR.card, border: `1px solid ${COLOR.border}`,
               borderRadius: 10, padding: "22px", marginBottom: 16, overflowX: "auto",
@@ -2100,7 +2334,9 @@ function DeepDive({ creditKey, onBack, onNavigate }) {
                             background: isCurrent ? COLOR.goldBg : "transparent",
                             borderBottom: `1px solid ${COLOR.borderSubtle}`,
                           }}>
-                            {val}
+                            <GatedContent isUnlocked={isUnlocked} onRequestUnlock={onRequestUnlock}>
+                              <span>{val}</span>
+                            </GatedContent>
                           </td>
                         );
                       })}
@@ -2237,7 +2473,7 @@ function FEOCOptionCard({ option, onClick }) {
         cursor: "pointer",
         transition: "all 0.2s ease",
         transform: hov ? "translateY(-2px)" : "translateY(0)",
-        boxShadow: hov ? "0 8px 32px rgba(0,0,0,0.3)" : "0 2px 8px rgba(0,0,0,0.15)",
+        boxShadow: hov ? "0 8px 24px rgba(0,0,0,0.08)" : "0 1px 3px rgba(0,0,0,0.04)",
         flex: 1, minWidth: 200,
       }}
     >
@@ -2943,247 +3179,886 @@ function FEOCDecisionTree({ onBack, onNavigate, preselectedCredit }) {
 }
 
 // ═══════════════════════════════════════════════════════════
-// MARKET OVERVIEW (HOME)
+// PERSONA COMPONENTS
 // ═══════════════════════════════════════════════════════════
 
-function MarketOverview({ onNavigate }) {
-  const upcoming = TIMELINE.filter(t => !t.past);
-  const [activeRegItem, setActiveRegItem] = useState(null);
-
+function PersonaLandingScreen({ onSelect }) {
   return (
-    <div>
-      {/* Regulatory modal — rendered here, outside all grids and FadeIn transforms */}
-      {activeRegItem && (
-        <RegModal
-          item={activeRegItem}
-          onClose={() => setActiveRegItem(null)}
-          onNavigate={onNavigate}
-        />
-      )}
-      {/* Editorial headline */}
+    <div style={{
+      minHeight: "100vh",
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      padding: "40px 20px",
+      background: COLOR.bg,
+    }}>
       <FadeIn>
-        <div className="cp-editorial" style={{
-          marginBottom: 36,
-          padding: "28px 30px",
-          background: COLOR.card,
-          border: `1px solid ${COLOR.border}`,
-          borderRadius: 12,
-          borderLeft: `3px solid ${COLOR.gold}`,
-        }}>
-          <h2 style={{
-            fontFamily: FONT.display, fontSize: 30, fontWeight: 400,
-            color: COLOR.text, margin: "0 0 12px", lineHeight: 1.35,
+        <div style={{ maxWidth: 680, width: "100%", textAlign: "center" }}>
+          {/* Logo */}
+          <div style={{
+            display: "flex", alignItems: "center", justifyContent: "center",
+            gap: 10, marginBottom: 40,
           }}>
-            Here's the latest with clean energy tax credits.
-          </h2>
+            <div style={{
+              width: 28, height: 28, borderRadius: 7,
+              background: `linear-gradient(135deg, ${COLOR.gold}, ${COLOR.goldDim})`,
+              display: "flex", alignItems: "center", justifyContent: "center",
+            }}>
+              <div style={{ width: 7, height: 7, borderRadius: "50%", background: "#fff" }} />
+            </div>
+            <span style={{
+              fontSize: 16, fontWeight: 700, color: COLOR.text,
+              letterSpacing: "0.06em",
+            }}>
+              CREDITPULSE
+            </span>
+            <span style={{
+              fontSize: 12, color: COLOR.textTertiary, fontWeight: 400,
+              marginLeft: 4,
+            }}>
+              Clean energy tax credit intelligence
+            </span>
+          </div>
+
+          {/* Heading */}
+          <h1 style={{
+            fontFamily: FONT.display, fontSize: 36, fontWeight: 400,
+            color: COLOR.text, margin: "0 0 10px", lineHeight: 1.3,
+          }}>
+            What brings you to CreditPulse?
+          </h1>
           <p style={{
-            fontSize: 15, color: COLOR.textSecondary, lineHeight: 1.65,
-            margin: 0, maxWidth: 760,
+            fontSize: 15, color: COLOR.textTertiary, margin: "0 0 36px",
           }}>
-            Credit pricing sits at 12-month lows as OBBBA's tax changes thin the buyer pool — 
-            creating an opportunity window for companies that still have federal tax appetite.
-            Treasury is still releasing guidance that will define clean energy finance for years.
-            Key upcoming dates include:
+            We'll tailor your market view. You can change this anytime.
           </p>
-          <div className="cp-headline-pills" style={{
-            display: "flex", gap: 14, marginTop: 16, flexWrap: "wrap",
+
+          {/* Persona cards — 2x2 grid */}
+          <div className="cp-persona-grid" style={{
+            display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 16,
+            marginBottom: 24, textAlign: "left",
           }}>
-            {[
-              { label: "Jul 4, 2026", note: "Wind/solar deadline", color: COLOR.red },
-              { label: "May 28, 2026", note: "§45Z hearing", color: COLOR.amber },
-              { label: "Late 2026", note: "Final FEOC rules", color: COLOR.gold },
-            ].map((item, i) => (
-              <div key={i} style={{
-                display: "flex", alignItems: "center", gap: 8,
-                padding: "6px 12px",
-                background: `${item.color}10`,
-                border: `1px solid ${item.color}30`,
-                borderRadius: 6,
-              }}>
-                <span style={{
-                  fontFamily: FONT.mono, fontSize: 12, fontWeight: 700,
-                  color: item.color,
-                }}>
-                  {item.label}
-                </span>
-                <span style={{ fontSize: 12, color: COLOR.textSecondary }}>
-                  {item.note}
-                </span>
-              </div>
+            {Object.entries(PERSONAS).map(([key, p]) => (
+              <PersonaLandingCard key={key} persona={p} onClick={() => onSelect(key)} />
             ))}
+          </div>
+
+          {/* Skip link */}
+          <div
+            onClick={() => onSelect("generic")}
+            style={{
+              fontSize: 13, color: COLOR.textTertiary, cursor: "pointer",
+              textAlign: "center", padding: "8px 0",
+              transition: "color 0.15s",
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = COLOR.textSecondary; }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = COLOR.textTertiary; }}
+          >
+            Skip — show me everything
           </div>
         </div>
       </FadeIn>
+    </div>
+  );
+}
 
-      {/* ── Credit Landscape ── */}
+function PersonaLandingCard({ persona, onClick }) {
+  const [hov, setHov] = useState(false);
+  return (
+    <div
+      onClick={onClick}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{
+        background: COLOR.card,
+        border: `1px solid ${hov ? COLOR.goldBorder : COLOR.border}`,
+        borderRadius: 12, padding: "24px 24px 22px",
+        cursor: "pointer",
+        transition: "all 0.2s ease",
+        transform: hov ? "translateY(-2px)" : "translateY(0)",
+        boxShadow: hov ? "0 8px 24px rgba(0,0,0,0.08)" : "0 1px 3px rgba(0,0,0,0.04)",
+      }}
+    >
+      <div style={{
+        fontFamily: FONT.display, fontSize: 18, fontWeight: 400,
+        color: COLOR.text, marginBottom: 10,
+      }}>
+        {persona.label}
+      </div>
+      <div style={{
+        fontSize: 14, color: COLOR.gold, fontStyle: "italic",
+        lineHeight: 1.55, marginBottom: 12,
+      }}>
+        {"\u201C"}{persona.question}{"\u201D"}
+      </div>
+      <div style={{
+        fontSize: 12, color: COLOR.textSecondary, lineHeight: 1.5,
+      }}>
+        {persona.desc}
+      </div>
+    </div>
+  );
+}
+
+function PersonaIndicator({ persona, onSelect }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+  const p = PERSONAS[persona];
+
+  // Close on outside click
+  useEffect(() => {
+    if (!open) return;
+    function handleClick(e) {
+      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [open]);
+
+  if (!p) return null;
+
+  return (
+    <div ref={ref} style={{ position: "relative" }}>
+      <button
+        onClick={() => setOpen(!open)}
+        style={{
+          display: "flex", alignItems: "center", gap: 6,
+          background: "transparent", border: "none",
+          padding: "4px 0",
+          fontSize: 14, fontWeight: 700, color: COLOR.gold,
+          cursor: "pointer", fontFamily: FONT.body,
+          transition: "all 0.15s",
+        }}
+      >
+        {p.headerLabel || p.shortLabel}
+        <span style={{ fontSize: 10, opacity: 0.7 }}>{"\u25BE"}</span>
+      </button>
+
+      {open && (
+        <div style={{
+          position: "absolute", top: "100%", left: 0, paddingTop: 4,
+          zIndex: 200,
+        }}>
+          <div style={{
+            background: COLOR.card, border: `1px solid ${COLOR.border}`,
+            borderRadius: 8, overflow: "hidden", minWidth: 240,
+            boxShadow: "0 4px 24px rgba(0,0,0,0.10)",
+          }}>
+            {Object.entries(PERSONAS).map(([key, pp]) => (
+              <button
+                key={key}
+                onClick={() => { onSelect(key); setOpen(false); }}
+                style={{
+                  display: "block", width: "100%", textAlign: "left",
+                  padding: "10px 16px", border: "none",
+                  background: key === persona ? COLOR.goldBg : "transparent",
+                  color: key === persona ? COLOR.gold : COLOR.textSecondary,
+                  fontSize: 13, fontWeight: key === persona ? 700 : 400,
+                  cursor: "pointer", fontFamily: FONT.body,
+                  borderBottom: `1px solid ${COLOR.borderSubtle}`,
+                  transition: "background 0.1s",
+                }}
+                onMouseEnter={(e) => { if (key !== persona) e.currentTarget.style.background = COLOR.hover; }}
+                onMouseLeave={(e) => { if (key !== persona) e.currentTarget.style.background = "transparent"; }}
+              >
+                {pp.shortLabel}
+                <div style={{ fontSize: 11, color: COLOR.textTertiary, marginTop: 2 }}>
+                  {pp.desc}
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function PlatformBridgeCTA({ persona }) {
+  const [hov, setHov] = useState(false);
+  const [hovSecondary, setHovSecondary] = useState(false);
+  const bridge = (persona && BRIDGE_CTA[persona]) || BRIDGE_CTA.generic;
+
+  return (
+    <FadeIn delay={650}>
+      <div style={{
+        background: "#F5F0E8", border: "1px solid #E8DFD0",
+        borderRadius: 14,
+        padding: "26px 28px", marginBottom: 48,
+      }}>
+        <div style={{
+          fontSize: 11, fontWeight: 700, letterSpacing: "0.08em",
+          color: "#B8860B", textTransform: "uppercase", marginBottom: 10,
+        }}>
+          CRUX PLATFORM
+        </div>
+        <div style={{
+          fontFamily: FONT.display, fontSize: 21, fontWeight: 400,
+          color: COLOR.text, marginBottom: 8, lineHeight: 1.35,
+        }}>
+          {bridge.pretext}
+        </div>
+        <p style={{
+          fontSize: 14, color: "#6B5E4F", lineHeight: 1.6,
+          margin: "0 0 18px", maxWidth: 600,
+        }}>
+          {bridge.desc}
+        </p>
+        <div style={{ display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
+          <a
+            href="https://www.cruxclimate.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            onMouseEnter={() => setHov(true)}
+            onMouseLeave={() => setHov(false)}
+            style={{
+              display: "inline-block",
+              background: hov ? COLOR.goldDim : COLOR.gold,
+              color: "#fff", border: "none", borderRadius: 8,
+              padding: "10px 20px", fontSize: 14, fontWeight: 700,
+              cursor: "pointer", fontFamily: FONT.body,
+              textDecoration: "none",
+              transition: "background 0.15s",
+            }}
+          >
+            {bridge.cta} {"\u2192"}
+          </a>
+          {bridge.secondaryCta && (
+            <a
+              href="https://www.cruxclimate.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              onMouseEnter={() => setHovSecondary(true)}
+              onMouseLeave={() => setHovSecondary(false)}
+              style={{
+                display: "inline-block",
+                background: hovSecondary ? "rgba(196,184,164,0.12)" : "transparent",
+                color: COLOR.textSecondary,
+                border: "1.5px solid #C4B8A4",
+                borderRadius: 8,
+                padding: "9px 20px", fontSize: 14, fontWeight: 600,
+                cursor: "pointer", fontFamily: FONT.body,
+                textDecoration: "none",
+                transition: "all 0.15s",
+              }}
+            >
+              {bridge.secondaryCta}
+            </a>
+          )}
+        </div>
+      </div>
+    </FadeIn>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════
+// LAYER 1 — "THE ANSWER" (Hero Block)
+// ═══════════════════════════════════════════════════════════
+
+function HeroBlock({ persona, isUnlocked, onRequestUnlock }) {
+  const hero = persona && PERSONA_HERO[persona];
+  if (!hero) return null;
+
+  const tagColors = {
+    green: { bg: COLOR.activeBg, text: COLOR.activeText },
+    orange: { bg: COLOR.sunsetBg, text: COLOR.sunsetText },
+  };
+
+  return (
+    <FadeIn>
+      <div id="cp-section-hero" style={{ marginBottom: 40 }}>
+        <div className="cp-hero-grid" style={{
+          display: "grid", gridTemplateColumns: "1fr 1fr", gap: 40, alignItems: "center",
+        }}>
+          {/* Left column — headline + context */}
+          <div>
+            <div style={{
+              fontSize: 12, fontWeight: 600, letterSpacing: "0.06em",
+              color: COLOR.gold, textTransform: "uppercase", marginBottom: 14,
+            }}>
+              {hero.personaLabel}
+            </div>
+            <h1 style={{
+              fontFamily: FONT.display, fontSize: 36, fontWeight: 400,
+              color: COLOR.text, margin: "0 0 14px", lineHeight: 1.25,
+            }}>
+              {hero.headline}
+            </h1>
+            <p style={{
+              fontSize: 16, color: COLOR.textSecondary, lineHeight: 1.6,
+              margin: 0,
+            }}>
+              {hero.body}
+            </p>
+          </div>
+
+          {/* Right column — stat cards */}
+          <div className="cp-hero-stats" style={{
+            display: "grid",
+            gridTemplateColumns: hero.statCards.length >= 2 ? "1fr 1fr" : "1fr",
+            gap: 16,
+          }}>
+            {hero.statCards.map((card, i) => {
+              const tc = tagColors[card.tagColor] || tagColors.green;
+              return (
+                <div key={i} style={{
+                  background: COLOR.card,
+                  border: `1px solid ${COLOR.border}`,
+                  borderRadius: 14,
+                  padding: "20px 20px 18px",
+                  boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
+                }}>
+                  <div style={{
+                    fontSize: 11, fontWeight: 600, letterSpacing: "0.06em",
+                    color: COLOR.textTertiary, textTransform: "uppercase", marginBottom: 10,
+                  }}>
+                    {card.creditLabel}
+                  </div>
+                  {/* PMM rationale: The hero stat card price is the primary gate for Buyers.
+                      A CFO scanning this page sees "§45X MANUFACTURING" (free) but the specific
+                      "93–96¢" price hits the blur — that's the conversion moment. */}
+                  <GatedContent isUnlocked={isUnlocked} onRequestUnlock={onRequestUnlock}>
+                    <div style={{
+                      fontFamily: FONT.display, fontSize: 40, fontWeight: 400,
+                      color: COLOR.text, lineHeight: 1.1, marginBottom: 6,
+                    }}>
+                      {card.price}
+                    </div>
+                    <div style={{
+                      fontSize: 13, color: COLOR.textTertiary, marginBottom: 12,
+                    }}>
+                      {card.subtitle}
+                    </div>
+                    <div style={{
+                      display: "inline-block",
+                      fontSize: 11, fontWeight: 600,
+                      padding: "4px 10px", borderRadius: 6,
+                      background: tc.bg, color: tc.text,
+                    }}>
+                      {card.tag}
+                    </div>
+                  </GatedContent>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </FadeIn>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════
+// LAYER 2 — "YOUR NEXT MOVE" (Curated Credit Cards)
+// ═══════════════════════════════════════════════════════════
+
+const SECTION_TITLES = {
+  buyer: { heading: "Credits available now", subtitle: "Curated for tax credit buyers" },
+  "seller-developer": { heading: "Your credit types", subtitle: "Curated for project developers" },
+  "seller-manufacturer": { heading: "Your 45X credits", subtitle: "Curated for manufacturers" },
+  advisor: { heading: "Market overview", subtitle: "Full credit landscape" },
+};
+
+function NextMoveSection({ persona, onNavigate, isUnlocked, onRequestUnlock }) {
+  const config = persona && PERSONA_NEXT_MOVE[persona];
+  if (!config) return null;
+
+  const isAdvisor = persona === "advisor";
+  const titles = SECTION_TITLES[persona] || { heading: "Credits", subtitle: "" };
+
+  return (
+    <div id="cp-section-credits" style={{ marginBottom: 36 }}>
       <FadeIn delay={100}>
         <div style={{
           display: "flex", alignItems: "baseline", justifyContent: "space-between",
           marginBottom: 20,
         }}>
-          <h2 className="cp-section-heading" style={{
-            fontFamily: FONT.display, fontSize: 28, fontWeight: 400,
-            color: COLOR.text, margin: 0,
-          }}>
-            Credit Landscape
-          </h2>
-          <span style={{ fontSize: 12, color: COLOR.textTertiary }}>
-            {Object.keys(CREDITS).length + OTHER_CREDITS.length + TERMINATED.length} credits tracked
-          </span>
+          <div>
+            <h2 style={{
+              fontFamily: FONT.display, fontSize: 28, fontWeight: 400,
+              color: COLOR.text, margin: 0,
+            }}>
+              {titles.heading}
+            </h2>
+            <p style={{ fontSize: 13, color: COLOR.textTertiary, margin: "4px 0 0" }}>
+              {titles.subtitle}
+            </p>
+          </div>
+          {isAdvisor && (
+            <span style={{ fontSize: 12, color: COLOR.textTertiary }}>
+              {Object.keys(CREDITS).length + OTHER_CREDITS.length + TERMINATED.length} credits tracked
+            </span>
+          )}
         </div>
       </FadeIn>
 
-      {/* Deep dive credits — prominent cards */}
-      <div className="cp-credit-grid" style={{
-        display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 14,
-        marginBottom: 20,
-      }}>
-        {Object.entries(CREDITS).map(([key, credit], i) => (
-          <CreditCard
-            key={key}
-            credit={credit}
-            onClick={() => onNavigate(key)}
-            delay={150 + i * 80}
-          />
-        ))}
-      </div>
-
-      {/* Other active credits — compact rows */}
-      <FadeIn delay={500}>
-        <div style={{
-          background: COLOR.card, border: `1px solid ${COLOR.border}`,
-          borderRadius: 10, overflow: "hidden", marginBottom: 12,
-        }}>
-          <div style={{
-            padding: "14px 20px", display: "flex", alignItems: "center",
-            justifyContent: "space-between",
-            borderBottom: `1px solid ${COLOR.borderSubtle}`,
-          }}>
-            <span style={{
-              fontSize: 12, fontWeight: 700, color: COLOR.gold,
-              letterSpacing: "0.08em",
-            }}>
-              OTHER ACTIVE CREDITS
-            </span>
-            <span style={{ fontSize: 11, color: COLOR.textTertiary, fontStyle: "italic" }}>
-              Deep dives coming soon
-            </span>
+      {/* Credit cards */}
+      {config.layout === "featured" ? (
+        /* Manufacturer: featured 45X + compact 48C */
+        <div style={{ marginBottom: 20 }}>
+          <div style={{ marginBottom: 14 }}>
+            {config.credits.map((key, i) => {
+              const credit = CREDITS[key];
+              return credit ? (
+                <CreditCard
+                  key={key}
+                  credit={credit}
+                  onClick={() => onNavigate(key)}
+                  delay={150 + i * 80}
+                  persona={persona}
+                  isUnlocked={isUnlocked}
+                  onRequestUnlock={onRequestUnlock}
+                />
+              ) : null;
+            })}
           </div>
-          {OTHER_CREDITS.map((cr, i) => (
-            <div key={i} style={{
-              display: "grid", gridTemplateColumns: "70px 1fr auto",
-              alignItems: "center", gap: 14,
-              padding: "12px 20px",
-              borderBottom: i < OTHER_CREDITS.length - 1 ? `1px solid ${COLOR.borderSubtle}` : "none",
-            }}>
-              <span style={{
-                fontFamily: FONT.mono, fontSize: 13, fontWeight: 700,
-                color: COLOR.gold,
-              }}>
-                {cr.sec}
-              </span>
-              <div>
-                <span style={{ fontSize: 14, color: COLOR.text, fontWeight: 500 }}>{cr.name}</span>
-                <span style={{ fontSize: 13, color: COLOR.textTertiary, marginLeft: 10 }}>{cr.note}</span>
-              </div>
-              {cr.status && (
-                <span style={{
-                  fontSize: 10, fontWeight: 700, letterSpacing: "0.06em",
-                  padding: "3px 8px", borderRadius: 4,
-                  color: cr.status === "modified" ? COLOR.amber : COLOR.textSecondary,
-                  background: cr.status === "modified" ? COLOR.amberBg : COLOR.active,
-                  border: `1px solid ${cr.status === "modified" ? COLOR.amberBorder : COLOR.border}`,
+          {/* Compact 48C card from OTHER_CREDITS */}
+          {config.extraCards && config.extraCards.map(sec => {
+            const cr = OTHER_CREDITS.find(c => c.sec === "\u00A7" + sec);
+            if (!cr) return null;
+            return (
+              <FadeIn key={sec} delay={300}>
+                <div style={{
+                  background: COLOR.card, border: `1px solid ${COLOR.border}`,
+                  borderRadius: 10, padding: "16px 20px",
+                  display: "flex", alignItems: "center", justifyContent: "space-between",
                 }}>
-                  {cr.status === "modified" ? "MODIFIED" : "ACTIVE"}
+                  <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                    <span style={{
+                      fontFamily: FONT.mono, fontSize: 14, fontWeight: 700, color: COLOR.gold,
+                    }}>
+                      {cr.sec}
+                    </span>
+                    <div>
+                      <div style={{ fontSize: 14, fontWeight: 500, color: COLOR.text }}>{cr.name}</div>
+                      <div style={{ fontSize: 13, color: COLOR.textSecondary }}>{cr.note}</div>
+                    </div>
+                  </div>
+                  <span style={{
+                    fontSize: 11, color: COLOR.textTertiary, fontStyle: "italic", flexShrink: 0,
+                  }}>
+                    Deep dive coming soon
+                  </span>
+                </div>
+              </FadeIn>
+            );
+          })}
+        </div>
+      ) : (
+        /* Standard grid: 2-col or 3-col depending on card count */
+        <div>
+          <div className="cp-credit-grid" style={{
+            display: "grid",
+            gridTemplateColumns: config.credits.length <= 2 ? "repeat(2,1fr)" : "repeat(2,1fr)",
+            gap: 14, marginBottom: 20,
+          }}>
+            {config.credits.map((key, i) => {
+              const credit = CREDITS[key];
+              return credit ? (
+                <CreditCard
+                  key={key}
+                  credit={credit}
+                  onClick={() => onNavigate(key)}
+                  delay={150 + i * 80}
+                  persona={persona}
+                  isUnlocked={isUnlocked}
+                  onRequestUnlock={onRequestUnlock}
+                />
+              ) : null;
+            })}
+          </div>
+
+          {/* Advisor-only: Other Active Credits + Terminated */}
+          {config.showOther && (
+            <FadeIn delay={500}>
+              <div style={{
+                background: COLOR.card, border: `1px solid ${COLOR.border}`,
+                borderRadius: 10, overflow: "hidden", marginBottom: 12,
+              }}>
+                <div style={{
+                  padding: "14px 20px", display: "flex", alignItems: "center",
+                  justifyContent: "space-between",
+                  borderBottom: `1px solid ${COLOR.borderSubtle}`,
+                }}>
+                  <span style={{
+                    fontSize: 12, fontWeight: 700, color: COLOR.gold,
+                    letterSpacing: "0.08em",
+                  }}>
+                    OTHER ACTIVE CREDITS
+                  </span>
+                  <span style={{ fontSize: 11, color: COLOR.textTertiary, fontStyle: "italic" }}>
+                    Deep dives coming soon
+                  </span>
+                </div>
+                {OTHER_CREDITS.map((cr, i) => (
+                  <div key={i} className="cp-other-row" style={{
+                    display: "grid", gridTemplateColumns: "70px 1fr auto",
+                    alignItems: "center", gap: 14,
+                    padding: "12px 20px",
+                    borderBottom: i < OTHER_CREDITS.length - 1 ? `1px solid ${COLOR.borderSubtle}` : "none",
+                  }}>
+                    <span style={{
+                      fontFamily: FONT.mono, fontSize: 13, fontWeight: 700, color: COLOR.gold,
+                    }}>
+                      {cr.sec}
+                    </span>
+                    <div>
+                      <span style={{ fontSize: 14, color: COLOR.text, fontWeight: 500 }}>{cr.name}</span>
+                      <span style={{ fontSize: 13, color: COLOR.textTertiary, marginLeft: 10 }}>{cr.note}</span>
+                    </div>
+                    {cr.status && (
+                      <span className="cp-other-status" style={{
+                        fontSize: 10, fontWeight: 700, letterSpacing: "0.06em",
+                        padding: "3px 8px", borderRadius: 4,
+                        color: cr.status === "modified" ? COLOR.amber : COLOR.textSecondary,
+                        background: cr.status === "modified" ? COLOR.amberBg : COLOR.active,
+                        border: `1px solid ${cr.status === "modified" ? COLOR.amberBorder : COLOR.border}`,
+                      }}>
+                        {cr.status === "modified" ? "MODIFIED" : "ACTIVE"}
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </FadeIn>
+          )}
+
+          {config.showTerminated && (
+            <FadeIn delay={550}>
+              <TerminatedSection />
+            </FadeIn>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════
+// LAYER 3a — KEY DEADLINES TIMELINE
+// ═══════════════════════════════════════════════════════════
+
+const URGENCY_STYLE = {
+  URGENT:   { color: COLOR.red, bg: COLOR.redBg, border: COLOR.redBorder },
+  UPCOMING: { color: COLOR.amber, bg: COLOR.amberBg, border: COLOR.amberBorder },
+  FUTURE:   { color: COLOR.textTertiary, bg: COLOR.active, border: COLOR.borderHover },
+};
+
+function computeUrgency(dateStr) {
+  const now = new Date();
+  let target;
+  if (dateStr.startsWith("Late")) {
+    target = new Date("2026-12-01");
+  } else {
+    target = new Date(dateStr);
+  }
+  if (isNaN(target.getTime())) return "FUTURE";
+  const monthsAway = (target - now) / (1000 * 60 * 60 * 24 * 30.44);
+  if (monthsAway < 6) return "URGENT";
+  if (monthsAway < 12) return "UPCOMING";
+  return "FUTURE";
+}
+
+function buildDeadlines(persona) {
+  const dateRank = (d) => {
+    if (d.startsWith("Late")) return new Date("2026-12-01").getTime();
+    const parsed = new Date(d);
+    return isNaN(parsed.getTime()) ? 0 : parsed.getTime();
+  };
+  return TIMELINE
+    .filter(t => !t.past)
+    .filter(t => {
+      if (!persona || persona === "advisor") return true;
+      const rel = t.personaRelevance && t.personaRelevance[persona];
+      return rel === "high" || rel === "medium";
+    })
+    .map(t => ({
+      date: t.d,
+      description: t.e,
+      credits: t.credits || [],
+      urgency: computeUrgency(t.d),
+    }))
+    .sort((a, b) => dateRank(a.date) - dateRank(b.date));
+}
+
+function DeadlinesTimeline({ persona }) {
+  const deadlines = buildDeadlines(persona);
+  if (deadlines.length === 0) return null;
+
+  return (
+    <div id="cp-section-deadlines" style={{ marginBottom: 36 }}>
+      <FadeIn delay={200}>
+        <h2 style={{
+          fontFamily: FONT.display, fontSize: 28, fontWeight: 400,
+          color: COLOR.text, margin: "0 0 20px",
+        }}>
+          Key Deadlines
+        </h2>
+      </FadeIn>
+
+      <div>
+        {deadlines.map((item, i) => {
+          const us = URGENCY_STYLE[item.urgency];
+          return (
+            <FadeIn key={i} delay={250 + i * 50}>
+              <div style={{
+                display: "grid",
+                gridTemplateColumns: "140px 1fr auto",
+                alignItems: "center",
+                gap: 16,
+                padding: "12px 0",
+                borderBottom: i < deadlines.length - 1 ? `1px solid #f0ede8` : "none",
+              }}>
+                {/* Date */}
+                <span style={{
+                  fontSize: 14, fontWeight: 600,
+                  color: us.color,
+                }}>
+                  {item.date}
                 </span>
-              )}
-            </div>
-          ))}
-        </div>
-      </FadeIn>
 
-      {/* Terminated credits — collapsible */}
-      <FadeIn delay={550}>
-        <TerminatedSection />
-      </FadeIn>
+                {/* Description */}
+                <span style={{
+                  fontSize: 14,
+                  color: COLOR.text, lineHeight: 1.4,
+                }}>
+                  {item.description}
+                </span>
 
-      {/* ── FEOC Decision Tree CTA ── */}
-      <FadeIn delay={600}>
-        <div
-          onClick={() => onNavigate("feocCheck")}
-          onMouseEnter={(e) => { e.currentTarget.style.borderColor = COLOR.gold; }}
-          onMouseLeave={(e) => { e.currentTarget.style.borderColor = COLOR.goldBorder; }}
-          style={{
-            display: "flex", alignItems: "center", justifyContent: "space-between",
-            padding: "16px 22px", marginTop: 28, marginBottom: 48,
-            background: COLOR.card, border: `1px solid ${COLOR.goldBorder}`,
-            borderRadius: 10, borderLeft: `3px solid ${COLOR.gold}`,
-            cursor: "pointer", transition: "all 0.2s",
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-            <div style={{
-              width: 36, height: 36, borderRadius: 8,
-              background: COLOR.goldBg, border: `1px solid ${COLOR.goldBorder}`,
-              display: "flex", alignItems: "center", justifyContent: "center",
-              fontSize: 16, color: COLOR.gold, flexShrink: 0,
-            }}>◆</div>
-            <div>
-              <div style={{ fontSize: 14, fontWeight: 600, color: COLOR.text }}>
-                FEOC Compliance Check
+                {/* Credit pills + urgency tag */}
+                <div style={{
+                  display: "flex", alignItems: "center", gap: 6,
+                  flexShrink: 0,
+                }}>
+                  {item.credits.map(cr => (
+                    <span key={cr} style={{
+                      fontSize: 11, fontWeight: 600,
+                      padding: "2px 6px", borderRadius: 3,
+                      color: COLOR.textSecondary, background: "#F5F3EF",
+                    }}>
+                      {"\u00A7"}{cr}
+                    </span>
+                  ))}
+                  <span style={{
+                    fontSize: 10, fontWeight: 700, letterSpacing: "0.06em",
+                    padding: "2px 8px", borderRadius: 4,
+                    color: us.color, background: us.bg,
+                  }}>
+                    {item.urgency}
+                  </span>
+                </div>
               </div>
-              <div style={{ fontSize: 13, color: COLOR.textSecondary }}>
-                Do the new foreign entity rules affect your credit? Walk through the decision tree.
-              </div>
-            </div>
-          </div>
-          <span style={{
-            fontSize: 13, fontWeight: 700, color: COLOR.gold,
-            fontFamily: FONT.body, flexShrink: 0,
-          }}>
-            Start →
-          </span>
-        </div>
-      </FadeIn>
-
-      {/* Two-column: Timeline + News */}
-      <div className="cp-two-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, marginBottom: 48 }}>
-        {/* Timeline */}
-        <FadeIn delay={500}>
-          <div style={{
-            background: COLOR.card, border: `1px solid ${COLOR.border}`,
-            borderRadius: 12, padding: "22px",
-          }}>
-            <div style={{
-              fontSize: 12, fontWeight: 700, color: COLOR.gold,
-              letterSpacing: "0.08em", marginBottom: 18,
-            }}>
-              KEY DEADLINES
-            </div>
-            {upcoming.map((item, i) => (
-              <TimelineItem key={i} item={item} isLast={i === upcoming.length - 1} onNavigate={onNavigate} />
-            ))}
-          </div>
-        </FadeIn>
-
-        {/* News */}
-        <FadeIn delay={550}>
-          <div style={{
-            background: COLOR.card, border: `1px solid ${COLOR.border}`,
-            borderRadius: 12, padding: "22px",
-          }}>
-            <div style={{
-              fontSize: 12, fontWeight: 700, color: COLOR.gold,
-              letterSpacing: "0.08em", marginBottom: 18,
-            }}>
-              REGULATORY MONITOR
-            </div>
-            {NEWS.map((item, i) => (
-              <RegCardRow key={i} item={item} onClick={() => setActiveRegItem(item)} isLast={i === NEWS.length - 1} />
-            ))}
-          </div>
-        </FadeIn>
+            </FadeIn>
+          );
+        })}
       </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════
+// LAYER 3b — MARKET INTELLIGENCE FEED
+// ═══════════════════════════════════════════════════════════
+
+const FEED_TYPE_STYLE = {
+  deadline:   { color: COLOR.red, label: "DEADLINE" },
+  guidance:   { color: COLOR.amber, label: "GUIDANCE" },
+  regulatory: { color: COLOR.blue, label: "REGULATORY" },
+  market:     { color: COLOR.green, label: "MARKET" },
+};
+
+function feedTypeFromSource(source) {
+  if (!source) return "regulatory";
+  if (source.includes("Crux")) return "market";
+  if (source.includes("Treasury") || source.includes("IRS")) return "regulatory";
+  if (source.includes("Congress")) return "regulatory";
+  if (source.includes("DOE")) return "guidance";
+  return "regulatory";
+}
+
+function buildIntelFeed(persona, showAll) {
+  const dateRank = (d) => {
+    if (d.startsWith("Late")) return new Date("2026-12-01").getTime();
+    const parsed = new Date(d);
+    return isNaN(parsed.getTime()) ? 0 : parsed.getTime();
+  };
+  let items = NEWS.map(n => ({
+    date: n.date,
+    title: n.title,
+    summary: n.summary,
+    credits: n.credits || [],
+    feedType: feedTypeFromSource(n.source),
+    source: n.source,
+    severity: n.severity,
+    personaRelevance: n.personaRelevance || {},
+    originalNews: n,
+  }));
+
+  if (!showAll && persona && persona !== "advisor") {
+    items = items.filter(item => {
+      const rel = item.personaRelevance[persona];
+      return rel === "high" || rel === "medium";
+    });
+  }
+
+  // Reverse-chronological (newest first)
+  items.sort((a, b) => dateRank(b.date) - dateRank(a.date));
+  return items;
+}
+
+function IntelFeed({ persona, onNavigate }) {
+  const [showAll, setShowAll] = useState(false);
+  const [activeRegItem, setActiveRegItem] = useState(null);
+  const isAdvisor = persona === "advisor";
+  const feed = buildIntelFeed(persona, showAll || isAdvisor);
+
+  return (
+    <div id="cp-section-intelligence" style={{ marginBottom: 36 }}>
+      {activeRegItem && (
+        <RegModal
+          item={activeRegItem}
+          onClose={() => setActiveRegItem(null)}
+          onNavigate={onNavigate}
+          persona={persona}
+        />
+      )}
+
+      <FadeIn delay={200}>
+        <div style={{
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+          marginBottom: 20,
+        }}>
+          <div style={{ display: "flex", alignItems: "baseline", gap: 12 }}>
+            <h2 style={{
+              fontFamily: FONT.display, fontSize: 28, fontWeight: 400,
+              color: COLOR.text, margin: 0,
+            }}>
+              Market Intelligence
+            </h2>
+            <span style={{ fontSize: 12, color: COLOR.textTertiary }}>
+              Based on Crux's 2025 Market Intelligence Report
+            </span>
+          </div>
+          {!isAdvisor && (
+            <button
+              onClick={() => setShowAll(!showAll)}
+              style={{
+                background: showAll ? COLOR.goldBg : "transparent",
+                border: `1px solid ${showAll ? COLOR.goldBorder : COLOR.border}`,
+                borderRadius: 6, padding: "5px 12px",
+                fontSize: 12, fontWeight: 600,
+                color: showAll ? COLOR.gold : COLOR.textTertiary,
+                cursor: "pointer", fontFamily: FONT.body,
+                transition: "all 0.15s",
+              }}
+            >
+              {showAll ? "Showing all" : "Relevant to you"}
+            </button>
+          )}
+        </div>
+      </FadeIn>
+
+      <div>
+        {feed.map((item, i) => {
+          const ft = FEED_TYPE_STYLE[item.feedType] || FEED_TYPE_STYLE.regulatory;
+
+          return (
+            <FadeIn key={i} delay={250 + i * 40}>
+              <div
+                onClick={() => setActiveRegItem(item.originalNews)}
+                style={{
+                  padding: "14px 0",
+                  borderBottom: `1px solid #f0ede8`,
+                  cursor: "pointer",
+                  transition: "background 0.15s",
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = COLOR.hover; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
+              >
+                {/* Top line: source + category tag + credit pills */}
+                <div style={{
+                  display: "flex", alignItems: "center", gap: 8,
+                  marginBottom: 6,
+                }}>
+                  {item.source && (
+                    <span style={{ fontSize: 12, color: COLOR.textTertiary, fontWeight: 400 }}>
+                      {item.source}
+                    </span>
+                  )}
+                  <span style={{
+                    fontSize: 10, fontWeight: 700, letterSpacing: "0.06em",
+                    padding: "2px 7px", borderRadius: 4,
+                    color: ft.color, background: `${ft.color}12`,
+                  }}>
+                    {ft.label}
+                  </span>
+                  {item.credits.map(cr => (
+                    <span key={cr} style={{
+                      fontSize: 10, fontWeight: 600,
+                      padding: "2px 6px", borderRadius: 3,
+                      color: COLOR.textTertiary, background: "#F5F3EF",
+                    }}>
+                      {"\u00A7"}{cr}
+                    </span>
+                  ))}
+                </div>
+
+                {/* Bottom line: headline + date + arrow */}
+                <div style={{
+                  display: "flex", alignItems: "baseline", gap: 12,
+                }}>
+                  <span style={{
+                    fontSize: 15, fontWeight: 500,
+                    color: COLOR.text, lineHeight: 1.4,
+                    flex: 1,
+                  }}>
+                    {item.title}
+                  </span>
+                  <span style={{
+                    fontSize: 12, color: COLOR.textTertiary,
+                    whiteSpace: "nowrap", flexShrink: 0,
+                    fontVariantNumeric: "tabular-nums",
+                  }}>
+                    {item.date}
+                  </span>
+                  <span style={{
+                    fontSize: 14, color: COLOR.gold, fontWeight: 500,
+                    flexShrink: 0,
+                  }}>
+                    {"\u2192"}
+                  </span>
+                </div>
+              </div>
+            </FadeIn>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════
+// MARKET OVERVIEW (HOME)
+// ═══════════════════════════════════════════════════════════
+
+function MarketOverview({ onNavigate, persona, isUnlocked, onRequestUnlock }) {
+  return (
+    <div>
+      {/* Layer 1 — "The Answer" */}
+      <HeroBlock persona={persona} isUnlocked={isUnlocked} onRequestUnlock={onRequestUnlock} />
+
+      {/* Layer 2 — Credits */}
+      <NextMoveSection persona={persona} onNavigate={onNavigate} isUnlocked={isUnlocked} onRequestUnlock={onRequestUnlock} />
+
+      {/* Layer 3a — Key Deadlines Timeline */}
+      <DeadlinesTimeline persona={persona} />
+
+      {/* Layer 3b — Platform CTA (after deadlines for maximum urgency context) */}
+      <PlatformBridgeCTA persona={persona} />
+
+      {/* Layer 4 — Market Intelligence Feed */}
+      <IntelFeed persona={persona} onNavigate={onNavigate} />
 
       {/* Disclaimer */}
       <div style={{
@@ -3471,7 +4346,7 @@ function AskSidebar({ ctx, open, onClose, currentView }) {
           onClick={onClose}
           style={{
             position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
-            background: "rgba(0,0,0,0.4)", backdropFilter: "blur(3px)",
+            background: "rgba(0,0,0,0.2)", backdropFilter: "blur(3px)",
             WebkitBackdropFilter: "blur(3px)",
             zIndex: 9998, transition: "opacity 0.3s",
           }}
@@ -3484,7 +4359,7 @@ function AskSidebar({ ctx, open, onClose, currentView }) {
         background: COLOR.card, zIndex: 9999,
         display: "flex", flexDirection: "column",
         borderLeft: `1px solid ${COLOR.border}`,
-        boxShadow: open ? `-16px 0 60px rgba(0,0,0,0.3)` : "none",
+        boxShadow: open ? `-16px 0 48px rgba(0,0,0,0.10)` : "none",
         transform: open ? "translateX(0)" : "translateX(100%)",
         transition: "transform 0.3s ease",
       }}>
@@ -3632,7 +4507,7 @@ function AskSidebar({ ctx, open, onClose, currentView }) {
               disabled={loading}
               style={{
                 background: loading ? COLOR.border : COLOR.gold,
-                color: COLOR.bg, border: "none", borderRadius: 8,
+                color: "#fff", border: "none", borderRadius: 8,
                 padding: "11px 18px", fontWeight: 700, fontSize: 13,
                 cursor: loading ? "not-allowed" : "pointer",
                 fontFamily: FONT.body, transition: "background 0.15s",
@@ -3654,16 +4529,79 @@ function AskSidebar({ ctx, open, onClose, currentView }) {
 // APP
 // ═══════════════════════════════════════════════════════════
 
+// Hash routing helpers
+function viewToHash(v) {
+  if (v === "home") return "#/";
+  if (v === "feocCheck") return "#/feoc";
+  if (v.startsWith("feocCheck:")) return "#/feoc/" + v.split(":")[1];
+  return "#/credit/" + v.toLowerCase();
+}
+function hashToView(hash) {
+  if (!hash || hash === "#/" || hash === "#") return "home";
+  if (hash === "#/feoc") return "feocCheck";
+  if (hash.startsWith("#/feoc/")) return "feocCheck:" + hash.slice(7).toUpperCase();
+  if (hash.startsWith("#/credit/")) return hash.slice(9).toUpperCase();
+  return "home";
+}
+
 export default function CreditPulse() {
-  const [view, setView] = useState("home");
+  const [view, setView] = useState(() => hashToView(window.location.hash));
   const [fade, setFade] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [persona, setPersona] = useState(() => {
+    try {
+      const stored = localStorage.getItem("cp-persona");
+      // Migrate old "seller" persona to null (force re-selection with new 4-persona system)
+      if (stored === "seller") {
+        localStorage.removeItem("cp-persona");
+        return null;
+      }
+      return stored || null;
+    } catch { return null; }
+  });
   const ref = useRef(null);
+
+  // Content gating state — persisted in localStorage so unlocked sessions survive
+  // refreshes, persona switches, and deep-dive navigation
+  const [isUnlocked, setIsUnlocked] = useState(() => {
+    try { return localStorage.getItem("creditpulse_unlocked") === "true"; } catch { return false; }
+  });
+
+  // PMM rationale: Fire-and-forget POST to serverless function on unlock. In production
+  // this would feed a CRM (HubSpot, Salesforce) or email platform (Mailchimp, Customer.io).
+  // For the portfolio piece, it demonstrates the capture mechanic exists.
+  function unlockContent(email) {
+    setIsUnlocked(true);
+    try { localStorage.setItem("creditpulse_unlocked", "true"); } catch {}
+    fetch("/.netlify/functions/capture-email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, persona, source: view, timestamp: new Date().toISOString() }),
+    }).catch(() => {});
+  }
+
+  // Sync hash → view on browser back/forward
+  useEffect(() => {
+    function onHashChange() {
+      const v = hashToView(window.location.hash);
+      setView(v);
+      setFade(true);
+    }
+    window.addEventListener("hashchange", onHashChange);
+    return () => window.removeEventListener("hashchange", onHashChange);
+  }, []);
+
+  function selectPersona(p) {
+    setPersona(p);
+    try { localStorage.setItem("cp-persona", p); } catch {}
+    if (ref.current) ref.current.scrollTo({ top: 0 });
+  }
 
   function nav(v) {
     setFade(false);
     setTimeout(() => {
       setView(v);
+      window.location.hash = viewToHash(v);
       setFade(true);
       if (ref.current) ref.current.scrollIntoView({ behavior: "smooth" });
     }, 200);
@@ -3679,28 +4617,33 @@ export default function CreditPulse() {
       fontFamily: FONT.body,
     }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600;700&family=Instrument+Serif&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM+Serif+Display&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { font-size: 14px; }
+        body { background: ${COLOR.bg}; }
         ::placeholder { color: ${COLOR.textMuted}; }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: ${COLOR.border}; border-radius: 3px; }
         ::selection { background: ${COLOR.gold}30; color: ${COLOR.text}; }
         @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+        @keyframes gateOverlayIn { from { opacity: 0; transform: translate(-50%,-50%) scale(0.95); } to { opacity: 1; transform: translate(-50%,-50%) scale(1); } }
 
         /* Responsive */
         @media (max-width: 768px) {
           .cp-container { padding: 20px 16px 60px !important; }
-          .cp-header { flex-direction: column; align-items: flex-start !important; gap: 12px; }
-          .cp-header-right { width: 100%; justify-content: space-between !important; }
           .cp-credit-grid { grid-template-columns: 1fr !important; }
+          .cp-persona-grid { grid-template-columns: 1fr !important; }
           .cp-two-col { grid-template-columns: 1fr !important; }
           .cp-three-col { grid-template-columns: 1fr !important; }
+          .cp-hero-grid { grid-template-columns: 1fr !important; }
+          .cp-hero-stats { grid-template-columns: 1fr !important; }
           .cp-tabs { flex-wrap: wrap; }
           .cp-tabs button { flex: none !important; }
           .cp-sidebar { width: 100% !important; }
           .cp-headline-pills { flex-direction: column; }
           .cp-tagline { display: none; }
+          .cp-sticky-nav { overflow-x: auto; }
           .cp-comparison-table { font-size: 11px; }
           .cp-comparison-table th, .cp-comparison-table td { padding: 6px 6px !important; }
           .cp-deep-header-sec { font-size: 28px !important; }
@@ -3723,16 +4666,15 @@ export default function CreditPulse() {
         }
       `}</style>
 
-      <div className="cp-container" style={{
-        maxWidth: 980, margin: "0 auto", padding: "36px 28px 80px",
-        opacity: fade ? 1 : 0, transition: "opacity 0.25s ease",
-      }}>
-        {/* Header */}
-        <div className="cp-header" style={{
+      {/* Landing screen — shown when no persona is selected */}
+      {persona === null ? (
+        <PersonaLandingScreen onSelect={selectPersona} />
+      ) : (<>
+        {/* Top bar — branding + attribution (not sticky) */}
+        <div style={{
+          maxWidth: 980, margin: "0 auto", padding: "14px 28px",
           display: "flex", justifyContent: "space-between", alignItems: "center",
-          paddingBottom: 18, borderBottom: `1px solid ${COLOR.border}`,
-          position: "sticky", top: 0, background: COLOR.bg, zIndex: 100,
-          paddingTop: 12, marginBottom: 32,
+          borderBottom: `1px solid ${COLOR.border}`,
         }}>
           <div
             style={{
@@ -3741,13 +4683,12 @@ export default function CreditPulse() {
             }}
             onClick={view !== "home" ? () => nav("home") : undefined}
           >
-            {/* Logo mark */}
             <div style={{
               width: 24, height: 24, borderRadius: 6,
               background: `linear-gradient(135deg, ${COLOR.gold}, ${COLOR.goldDim})`,
               display: "flex", alignItems: "center", justifyContent: "center",
             }}>
-              <div style={{ width: 6, height: 6, borderRadius: "50%", background: COLOR.bg }} />
+              <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#fff" }} />
             </div>
             <span style={{
               fontSize: 15, fontWeight: 700, color: COLOR.text,
@@ -3762,53 +4703,97 @@ export default function CreditPulse() {
               Clean energy tax credit intelligence
             </span>
           </div>
-          <div className="cp-header-right" style={{ display: "flex", alignItems: "center", gap: 14 }}>
-            <span style={{ fontSize: 11, color: COLOR.textTertiary }}>
-              Built by{" "}
-              <a
-                href="https://www.linkedin.com/in/jaredhutchinson/"
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  color: COLOR.textSecondary, textDecoration: "none",
-                  borderBottom: `1px solid ${COLOR.border}`, fontWeight: 500,
-                }}
-              >
-                Jared Hutchinson
-              </a>
-            </span>
-            <button
-              onClick={() => setSidebarOpen(true)}
+          <span style={{ fontSize: 11, color: COLOR.textTertiary }}>
+            Built by{" "}
+            <a
+              href="https://www.linkedin.com/in/jaredhutchinson/"
+              target="_blank"
+              rel="noopener noreferrer"
               style={{
-                display: "flex", alignItems: "center", gap: 7,
-                background: COLOR.gold, color: COLOR.bg, border: "none", borderRadius: 6,
-                padding: "7px 14px", fontSize: 12, fontWeight: 700,
-                cursor: "pointer", fontFamily: FONT.body,
-                transition: "opacity 0.15s",
+                color: COLOR.textSecondary, textDecoration: "none",
+                borderBottom: `1px solid ${COLOR.border}`, fontWeight: 500,
               }}
             >
-              <div style={{ width: 5, height: 5, borderRadius: "50%", background: COLOR.bg, opacity: 0.6 }} />
-              Ask AI
-            </button>
-          </div>
+              Jared Hutchinson
+            </a>
+          </span>
         </div>
 
-        {/* Content */}
-        {view === "home" ? (
-          <MarketOverview onNavigate={nav} />
-        ) : view === "feocCheck" || view.startsWith("feocCheck:") ? (
-          <FEOCDecisionTree
-            onBack={() => nav("home")}
-            onNavigate={nav}
-            preselectedCredit={view.includes(":") ? view.split(":")[1] : null}
-          />
-        ) : (
-          <DeepDive creditKey={view} onBack={() => nav("home")} onNavigate={nav} />
+        {/* Sticky nav bar — persona selector + section anchor links */}
+        {view === "home" && (
+          <div className="cp-sticky-nav" style={{
+            position: "sticky", top: 0, zIndex: 100,
+            background: "rgba(250, 250, 248, 0.95)",
+            backdropFilter: "blur(12px)",
+            WebkitBackdropFilter: "blur(12px)",
+            borderBottom: `1px solid ${COLOR.border}`,
+          }}>
+            <div style={{
+              maxWidth: 980, margin: "0 auto", padding: "0 28px",
+              display: "flex", alignItems: "center", gap: 0,
+              height: 48,
+            }}>
+              {persona !== "generic" && (
+                <PersonaIndicator persona={persona} onSelect={selectPersona} />
+              )}
+              <span style={{ color: COLOR.textTertiary, margin: "0 12px", fontSize: 12 }}>{"\u00B7"}</span>
+              {[
+                { label: "Market Snapshot", id: "hero" },
+                { label: "Credits", id: "credits" },
+                { label: "Deadlines", id: "deadlines" },
+                { label: "Intelligence", id: "intelligence" },
+              ].map((link, i) => (
+                <button
+                  key={link.id}
+                  onClick={() => {
+                    const el = document.getElementById(`cp-section-${link.id}`);
+                    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+                  }}
+                  style={{
+                    background: "none", border: "none", cursor: "pointer",
+                    fontFamily: FONT.body, fontSize: 13, fontWeight: 400,
+                    color: COLOR.textTertiary,
+                    padding: "12px 14px",
+                    borderBottom: "2px solid transparent",
+                    transition: "all 0.15s",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = COLOR.text;
+                    e.currentTarget.style.borderBottomColor = COLOR.gold;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = COLOR.textTertiary;
+                    e.currentTarget.style.borderBottomColor = "transparent";
+                  }}
+                >
+                  {link.label}
+                </button>
+              ))}
+            </div>
+          </div>
         )}
-      </div>
 
-      {/* AI Sidebar — rendered outside main content container */}
-      <AskSidebar ctx={ctx} open={sidebarOpen} onClose={() => setSidebarOpen(false)} currentView={view} />
+        <div className="cp-container" style={{
+          maxWidth: 980, margin: "0 auto", padding: "32px 28px 80px",
+          opacity: fade ? 1 : 0, transition: "opacity 0.25s ease",
+        }}>
+          {/* Content */}
+          {view === "home" ? (
+            <MarketOverview onNavigate={nav} persona={persona} isUnlocked={isUnlocked} onRequestUnlock={unlockContent} />
+          ) : view === "feocCheck" || view.startsWith("feocCheck:") ? (
+            <FEOCDecisionTree
+              onBack={() => nav("home")}
+              onNavigate={nav}
+              preselectedCredit={view.includes(":") ? view.split(":")[1] : null}
+            />
+          ) : (
+            <DeepDive creditKey={view} onBack={() => nav("home")} onNavigate={nav} persona={persona} isUnlocked={isUnlocked} onRequestUnlock={unlockContent} />
+          )}
+        </div>
+
+        {/* AI Sidebar — rendered outside main content container */}
+        <AskSidebar ctx={ctx} open={sidebarOpen} onClose={() => setSidebarOpen(false)} currentView={view} />
+      </>)}
     </div>
   );
 }
