@@ -97,7 +97,7 @@ const RISK_MAP = {
 };
 
 
-// Deep dive default tab — now always "market" for advisor audience
+// Deep dive default tab — overview gives the best entry point
 const DEEP_DIVE_DEFAULT_TAB = "market";
 
 // ═══════════════════════════════════════════════════════════
@@ -106,17 +106,6 @@ const DEEP_DIVE_DEFAULT_TAB = "market";
 // generate a personalized recommendation without requiring an
 // account or API call. All logic is client-side conditional rendering.
 // ═══════════════════════════════════════════════════════════
-
-const WIZARD_INDUSTRIES = [
-  "Manufacturing",
-  "Energy & Utilities",
-  "Technology",
-  "Financial Services",
-  "Healthcare",
-  "Real Estate",
-  "Retail & Consumer",
-  "Other",
-];
 
 const WIZARD_LIABILITY = [
   { value: "under10", label: "Under $10M" },
@@ -131,16 +120,19 @@ const WIZARD_EXPERIENCE = [
   { value: "active", label: "Active buyer" },
 ];
 
-const WIZARD_APPROACH = [
-  { value: "conservative", label: "Conservative", desc: "Established credit types with proven deal structures" },
-  { value: "balanced", label: "Balanced", desc: "Mix of established and emerging credits for favorable pricing" },
-  { value: "maximizing", label: "Maximizing value", desc: "Full range of credit types, including newer ones trading at steeper discounts" },
+// PMM rationale: Liability predictability is the key driver for ITC vs PTC recommendation.
+// Predictable multi-year liability → PTC strips attractive (best economics, multi-year commitment).
+// Variable liability → single-year credits (ITC or spot PTC) for flexibility.
+const WIZARD_PREDICTABILITY = [
+  { value: "yes", label: "Yes — stable and predictable", desc: "Consistent taxable income, reliable multi-year forecasting" },
+  { value: "somewhat", label: "Somewhat — varies year to year", desc: "Taxable income fluctuates but generally positive" },
+  { value: "no", label: "No — highly variable or uncertain", desc: "Significant swings in taxable income, or unclear future outlook" },
 ];
 
-const WIZARD_TIMELINE = [
-  { value: "thisyear", label: "This tax year", desc: "Need credits that can close quickly to offset current liability" },
-  { value: "1to2years", label: "Next 1–2 years", desc: "Planning ahead, more flexibility on timing" },
-  { value: "longterm", label: "Long-term strategy", desc: "Building a multi-year credit purchasing program" },
+const WIZARD_APPROACH = [
+  { value: "conservative", label: "Conservative", desc: "Established credit types with proven deal structures and fastest close times" },
+  { value: "balanced", label: "Balanced", desc: "Mix of established and emerging credits for favorable pricing" },
+  { value: "maximizing", label: "Maximizing value", desc: "Full range of credit types, including newer ones trading at steeper discounts" },
 ];
 
 // ═══════════════════════════════════════════════════════════
@@ -149,11 +141,8 @@ const WIZARD_TIMELINE = [
 // No API calls — all conditional rendering based on input combos.
 // ═══════════════════════════════════════════════════════════
 
-function getRecommendedCredits(approach, liability) {
-  // If liability is $200M+, always recommend at least §45X + §48E
-  if (liability === "over200" && approach === "conservative") {
-    return ["45X", "48E"];
-  }
+function getRecommendedCredits(approach, predictability) {
+  // Credit selection is purely approach-driven
   if (approach === "conservative") return ["45X"];
   if (approach === "balanced") return ["45X", "48E"];
   // maximizing
@@ -161,132 +150,325 @@ function getRecommendedCredits(approach, liability) {
 }
 
 function getLiabilityFraming(liability) {
-  if (liability === "under10") return "At your client's liability level, a focused approach on a single credit type will be most efficient.";
-  if (liability === "10to50") return "Your client's liability supports a meaningful credit position in one or two credit types.";
-  if (liability === "50to200") return "At this scale, your client can benefit from a diversified approach across multiple credit types.";
-  return "Your client's tax liability supports a portfolio strategy across the full range of available credits.";
+  if (liability === "under10") return "At this liability level, a focused position in a single credit type will be most efficient. Even a modest purchase can yield meaningful dollar savings.";
+  if (liability === "10to50") return "Your client's liability supports a meaningful credit position in one or two credit types, with enough scale to negotiate favorable pricing.";
+  if (liability === "50to200") return "At this scale, your client can diversify across multiple credit types and potentially negotiate volume-based pricing improvements.";
+  return "Your client's tax liability supports a comprehensive portfolio strategy across the full range of available credits, with significant negotiating leverage on pricing.";
+}
+
+function getItcPtcFraming(predictability) {
+  if (predictability === "yes") return "With stable, predictable tax liability, your client is well-positioned for multi-year PTC strip purchases. PTC strips typically offer better economics than single-year ITC transfers, because the seller commits a stream of future credits at a locked-in discount. This structure works best when the buyer can confidently absorb credits each year over a 5-10 year horizon.";
+  if (predictability === "somewhat") return "With somewhat variable liability, single-year ITC transfers are generally the safer default. Your client could still consider a spot PTC purchase in a year when liability is clearly sufficient, but multi-year PTC strip commitments carry risk if taxable income dips. An ITC-first strategy preserves flexibility.";
+  return "With highly variable or uncertain liability, single-year ITC transfers are strongly recommended. ITC credits are used in a single tax year with no multi-year obligation, which avoids the risk of committing to future credits your client may not be able to use. Avoid multi-year PTC strip purchases until liability visibility improves.";
 }
 
 function getRecommendationText(inputs) {
-  const { approach, timeline, experience, liability } = inputs;
-  let rec = "";
+  const { approach, predictability, experience, liability } = inputs;
+  const credits = getRecommendedCredits(approach, predictability);
 
-  // Main recommendation based on approach + timeline + experience
-  if (approach === "conservative" && timeline === "thisyear" && experience === "first") {
-    rec = "Your client is a strong fit for §45X Advanced Manufacturing credits — the most liquid credit type with proven deal structures and fastest close times. As a first-time buyer, focus on investment-grade sellers with recapture insurance. Current market conditions favor buyers.";
-  } else if (approach === "conservative" && timeline === "thisyear") {
-    rec = "With current pricing near 12-month lows, this is a favorable window for your client to expand their §45X position. IG-rated credits are closing in 8–16 weeks.";
-  } else if (approach === "conservative") {
-    rec = "§45X credits offer the most straightforward path — proven deal structures, highest liquidity, and the fastest close times in the market. A conservative approach with established sellers minimizes complexity.";
-  } else if (approach === "balanced" && timeline === "thisyear" && experience === "first") {
-    rec = "Your client should consider both §45X and §48E credits. §45X offers the most straightforward deal structure; §48E (Clean Electricity Investment) provides access to the largest credit segment. A split approach gives diversification from the start.";
+  // Headline based on recommended credits
+  const creditLabels = credits.map(k => "\u00A7" + k).join(" and ");
+  let headline = "";
+  if (approach === "conservative") {
+    headline = "We recommend \u00A745X credits for your client";
   } else if (approach === "balanced") {
-    rec = "§45X and §48E credits offer the best balance of pricing, liquidity, and manageable complexity for your client. §48E requires attention to FEOC compliance and developer documentation.";
-  } else if (approach === "maximizing" && (timeline === "1to2years" || timeline === "thisyear")) {
-    rec = "Your client can access the full range of transferable credits, including §45Z (clean fuels) and §45Q (carbon capture). These emerging credit types trade at steeper discounts but require more due diligence and longer close timelines.";
-  } else if (approach === "maximizing" && timeline === "longterm") {
-    rec = "A multi-year purchasing program should consider a portfolio approach across credit types. §45X and §48E for near-term savings, with §45Z and §45Q positions as those markets mature and pricing improves.";
+    headline = "We recommend \u00A745X and \u00A748E credits for your client";
   } else {
-    rec = "§45X and §48E credits offer a strong foundation. §45X provides the most liquid market with proven structures, while §48E covers the largest credit segment with technology-neutral eligibility.";
+    headline = "We recommend " + creditLabels + " credits for your client";
   }
 
-  // Append liability framing
-  const liabilityText = getLiabilityFraming(liability);
+  // Build dynamic bullets — pick 3–4 most relevant
+  const bullets = [];
 
-  // Append first-time buyer note
-  const firstTimeNote = experience === "first"
-    ? " As a first-time buyer, we recommend reviewing the risk profile and FEOC guidance for each recommended credit below."
-    : "";
+  // Credit type bullet (approach-based)
+  if (approach === "conservative") {
+    bullets.push("\u00A745X: Most liquid credit type with fastest close times and lowest complexity");
+  } else if (approach === "balanced") {
+    if (predictability === "yes") {
+      bullets.push("\u00A745X: Most liquid credit type with fastest close times and lowest complexity");
+      bullets.push("\u00A748E: Largest credit segment \u2014 favorable buyer pricing at 12-month lows");
+    } else {
+      bullets.push("\u00A745X: Most liquid credit type with fastest close times and lowest complexity");
+      bullets.push("\u00A748E: Largest credit segment \u2014 favorable buyer pricing at 12-month lows");
+    }
+  } else {
+    bullets.push("Full range including \u00A745Z and \u00A745Q for steeper discounts");
+  }
 
-  // Combine into natural prose (2-3 sentences)
-  return `${rec} ${liabilityText}${firstTimeNote}`;
+  // ITC vs PTC bullet (predictability-based)
+  if (predictability === "yes") {
+    bullets.push("Stable tax position makes PTC strip purchases viable \u2014 multi-year commitments with the steepest discounts");
+  } else if (predictability === "somewhat") {
+    bullets.push("Mix of single-year ITC and spot PTC purchases balances flexibility with savings");
+  } else {
+    bullets.push("Single-year purchases (ITC and spot PTC) give maximum flexibility as tax position evolves");
+  }
+
+  // Liability bullet
+  if (liability === "under10") {
+    bullets.push("Focused position in one credit type keeps execution simple and costs manageable");
+  } else if (liability === "10to50") {
+    bullets.push("Liability supports a meaningful position in one or two credit types");
+  } else if (liability === "50to200") {
+    bullets.push("Scale supports diversification across credit types and deal structures");
+  } else {
+    bullets.push("Liability supports a full portfolio strategy across multiple credit types and structures");
+  }
+
+  // Experience bullet
+  if (experience === "first") {
+    bullets.push("First-time buyers should prioritize investment-grade sellers and recapture insurance");
+  } else if (experience === "active") {
+    bullets.push("Active buyers can leverage current pricing window to expand positions");
+  }
+
+  // Context line
+  const context = "Current market: Buyer-favorable conditions \u2014 OBBBA has thinned demand and pricing is near 12-month lows";
+
+  return { headline, bullets, context };
 }
 
-function getStatCards(recommendedCredits) {
-  const cards = [];
-  if (recommendedCredits.includes("45X")) {
-    cards.push({ label: "§45X PRICING", value: "93–96¢", sublabel: "per dollar · IG pricing" });
-  }
-  if (recommendedCredits.includes("48E")) {
-    cards.push({ label: "§48E PRICING", value: "~89¢", sublabel: "per dollar · tech-neutral ITC" });
-  }
-  if (cards.length < 3) {
-    cards.push({ label: "AVERAGE CLOSE TIME", value: "8–16 wks", sublabel: "listing → close" });
-  }
-  return cards;
-}
 
-function getDiscussionPoints(inputs, recommendedCredits) {
-  const points = [];
+// Qualitative descriptors for credit cards on results/browse pages (no blur)
+const QUALITATIVE_STATS = {
+  "45X": [
+    { label: "Pricing", desc: "Tightest discount to par among all credit types" },
+    { label: "Timeline", desc: "Fastest average close times in the market" },
+    { label: "Market share", desc: "Most actively traded credit type" },
+  ],
+  "48E": [
+    { label: "Market size", desc: "Largest credit segment in the transfer market" },
+    { label: "Eligibility", desc: "Technology-neutral with broad project qualification" },
+    { label: "Supply trend", desc: "Growing supply as new projects come online" },
+  ],
+  "45Z": [
+    { label: "Pricing", desc: "Deep discounts reflect emerging market dynamics" },
+    { label: "Market stage", desc: "Emerging market with evolving deal structures" },
+    { label: "Sector", desc: "Focused on clean fuel production and distribution" },
+  ],
+  "45Q": [
+    { label: "Pricing", desc: "Steepest discounts of any credit type" },
+    { label: "Timeline", desc: "Longest average close times due to complexity" },
+    { label: "Market", desc: "Niche market concentrated in carbon capture" },
+  ],
+  "48C": [
+    { label: "Pricing", desc: "Moderate discounts with well-established structures" },
+    { label: "Structure", desc: "Legacy ITC framework with proven deal mechanics" },
+    { label: "Track record", desc: "Longest operating history in the transfer market" },
+  ],
+  "45Y": [
+    { label: "Status", desc: "New in 2025 with limited transaction history" },
+    { label: "Structure", desc: "PTC-based with multi-year credit generation" },
+    { label: "Data", desc: "Limited market data as trading volume builds" },
+  ],
+};
 
-  // Always include
-  points.push({
-    text: "Current market pricing and how it compares to historical ranges",
-    tab: "market",
-  });
-  points.push({
-    text: "Timeline expectations — from listing to close",
-    tab: "market",
-  });
-
-  // First-time buyer
-  if (inputs.experience === "first") {
-    points.push({
-      text: "What recapture risk means and how to mitigate it",
-      tab: "risk",
-    });
-    points.push({
-      text: "Basic transfer mechanics — one-time transfer, IRS registration process",
-      tab: "overview",
-    });
-  }
-
-  // If §48E recommended
-  if (recommendedCredits.includes("48E")) {
-    points.push({
-      text: "FEOC compliance requirements and what documentation to expect from sellers",
-      tab: "guidance",
-    });
-  }
-
-  // Balanced or maximizing
-  if (inputs.approach === "balanced" || inputs.approach === "maximizing") {
-    points.push({
-      text: "The IG vs. non-IG pricing spread and what it means for credit quality",
-      tab: "market",
-    });
-  }
-
-  // Long-term timeline
-  if (inputs.timeline === "longterm") {
-    points.push({
-      text: "How phasedown schedules affect credit availability and pricing over time",
-      tab: "overview",
-    });
-  }
-
-  // Large liability
-  if (inputs.liability === "50to200" || inputs.liability === "over200") {
-    points.push({
-      text: "Portfolio diversification across credit types",
-      tab: "market",
-    });
-  }
-
-  return points;
-}
+// 5-stage Client Conversation Guide — task-based checklist
+const CONVERSATION_STAGES = [
+  {
+    number: 1,
+    title: "MAKE THE CASE",
+    summary: "Why transferable tax credits matter for your client",
+    tasks: [
+      {
+        id: "stage1-task1",
+        label: "Confirm your client's eligibility",
+        context: "Must be C-corp, partnership, or eligible LLC with federal tax liability. §6418 enables a simple one-time transfer — no partnership or tax equity structure required.",
+        linkLabel: "Eligibility requirements",
+        linkTarget: "https://www.cruxclimate.com",
+        linkType: "external",
+        conditional: null,
+      },
+      {
+        id: "stage1-task2",
+        label: "Quantify the potential savings",
+        context: "Credits trade at 85–96¢ per dollar of face value. At current pricing, a $10M liability could save $400K–$1.5M depending on credit type and deal structure.",
+        linkLabel: null,
+        linkTarget: null,
+        linkType: null,
+        conditional: null,
+      },
+      {
+        id: "stage1-task3",
+        label: "Explain the market timing",
+        context: "Current market conditions favor buyers — OBBBA-related uncertainty has thinned demand and pushed pricing near 12-month lows. This window may compress as regulatory clarity emerges.",
+        linkLabel: null,
+        linkTarget: null,
+        linkType: null,
+        conditional: { field: "experience", value: "first", note: "START HERE" },
+      },
+    ],
+  },
+  {
+    number: 2,
+    title: "UNDERSTAND THE OPTIONS",
+    summary: "Credit types, ITC vs PTC, and what fits your client",
+    tasks: [
+      {
+        id: "stage2-task1",
+        label: "Identify the right credit type",
+        context: "§45X (manufacturing) is most liquid. §48E (clean electricity) is the largest segment. §45Z and §45Q offer steeper discounts for clients with higher risk tolerance.",
+        linkLabel: "Compare credit types",
+        linkTarget: "https://www.cruxclimate.com",
+        linkType: "external",
+        conditional: null,
+      },
+      {
+        id: "stage2-task2",
+        label: "Choose ITC vs PTC structure",
+        context: "ITC: single-year, one-time transfer, simpler. PTC: multi-year strips with better economics but requires stable tax position. Predictability of your client's liability is the key driver.",
+        linkLabel: "View §48E analysis",
+        linkTarget: "https://www.cruxclimate.com",
+        linkType: "external",
+        conditional: null,
+      },
+      {
+        id: "stage2-task3",
+        label: "Size the position",
+        context: "Match credit purchases to your client's liability. Under $10M: focus on one credit type. $10–50M: one or two types. $50M+: diversify across types and structures.",
+        linkLabel: null,
+        linkTarget: null,
+        linkType: null,
+        conditional: { field: "approach", value: "maximizing", note: "Consider full range including §45Z and §45Q" },
+      },
+    ],
+  },
+  {
+    number: 3,
+    title: "MANAGE THE RISKS",
+    summary: "Recapture, FEOC, production risk, and seller credit quality",
+    tasks: [
+      {
+        id: "stage3-task1",
+        label: "Assess recapture exposure",
+        context: "ITC credits face 5-year recapture if the underlying asset is disposed of or ceases to qualify. Recapture insurance is standard for deals above $10M and covers the declining balance.",
+        linkLabel: null,
+        linkTarget: null,
+        linkType: null,
+        conditional: null,
+      },
+      {
+        id: "stage3-task2",
+        label: "Verify FEOC compliance",
+        context: "§48E and §45X credits require documentation that components are not sourced from foreign entities of concern. Request FEOC attestation letters from all sellers.",
+        linkLabel: "FEOC compliance checker",
+        linkTarget: "feocCheck",
+        linkType: "internal",
+        conditional: null,
+      },
+      {
+        id: "stage3-task3",
+        label: "Evaluate seller credit quality",
+        context: "Investment-grade sellers command a ~3¢ premium per dollar of credit but offer lower counterparty risk and more standardized documentation.",
+        linkLabel: null,
+        linkTarget: null,
+        linkType: null,
+        conditional: null,
+      },
+      {
+        id: "stage3-task4",
+        label: "Review production risk for PTC credits",
+        context: "PTC credits depend on actual energy output — generation shortfalls reduce credit value. Review P50/P90 estimates and historical production data.",
+        linkLabel: null,
+        linkTarget: null,
+        linkType: null,
+        conditional: null,
+      },
+    ],
+  },
+  {
+    number: 4,
+    title: "PLAN THE TRANSACTION",
+    summary: "Process, timeline, costs, and what to expect",
+    tasks: [
+      {
+        id: "stage4-task1",
+        label: "Set a realistic timeline",
+        context: "§45X closes fastest (~10 weeks for IG sellers). §48E takes longer due to FEOC documentation. Budget 4–6 months for emerging types (§45Z, §45Q).",
+        linkLabel: null,
+        linkTarget: null,
+        linkType: null,
+        conditional: null,
+      },
+      {
+        id: "stage4-task2",
+        label: "Budget for transaction costs",
+        context: "Legal review, tax opinion, and platform fees typically run $15–50K depending on deal size and complexity.",
+        linkLabel: null,
+        linkTarget: null,
+        linkType: null,
+        conditional: null,
+      },
+      {
+        id: "stage4-task3",
+        label: "Decide on insurance coverage",
+        context: "Recapture insurance and tax opinion insurance are available. Standard for ITC deals above $10M. Cost is typically 1–3% of credit value.",
+        linkLabel: null,
+        linkTarget: null,
+        linkType: null,
+        conditional: null,
+      },
+      {
+        id: "stage4-task4",
+        label: "Prepare documentation requirements",
+        context: "Transfer election statement (Form 3800), purchase agreement, seller representations & warranties, and FEOC attestation (if applicable).",
+        linkLabel: null,
+        linkTarget: null,
+        linkType: null,
+        conditional: null,
+      },
+      {
+        id: "stage4-task5",
+        label: "Coordinate with your client's tax team",
+        context: "Ensure the client's return preparer is aware of the credit transfer. Credits are claimed on the buyer's return for the tax year the credit is determined.",
+        linkLabel: null,
+        linkTarget: null,
+        linkType: null,
+        conditional: null,
+      },
+    ],
+  },
+  {
+    number: 5,
+    title: "GET STARTED",
+    summary: "Key deadlines, next steps, and market entry",
+    tasks: [
+      {
+        id: "stage5-task1",
+        label: "Check credit-specific deadlines",
+        context: "§45X expires 12/31/2029. §48E wind/solar construction must begin by Jul 4, 2026. §45Z runs through 2029. Current buyer-favorable pricing may compress as clarity emerges.",
+        linkLabel: "View all deadlines",
+        linkTarget: "cp-section-deadlines",
+        linkType: "anchor",
+        conditional: null,
+      },
+      {
+        id: "stage5-task2",
+        label: "Explore available credits on a marketplace",
+        context: "Platforms like Crux Climate aggregate listings from verified sellers with standardized documentation and due diligence support.",
+        linkLabel: "Explore credits on Crux",
+        linkTarget: "https://www.cruxclimate.com",
+        linkType: "external",
+        conditional: null,
+      },
+      {
+        id: "stage5-task3",
+        label: "Schedule a client review meeting",
+        context: "Use this guide and the recommendation above as a framework for your next meeting. Walk through credit selection, risk factors, and timeline.",
+        linkLabel: null,
+        linkTarget: null,
+        linkType: null,
+        conditional: null,
+      },
+    ],
+  },
+];
 
 const CREDITS = {
   "45X": {
     sec: "§45X", name: "Advanced Manufacturing Production", type: "PTC",
     status: "modified",
-    tagline: "Per-unit payment to U.S. clean energy manufacturers",
-    personaTaglines: {
-      buyer: "Most actively traded credit \u2014 30% of listings get bids on day one.",
-      "seller-developer": "Strong buyer demand if you\u2019re transferring credits from project partnerships.",
-      "seller-manufacturer": "This is your core credit. 27% of the transfer market, fastest execution.",
-      advisor: "Supply chain compliance (FEOC) is the dominant diligence issue.",
-    },
+    tagline: "Supply chain compliance (FEOC) is the dominant diligence issue.",
     pricing: "93.5\u201396\u00A2", pricingCtx: "per $1",
     pricingDetail: {
       type: "ig_split",
@@ -371,14 +553,7 @@ const CREDITS = {
   "48E": {
     sec: "§48E", name: "Clean Electricity Investment", type: "ITC",
     status: "sunsetting",
-    tagline: "Up to 30%+ of clean power & storage project costs",
-    personaTaglines: {
-      // PMM rationale: Changed "$42B" to qualitative — specific market sizing is proprietary.
-      buyer: "Largest credit segment in the transfer market. Trading at a discount to legacy credits.",
-      "seller-developer": "Energy storage nearly tripled market share. Wind/solar deadline is July 4, 2026.",
-      "seller-manufacturer": "ITC credits from projects using your manufactured components. Drives demand for your \u00A745X credits.",
-      advisor: "Recapture risk, PWA compliance, and FEOC are the three key advisory issues.",
-    },
+    tagline: "Recapture risk, PWA compliance, and FEOC are the three key advisory issues.",
     pricing: "~89\u00A2", pricingCtx: "per $1",
     pricingDetail: {
       type: "ig_split",
@@ -466,13 +641,7 @@ const CREDITS = {
   "45Y": {
     sec: "§45Y", name: "Clean Electricity Production", type: "PTC",
     status: "sunsetting",
-    tagline: "Per-kWh payment for generating zero-emission electricity",
-    personaTaglines: {
-      buyer: "Tech-neutral PTC trading at a modest discount to legacy credits. OBBBA deadline applies to wind/solar.",
-      "seller-developer": "Your per-kWh production credit. Buyer demand recovering as construction deadline creates urgency.",
-      "seller-manufacturer": "PTC credits from projects using your manufactured components. Drives demand for your §45X credits.",
-      advisor: "The PTC counterpart to §48E. Same construction deadline, same FEOC issues, different credit structure.",
-    },
+    tagline: "The PTC counterpart to §48E. Same construction deadline, same FEOC issues, different credit structure.",
     pricing: "~94¢", pricingCtx: "per $1",
     pricingDetail: {
       type: "ig_split",
@@ -561,13 +730,7 @@ const CREDITS = {
   "45Z": {
     sec: "§45Z", name: "Clean Fuel Production", type: "PTC",
     status: "expanded",
-    tagline: "The only credit OBBBA expanded \u2014 pays per gallon by cleanliness",
-    personaTaglines: {
-      buyer: "New to the transfer market \u2014 trading at a discount as the market develops.",
-      "seller-developer": "Extended through 2029. Corn ethanol and soy biodiesel benefit from ILUC exclusion.",
-      "seller-manufacturer": "Production credit for clean fuels. Rules still in proposed form \u2014 CI scoring determines credit value.",
-      advisor: "Carbon intensity scoring is still in proposed form \u2014 final rules will shift credit values.",
-    },
+    tagline: "Carbon intensity scoring is still in proposed form \u2014 final rules will shift credit values.",
     pricing: "Discount", pricingCtx: "to established credits",
     pricingDetail: {
       type: "early_stage",
@@ -651,13 +814,7 @@ const CREDITS = {
   "45Q": {
     sec: "§45Q", name: "Carbon Dioxide Sequestration", type: "PTC",
     status: "expanded",
-    tagline: "Per-ton payment for capturing and permanently storing CO\u2082",
-    personaTaglines: {
-      buyer: "Larger discount than power-sector credits \u2014 reflects technology risk and 12-year commitment.",
-      "seller-developer": "Up to $180/ton for DAC. OBBBA left \u00A745Q intact \u2014 strong political durability signal.",
-      "seller-manufacturer": "Not directly a manufacturing credit, but CCS equipment manufacturers benefit from project demand.",
-      advisor: "MRV compliance is the dominant diligence issue. IRS safe harbor available for 2025 reporting.",
-    },
+    tagline: "MRV compliance is the dominant diligence issue. IRS safe harbor available for 2025 reporting.",
     pricing: "85\u201390\u00A2", pricingCtx: "per $1 (larger discount)",
     pricingDetail: {
       type: "range_only",
@@ -1056,13 +1213,13 @@ const TIMELINE = [
   { d: "Sep 30, 2025", e: "EV credits terminated", past: true, feedType: "deadline" },
   { d: "Dec 31, 2025", e: "Home energy credits ended; FEOC rules took effect", past: true, feedType: "deadline" },
   { d: "Feb 2026", e: "Interim FEOC guidance & proposed §45Z rules", past: true, type: "guidance", feedType: "guidance" },
-  { d: "May 28, 2026", e: "Public hearing on §45Z regulations", type: "guidance", feedType: "guidance", credits: ["45Z"], personaRelevance: { buyer: "low", "seller-developer": "medium", "seller-manufacturer": "low", advisor: "high" } },
-  { d: "Jun 30, 2026", e: "§30C, §45L, §179D terminate", feedType: "deadline", next: true, personaRelevance: { buyer: "low", "seller-developer": "low", "seller-manufacturer": "low", advisor: "medium" } },
-  { d: "Jul 4, 2026", e: "Hard deadline: begin construction for wind/solar", feedType: "deadline", urgent: true, credits: ["48E"], personaRelevance: { buyer: "high", "seller-developer": "high", "seller-manufacturer": "medium", advisor: "high" } },
-  { d: "Late 2026", e: "Final FEOC rules expected", type: "guidance", feedType: "guidance", credits: ["45X", "48E"], personaRelevance: { buyer: "high", "seller-developer": "high", "seller-manufacturer": "high", advisor: "high" } },
-  { d: "Dec 31, 2026", e: "Domestic content requirement rises to 55%", feedType: "regulatory", credits: ["48E"], personaRelevance: { buyer: "medium", "seller-developer": "high", "seller-manufacturer": "high", advisor: "high" } },
-  { d: "Dec 31, 2027", e: "Wind/solar operational deadline; §45X wind credits end", feedType: "deadline", credits: ["48E", "45X"], personaRelevance: { buyer: "medium", "seller-developer": "high", "seller-manufacturer": "high", advisor: "medium" } },
-  { d: "Dec 31, 2029", e: "§45Z and §45X full-value credits expire", feedType: "deadline", credits: ["45Z", "45X"], personaRelevance: { buyer: "medium", "seller-developer": "high", "seller-manufacturer": "high", advisor: "medium" } },
+  { d: "May 28, 2026", e: "Public hearing on §45Z regulations", type: "guidance", feedType: "guidance", credits: ["45Z"] },
+  { d: "Jun 30, 2026", e: "§30C, §45L, §179D terminate", feedType: "deadline", next: true },
+  { d: "Jul 4, 2026", e: "Hard deadline: begin construction for wind/solar", feedType: "deadline", urgent: true, credits: ["48E"] },
+  { d: "Late 2026", e: "Final FEOC rules expected", type: "guidance", feedType: "guidance", credits: ["45X", "48E"] },
+  { d: "Dec 31, 2026", e: "Domestic content requirement rises to 55%", feedType: "regulatory", credits: ["48E"] },
+  { d: "Dec 31, 2027", e: "Wind/solar operational deadline; §45X wind credits end", feedType: "deadline", credits: ["48E", "45X"] },
+  { d: "Dec 31, 2029", e: "§45Z and §45X full-value credits expire", feedType: "deadline", credits: ["45Z", "45X"] },
 ];
 
 const NEWS = [
@@ -1081,7 +1238,6 @@ const NEWS = [
       midMarket: "The $8–10B in unsold 2025-vintage credits may present buying opportunities at favorable pricing before the expected rebound.",
       sellers: "H2 softness reflects OBBBA digestion, not demand destruction. Position for 2026 recovery."
     },
-    personaRelevance: { buyer: "high", "seller-developer": "high", "seller-manufacturer": "high", advisor: "medium" }
   },
   {
     date: "Feb 2026", source: "Treasury / IRS", severity: "high", credits: ["48E", "45X"],
@@ -1098,7 +1254,6 @@ const NEWS = [
       midMarket: "90%+ of developers already initiated supply chain mapping. Start now if you haven't.",
       sellers: "80% report no SFE/FIE exposure. Demonstrate compliance to maintain credit value."
     },
-    personaRelevance: { buyer: "medium", "seller-developer": "high", "seller-manufacturer": "high", advisor: "high" }
   },
   {
     date: "Feb 2026", source: "Treasury / IRS", severity: "high", credits: ["48E"],
@@ -1115,7 +1270,6 @@ const NEWS = [
       midMarket: "Verify safe harbor status of any project credits you're evaluating. Pre-Sept 2025 construction start is key.",
       sellers: "July 4, 2026 hard deadline. Ensure construction documentation is airtight."
     },
-    personaRelevance: { buyer: "medium", "seller-developer": "high", "seller-manufacturer": "medium", advisor: "high" }
   },
   {
     date: "Feb 2026", source: "Crux Climate", severity: "medium", credits: ["48E"],
@@ -1132,7 +1286,6 @@ const NEWS = [
       midMarket: "Legacy credits offer less FEOC risk. Consider the discount on tech-neutral credits against your risk tolerance.",
       sellers: "Demonstrate FEOC compliance to close the pricing gap on tech-neutral credits."
     },
-    personaRelevance: { buyer: "high", "seller-developer": "medium", "seller-manufacturer": "medium", advisor: "medium" }
   },
   {
     date: "Feb 2026", source: "Crux Climate", severity: "medium", credits: ["48E"],
@@ -1149,7 +1302,6 @@ const NEWS = [
       midMarket: "Storage credits offer long runway through 2034. Battery cost declines improve project economics.",
       sellers: "Contracted projects get best financing terms. Focus on offtake agreements."
     },
-    personaRelevance: { buyer: "medium", "seller-developer": "high", "seller-manufacturer": "medium", advisor: "low" }
   },
   {
     date: "Feb 2026", source: "Crux Climate", severity: "high", credits: ["48E", "45X", "45Z"],
@@ -1166,7 +1318,6 @@ const NEWS = [
       midMarket: "Hybrid structures offer flexible entry points for credit buyers at various scales.",
       sellers: "Integrated capital stacks are the new norm. Structure deals to accommodate both TE and transfer buyers."
     },
-    personaRelevance: { buyer: "high", "seller-developer": "high", "seller-manufacturer": "medium", advisor: "medium" }
   },
   {
     date: "Feb 18, 2026", source: "Treasury / IRS", severity: "medium", credits: ["45Q"],
@@ -1183,7 +1334,6 @@ const NEWS = [
       midMarket: "Helpful for due diligence. Companies considering first-time §45Q credit purchases can point to this safe harbor as evidence of regulatory commitment to keeping the credit functional.",
       sellers: "Good news. Developers and facility operators won't lose 2025 credits due to EPA reporting system issues. Maintain your independent MRV documentation as backup."
     },
-    personaRelevance: { buyer: "low", "seller-developer": "medium", "seller-manufacturer": "low", advisor: "high" }
   },
   {
     date: "Feb 12, 2026", source: "Treasury / IRS", severity: "high", credits: ["45X", "48E"],
@@ -1200,7 +1350,6 @@ const NEWS = [
       midMarket: "Start supply chain mapping immediately even if you're not currently claiming credits. The FEOC framework will be the defining compliance issue for manufacturing and investment credits going forward.",
       sellers: "Critical. Manufacturers must demonstrate supply chain compliance to maintain credit value. Third-party supply chain verification is becoming a standard buyer requirement."
     },
-    personaRelevance: { buyer: "high", "seller-developer": "high", "seller-manufacturer": "high", advisor: "high" }
   },
   {
     date: "Feb 5, 2026", source: "Treasury / IRS", severity: "high", credits: ["45Z"],
@@ -1217,7 +1366,6 @@ const NEWS = [
       midMarket: "Don't wait for final rules. Start CI modeling immediately using 45ZCF-GREET. The 90-day registration lead time means companies that delay could miss entire quarters of credit generation.",
       sellers: "Critical. Producers must begin registration and third-party verification engagement now. The proposed CI benchmarks will directly determine your credit value per gallon."
     },
-    personaRelevance: { buyer: "medium", "seller-developer": "high", "seller-manufacturer": "medium", advisor: "high" }
   },
   {
     date: "Jan 22, 2026", source: "DOE", severity: "low", credits: ["48E"],
@@ -1234,7 +1382,6 @@ const NEWS = [
       midMarket: "Useful for evaluating specific project deals. New census tracts could make previously-borderline projects eligible for bonus credit amounts.",
       sellers: "Developers in or near the 12 new MSAs should reassess project eligibility for the energy community bonus."
     },
-    personaRelevance: { buyer: "low", "seller-developer": "medium", "seller-manufacturer": "low", advisor: "medium" }
   },
   {
     date: "Jan 15, 2026", source: "Congress", severity: "medium", credits: ["45X", "48E", "45Z", "45Q"],
@@ -1251,7 +1398,6 @@ const NEWS = [
       midMarket: "Net positive. More transparency generally benefits mid-market buyers who lack deal volume to command premium pricing.",
       sellers: "Minimal near-term effect. Watch the GAO report's recommendations — mandatory pricing disclosure could compress margins."
     },
-    personaRelevance: { buyer: "medium", "seller-developer": "low", "seller-manufacturer": "low", advisor: "high" }
   },
 ];
 
@@ -1341,11 +1487,8 @@ function TerminatedSection() {
 // ═══════════════════════════════════════════════════════════
 
 // Regulatory detail modal — rendered at top level, outside all grids/transforms
-function RegModal({ item, onClose, onNavigate, persona }) {
-  const isSeller = persona === "seller-developer" || persona === "seller-manufacturer";
-  const defaultTab = isSeller ? "sellers" : "enterprise";
-  const [impactTab, setImpactTab] = useState(defaultTab);
-  useEffect(() => { setImpactTab(isSeller ? "sellers" : "enterprise"); }, [persona]);
+function RegModal({ item, onClose, onNavigate }) {
+  const [impactTab, setImpactTab] = useState("enterprise");
 
   const IMPACT_LABELS = {
     enterprise: { label: "Enterprise", desc: "Fortune 500 / large-cap" },
@@ -1574,7 +1717,7 @@ function FadeIn({ children, delay = 0, style = {} }) {
 // data opens an email capture modal. This converts curiosity into a qualified lead.
 // The modal is non-aggressive: user initiated the click, × close and click-outside both
 // dismiss, and localStorage remembers submission so it only asks once.
-function AccessModal({ onClose, persona }) {
+function AccessModal({ onClose }) {
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
   const [sent, setSent] = useState(false);
@@ -1598,7 +1741,7 @@ function AccessModal({ onClose, persona }) {
     fetch("/.netlify/functions/subscribe", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: trimmed, source: "platform_interest", persona, timestamp: new Date().toISOString() }),
+      body: JSON.stringify({ email: trimmed, source: "platform_interest", timestamp: new Date().toISOString() }),
     }).catch(() => {});
     setSent(true);
     try { localStorage.setItem("creditpulse_platform_interest", "true"); } catch {}
@@ -2085,11 +2228,10 @@ function MetricCard({ label, value, sublabel, style = {}, onRequestAccess }) {
 // Credit card — advisor-focused, supports recommended highlight
 // PMM rationale: Recommended cards get amber left border + RECOMMENDED tag.
 // All cards use advisor tagline. "View full analysis →" link to deep dive.
-function CreditCard({ credit, onClick, delay = 0, recommended = false, onRequestAccess }) {
+function CreditCard({ credit, onClick, delay = 0, recommended = false, onRequestAccess, qualitative = false }) {
   const [hov, setHov] = useState(false);
   const c = credit;
-  // Always use advisor tagline
-  const tagline = c.personaTaglines?.advisor || c.tagline;
+  const tagline = c.tagline;
 
   const isSunsetting = c.status === "sunsetting";
 
@@ -2102,8 +2244,7 @@ function CreditCard({ credit, onClick, delay = 0, recommended = false, onRequest
         style={{
           background: hov ? COLOR.cardHover : COLOR.card,
           border: `1px solid ${hov ? COLOR.borderHover : COLOR.border}`,
-          borderLeft: recommended ? `4px solid ${COLOR.gold}` : `1px solid ${hov ? COLOR.borderHover : COLOR.border}`,
-          borderRadius: 12, padding: "22px 24px",
+          borderRadius: 12, overflow: "hidden",
           height: "100%", boxSizing: "border-box",
           cursor: "pointer",
           transition: "all 0.2s ease",
@@ -2111,18 +2252,23 @@ function CreditCard({ credit, onClick, delay = 0, recommended = false, onRequest
           boxShadow: hov ? "0 8px 24px rgba(0,0,0,0.08)" : "0 1px 3px rgba(0,0,0,0.04)",
         }}
       >
-        {/* Top row: recommended tag + section + sunsetting */}
-        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10, flexWrap: "wrap" }}>
-          {recommended && (
+        {/* Recommended top banner */}
+        {recommended && (
+          <div style={{
+            background: COLOR.gold, padding: "10px 24px",
+            textAlign: "center",
+          }}>
             <span style={{
-              fontSize: 10, fontWeight: 700, letterSpacing: "0.08em",
-              padding: "3px 8px", borderRadius: 4,
-              color: COLOR.gold, background: COLOR.goldBg,
-              border: `1px solid ${COLOR.goldBorder}`,
+              fontSize: 11, fontWeight: 700, letterSpacing: "0.1em",
+              color: "#fff",
             }}>
-              RECOMMENDED
+              RECOMMENDED FOR YOUR CLIENT
             </span>
-          )}
+          </div>
+        )}
+        <div style={{ padding: "22px 24px" }}>
+        {/* Top row: section + sunsetting */}
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10, flexWrap: "wrap" }}>
           <span style={{
             fontFamily: FONT.mono, fontSize: 14, fontWeight: 700,
             color: COLOR.gold,
@@ -2156,30 +2302,46 @@ function CreditCard({ credit, onClick, delay = 0, recommended = false, onRequest
           {tagline}
         </p>
 
-        {/* Mini stats row — advisor ordering: Timeline, Pricing, Mkt Share */}
-        {/* PMM rationale: All proprietary data → blur. Labels visible. */}
+        {/* Mini stats row */}
         <div style={{
           display: "grid", gridTemplateColumns: "1fr 1fr 1fr",
           gap: 1, background: COLOR.borderSubtle, borderRadius: 8, overflow: "hidden",
         }}>
-          {[
-            [c.timeline, "Timeline"],
-            [c.pricing, "Pricing"],
-            [c.share, "Mkt Share"],
-          ].map(([val, label], i) => (
-            <div key={i} style={{
-              background: COLOR.bgSubtle, padding: "10px 8px", textAlign: "center",
-            }}>
-              <BlurredData onRequestAccess={onRequestAccess}>
-                <div style={{ fontFamily: FONT.mono, fontSize: 14, fontWeight: 700, color: COLOR.text }}>
-                  {val}
+          {qualitative ? (
+            // Qualitative descriptors — label: description format
+            (QUALITATIVE_STATS[c.sec?.replace("\u00A7", "")] || []).map((stat, i) => (
+              <div key={i} style={{
+                background: COLOR.bgSubtle, padding: "12px 10px", textAlign: "center",
+              }}>
+                <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.06em", color: COLOR.gold, marginBottom: 3 }}>
+                  {stat.label?.toUpperCase() || "—"}
                 </div>
-              </BlurredData>
-              <div style={{ fontSize: 10, color: COLOR.textTertiary, letterSpacing: "0.06em", fontWeight: 600, marginTop: 2 }}>
-                {label.toUpperCase()}
+                <div style={{ fontSize: 12, color: COLOR.textSecondary, lineHeight: 1.4 }}>
+                  {stat.desc || "—"}
+                </div>
               </div>
-            </div>
-          ))}
+            ))
+          ) : (
+            // Blurred proprietary data — for deep dive pages
+            [
+              [c.timeline, "Timeline"],
+              [c.pricing, "Pricing"],
+              [c.share, "Mkt Share"],
+            ].map(([val, label], i) => (
+              <div key={i} style={{
+                background: COLOR.bgSubtle, padding: "10px 8px", textAlign: "center",
+              }}>
+                <BlurredData onRequestAccess={onRequestAccess}>
+                  <div style={{ fontFamily: FONT.mono, fontSize: 14, fontWeight: 700, color: COLOR.text }}>
+                    {val}
+                  </div>
+                </BlurredData>
+                <div style={{ fontSize: 10, color: COLOR.textTertiary, letterSpacing: "0.06em", fontWeight: 600, marginTop: 2 }}>
+                  {label.toUpperCase()}
+                </div>
+              </div>
+            ))
+          )}
         </div>
 
         {/* Next important date */}
@@ -2218,6 +2380,7 @@ function CreditCard({ credit, onClick, delay = 0, recommended = false, onRequest
             View full analysis →
           </span>
         </div>
+        </div>{/* end padding wrapper */}
       </div>
     </FadeIn>
   );
@@ -2260,7 +2423,7 @@ function Tabs({ tabs, activeTab, onTabChange }) {
 // DEEP DIVE PAGE
 // ═══════════════════════════════════════════════════════════
 
-function DeepDive({ creditKey, onBack, onNavigate, onRequestAccess }) {
+function DeepDive({ creditKey, onBack, backLabel = "Back to results", onNavigate, onRequestAccess }) {
   const c = CREDITS[creditKey];
   const [tab, setTab] = useState(DEEP_DIVE_DEFAULT_TAB);
 
@@ -2284,7 +2447,7 @@ function DeepDive({ creditKey, onBack, onNavigate, onRequestAccess }) {
           fontFamily: FONT.body, fontWeight: 500, display: "flex", alignItems: "center", gap: 6,
         }}
       >
-        <span style={{ fontSize: 16 }}>←</span> Back to results
+        <span style={{ fontSize: 16 }}>←</span> {backLabel}
       </button>
 
       {/* Header */}
@@ -3501,17 +3664,16 @@ function FEOCDecisionTree({ onBack, onNavigate, preselectedCredit }) {
 function IntakeWizard({ onComplete, initialInputs }) {
   const [step, setStep] = useState(1);
   const [inputs, setInputs] = useState(initialInputs || {
-    industry: "",
     liability: "",
+    predictability: "",
     experience: "",
     approach: "",
-    timeline: "",
   });
 
   const update = (key, val) => setInputs(prev => ({ ...prev, [key]: val }));
 
-  const step1Valid = inputs.industry && inputs.liability && inputs.experience;
-  const step2Valid = inputs.approach && inputs.timeline;
+  const step1Valid = inputs.liability && inputs.predictability && inputs.experience;
+  const step2Valid = inputs.approach;
 
   return (
     <FadeIn>
@@ -3551,37 +3713,6 @@ function IntakeWizard({ onComplete, initialInputs }) {
               Help us understand who we're advising for.
             </p>
 
-            {/* Industry */}
-            <div style={{ marginBottom: 22 }}>
-              <label style={{
-                display: "block", fontSize: 13, fontWeight: 600,
-                color: COLOR.textSecondary, marginBottom: 8,
-              }}>
-                Industry
-              </label>
-              <select
-                value={inputs.industry}
-                onChange={(e) => update("industry", e.target.value)}
-                style={{
-                  width: "100%", padding: "12px 14px",
-                  fontFamily: FONT.body, fontSize: 15,
-                  border: `1px solid ${COLOR.border}`,
-                  borderRadius: 8, outline: "none",
-                  color: inputs.industry ? COLOR.text : COLOR.textMuted,
-                  background: "#FFFFFF", cursor: "pointer",
-                  appearance: "none",
-                  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%239a958e' d='M6 8L1 3h10z'/%3E%3C/svg%3E")`,
-                  backgroundRepeat: "no-repeat",
-                  backgroundPosition: "right 14px center",
-                }}
-              >
-                <option value="">Select industry...</option>
-                {WIZARD_INDUSTRIES.map(ind => (
-                  <option key={ind} value={ind}>{ind}</option>
-                ))}
-              </select>
-            </div>
-
             {/* Tax liability */}
             <div style={{ marginBottom: 22 }}>
               <label style={{
@@ -3611,6 +3742,49 @@ function IntakeWizard({ onComplete, initialInputs }) {
                   <option key={l.value} value={l.value}>{l.label}</option>
                 ))}
               </select>
+            </div>
+
+            {/* Predictability */}
+            <div style={{ marginBottom: 22 }}>
+              <label style={{
+                display: "block", fontSize: 13, fontWeight: 600,
+                color: COLOR.textSecondary, marginBottom: 10,
+              }}>
+                Is your client's tax liability predictable over the next 5-10 years?
+              </label>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {WIZARD_PREDICTABILITY.map(p => (
+                  <label
+                    key={p.value}
+                    style={{
+                      display: "flex", alignItems: "flex-start", gap: 12,
+                      padding: "14px 16px", borderRadius: 8,
+                      border: `1px solid ${inputs.predictability === p.value ? COLOR.goldBorder : COLOR.border}`,
+                      background: inputs.predictability === p.value ? COLOR.goldBg : "transparent",
+                      cursor: "pointer", transition: "all 0.15s",
+                    }}
+                  >
+                    <input
+                      type="radio"
+                      name="predictability"
+                      value={p.value}
+                      checked={inputs.predictability === p.value}
+                      onChange={() => update("predictability", p.value)}
+                      style={{ accentColor: COLOR.gold, width: 18, height: 18, marginTop: 2 }}
+                    />
+                    <div>
+                      <span style={{
+                        fontSize: 15, color: COLOR.text, fontWeight: inputs.predictability === p.value ? 600 : 400,
+                      }}>
+                        {p.label}
+                      </span>
+                      <div style={{ fontSize: 13, color: COLOR.textTertiary, marginTop: 2 }}>
+                        {p.desc}
+                      </div>
+                    </div>
+                  </label>
+                ))}
+              </div>
             </div>
 
             {/* Experience */}
@@ -3673,7 +3847,7 @@ function IntakeWizard({ onComplete, initialInputs }) {
               fontFamily: FONT.display, fontSize: 24, fontWeight: 400,
               color: COLOR.text, margin: "0 0 6px",
             }}>
-              Priorities
+              Approach
             </h3>
             <p style={{ fontSize: 14, color: COLOR.textTertiary, margin: "0 0 28px" }}>
               How should we shape the recommendation?
@@ -3722,49 +3896,6 @@ function IntakeWizard({ onComplete, initialInputs }) {
               </div>
             </div>
 
-            {/* Timeline */}
-            <div style={{ marginBottom: 28 }}>
-              <label style={{
-                display: "block", fontSize: 13, fontWeight: 600,
-                color: COLOR.textSecondary, marginBottom: 10,
-              }}>
-                Timeline
-              </label>
-              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                {WIZARD_TIMELINE.map(t => (
-                  <label
-                    key={t.value}
-                    style={{
-                      display: "flex", alignItems: "flex-start", gap: 12,
-                      padding: "14px 16px", borderRadius: 8,
-                      border: `1px solid ${inputs.timeline === t.value ? COLOR.goldBorder : COLOR.border}`,
-                      background: inputs.timeline === t.value ? COLOR.goldBg : "transparent",
-                      cursor: "pointer", transition: "all 0.15s",
-                    }}
-                  >
-                    <input
-                      type="radio"
-                      name="timeline"
-                      value={t.value}
-                      checked={inputs.timeline === t.value}
-                      onChange={() => update("timeline", t.value)}
-                      style={{ accentColor: COLOR.gold, width: 18, height: 18, marginTop: 2 }}
-                    />
-                    <div>
-                      <span style={{
-                        fontSize: 15, color: COLOR.text, fontWeight: inputs.timeline === t.value ? 600 : 400,
-                      }}>
-                        {t.label}
-                      </span>
-                      <div style={{ fontSize: 13, color: COLOR.textTertiary, marginTop: 2 }}>
-                        {t.desc}
-                      </div>
-                    </div>
-                  </label>
-                ))}
-              </div>
-            </div>
-
             <div style={{ display: "flex", gap: 12 }}>
               <button
                 onClick={() => setStep(1)}
@@ -3801,7 +3932,7 @@ function IntakeWizard({ onComplete, initialInputs }) {
   );
 }
 
-function LandingPage({ onComplete }) {
+function LandingPage({ onStartAssessment, onBrowse }) {
   return (
     <div style={{
       minHeight: "100vh", background: COLOR.bg,
@@ -3850,7 +3981,7 @@ function LandingPage({ onComplete }) {
       </div>
 
       {/* Hero Section */}
-      <div style={{ maxWidth: 780, margin: "0 auto", padding: "60px 28px 40px", textAlign: "center" }}>
+      <div style={{ maxWidth: 780, margin: "0 auto", padding: "60px 28px 20px", textAlign: "center" }}>
         <FadeIn>
           <h1 style={{
             fontFamily: FONT.display, fontSize: 42, fontWeight: 400,
@@ -3862,17 +3993,228 @@ function LandingPage({ onComplete }) {
             fontSize: 17, color: COLOR.textSecondary, lineHeight: 1.6,
             margin: "0 0 12px", maxWidth: 640, marginLeft: "auto", marginRight: "auto",
           }}>
-            CreditPulse helps advisors evaluate whether transferable tax credits are a fit for their corporate clients — and what they need to know if they are.
+            CreditPulse helps tax advisors evaluate transferable tax credits for their corporate clients — from credit selection to risk assessment to deal structure.
           </p>
           <p style={{
             fontSize: 13, color: COLOR.textTertiary, lineHeight: 1.5,
-            margin: "0 0 48px",
+            margin: "0 0 40px",
           }}>
             Powered by data from Crux Climate's 2025 Market Intelligence Report — based on ~$55B in TTC transactions representing ~80% of market activity.
           </p>
         </FadeIn>
 
-        <IntakeWizard onComplete={onComplete} />
+        {/* Two entry path cards */}
+        <FadeIn delay={100}>
+          <div className="cp-two-col" style={{
+            display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16,
+            maxWidth: 600, margin: "0 auto 36px",
+          }}>
+            {/* Left: Evaluate for a client */}
+            <div style={{
+              background: COLOR.card, border: `1px solid ${COLOR.border}`,
+              borderRadius: 12, padding: "28px 24px", textAlign: "left",
+              boxShadow: "0 2px 12px rgba(0,0,0,0.04)",
+            }}>
+              <h3 style={{
+                fontFamily: FONT.display, fontSize: 20, fontWeight: 400,
+                color: COLOR.text, margin: "0 0 10px",
+              }}>
+                Evaluate for a client
+              </h3>
+              <p style={{
+                fontSize: 13, color: COLOR.textTertiary, lineHeight: 1.5,
+                margin: "0 0 20px",
+              }}>
+                Answer a few questions about your client and get a personalized credit recommendation with discussion points for your next meeting.
+              </p>
+              <button
+                onClick={onStartAssessment}
+                style={{
+                  width: "100%", padding: "12px 20px",
+                  background: COLOR.gold, color: "#fff",
+                  border: "none", borderRadius: 8,
+                  fontSize: 14, fontWeight: 700,
+                  cursor: "pointer", fontFamily: FONT.body,
+                  transition: "all 0.15s",
+                }}
+              >
+                Start assessment →
+              </button>
+            </div>
+
+            {/* Right: Browse market intelligence */}
+            <div style={{
+              background: COLOR.card, border: `1px solid ${COLOR.border}`,
+              borderRadius: 12, padding: "28px 24px", textAlign: "left",
+              boxShadow: "0 2px 12px rgba(0,0,0,0.04)",
+            }}>
+              <h3 style={{
+                fontFamily: FONT.display, fontSize: 20, fontWeight: 400,
+                color: COLOR.text, margin: "0 0 10px",
+              }}>
+                Browse market intelligence
+              </h3>
+              <p style={{
+                fontSize: 13, color: COLOR.textTertiary, lineHeight: 1.5,
+                margin: "0 0 20px",
+              }}>
+                Explore all available credit types, upcoming deadlines, and the latest regulatory and market developments.
+              </p>
+              <button
+                onClick={onBrowse}
+                style={{
+                  width: "100%", padding: "12px 20px",
+                  background: COLOR.card, color: COLOR.text,
+                  border: `1.5px solid ${COLOR.border}`, borderRadius: 8,
+                  fontSize: 14, fontWeight: 700,
+                  cursor: "pointer", fontFamily: FONT.body,
+                  transition: "all 0.15s",
+                }}
+              >
+                View dashboard →
+              </button>
+            </div>
+          </div>
+        </FadeIn>
+
+        {/* What this covers row */}
+        <FadeIn delay={200}>
+          <div style={{
+            maxWidth: 600, margin: "0 auto",
+            display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12,
+          }}>
+            {[
+              { icon: "§", text: "6 credit types" },
+              { icon: "◷", text: "Key deadlines through 2035" },
+              { icon: "✓", text: "FEOC compliance guidance" },
+              { icon: "⇄", text: "ITC vs PTC analysis" },
+            ].map((item, i) => (
+              <div key={i} style={{
+                textAlign: "center", padding: "14px 8px",
+                background: COLOR.bgSubtle, borderRadius: 8,
+                border: `1px solid ${COLOR.borderSubtle}`,
+              }}>
+                <div style={{
+                  fontSize: 18, marginBottom: 4, color: COLOR.gold,
+                }}>
+                  {item.icon}
+                </div>
+                <div style={{
+                  fontSize: 12, color: COLOR.textSecondary, fontWeight: 500,
+                  lineHeight: 1.3,
+                }}>
+                  {item.text}
+                </div>
+              </div>
+            ))}
+          </div>
+        </FadeIn>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════
+// BROWSE DASHBOARD — No wizard required
+// PMM rationale: Lets advisors explore all credit types and market
+// intelligence without committing to a specific client assessment.
+// Nudge banner encourages transition to personalized flow.
+// ═══════════════════════════════════════════════════════════
+
+function BrowseDashboard({ onNavigate, onRequestAccess, onStartAssessment }) {
+  const allCreditKeys = Object.keys(CREDITS);
+  // For browse mode, show ALL accordion items by passing inputs that trigger all conditionals
+  // Browse mode shows all stages with all conditional content visible
+
+  return (
+    <div>
+      {/* All credits — equal treatment, no RECOMMENDED tags */}
+      <div id="cp-section-credits" style={{ marginBottom: 36 }}>
+        <FadeIn delay={100}>
+          <h2 style={{
+            fontFamily: FONT.display, fontSize: 28, fontWeight: 400,
+            color: COLOR.text, margin: "0 0 6px",
+          }}>
+            All transferable tax credits
+          </h2>
+          <p style={{ fontSize: 13, color: COLOR.textTertiary, margin: "0 0 20px" }}>
+            6 credit types currently available in the transfer market
+          </p>
+        </FadeIn>
+        <div className="cp-credit-grid" style={{
+          display: "grid", gridTemplateColumns: "repeat(2,1fr)",
+          gap: 14, marginBottom: 16,
+        }}>
+          {allCreditKeys.map((key, i) => {
+            const credit = CREDITS[key];
+            return credit ? (
+              <CreditCard
+                key={key}
+                credit={credit}
+                onClick={() => onNavigate(key)}
+                delay={150 + i * 80}
+                recommended={false}
+                onRequestAccess={onRequestAccess}
+                qualitative={true}
+              />
+            ) : null;
+          })}
+        </div>
+      </div>
+
+      {/* Nudge banner — below credit cards */}
+      <FadeIn delay={300}>
+        <div style={{
+          background: COLOR.goldBg, border: `1px solid ${COLOR.goldBorder}`,
+          borderRadius: 10, padding: "14px 20px", marginBottom: 36,
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+          flexWrap: "wrap", gap: 12,
+        }}>
+          <span style={{ fontSize: 14, color: COLOR.text }}>
+            Have a specific client? Get a personalized recommendation.
+          </span>
+          <button
+            onClick={onStartAssessment}
+            style={{
+              background: COLOR.gold, color: "#fff", border: "none",
+              borderRadius: 6, padding: "8px 16px", fontSize: 13,
+              fontWeight: 700, cursor: "pointer", fontFamily: FONT.body,
+            }}
+          >
+            Start assessment →
+          </button>
+        </div>
+      </FadeIn>
+
+      {/* Client Conversation Guide — all stages, browse mode */}
+      <ConversationGuide
+        inputs={null}
+        onNavigate={onNavigate}
+        browseMode={true}
+      />
+
+      {/* Deadlines — no emphasis */}
+      <DeadlinesTimeline recommendedCredits={[]} />
+
+      {/* Platform CTA */}
+      <PlatformBridgeCTA onRequestAccess={onRequestAccess} />
+
+      {/* Intelligence Feed */}
+      <IntelFeed onNavigate={onNavigate} />
+
+      {/* Subscribe */}
+      <SubscribeBlock />
+
+      {/* Disclaimer */}
+      <div style={{
+        marginTop: 32, padding: "16px 0",
+        borderTop: `1px solid ${COLOR.border}`,
+      }}>
+        <p style={{
+          fontSize: 11, color: COLOR.textMuted, lineHeight: 1.6, maxWidth: 700,
+        }}>
+          <strong style={{ color: COLOR.textTertiary }}>Disclaimer:</strong> This tool is for educational purposes only. It does not constitute legal, tax, or investment advice. Consult qualified advisors for decisions about your specific situation. Based on guidance available as of {LAST_UPDATED}.
+        </p>
       </div>
     </div>
   );
@@ -3952,15 +4294,12 @@ function PlatformBridgeCTA({ onRequestAccess }) {
 
 // ═══════════════════════════════════════════════════════════
 // RECOMMENDATION SUMMARY
-// PMM rationale: The "aha moment" — synthesizes wizard inputs into
-// a clear, personalized recommendation. Stat cards below are blurred
-// to drive platform conversion.
+// PMM rationale: The "aha moment" — bold headline + dynamic bullets
+// from wizard inputs + muted market context line.
 // ═══════════════════════════════════════════════════════════
 
-function RecommendationSummary({ inputs, onRequestAccess }) {
-  const recommendedCredits = getRecommendedCredits(inputs.approach, inputs.liability);
-  const recommendation = getRecommendationText(inputs);
-  const statCards = getStatCards(recommendedCredits);
+function RecommendationSummary({ inputs }) {
+  const { headline, bullets, context } = getRecommendationText(inputs);
 
   return (
     <div id="cp-section-recommendation" style={{ marginBottom: 36 }}>
@@ -3976,43 +4315,34 @@ function RecommendationSummary({ inputs, onRequestAccess }) {
           }}>
             BASED ON YOUR CLIENT'S PROFILE
           </div>
-          <p style={{
-            fontSize: 16, color: COLOR.text, lineHeight: 1.7,
-            margin: "0 0 24px", maxWidth: 700,
+          <h2 style={{
+            fontFamily: FONT.display, fontSize: 26, fontWeight: 400,
+            color: COLOR.text, margin: "0 0 18px", lineHeight: 1.3,
           }}>
-            {recommendation}
-          </p>
-
-          {/* Blurred stat cards */}
-          <div style={{
-            display: "grid",
-            gridTemplateColumns: `repeat(${statCards.length}, 1fr)`,
-            gap: 1, background: COLOR.borderSubtle, borderRadius: 10,
-            overflow: "hidden",
+            {headline}
+          </h2>
+          <ul style={{
+            listStyle: "none", padding: 0, margin: "0 0 20px",
           }}>
-            {statCards.map((card, i) => (
-              <div key={i} style={{
-                background: COLOR.bgSubtle, padding: "18px 16px", textAlign: "center",
+            {bullets.map((b, i) => (
+              <li key={i} style={{
+                display: "flex", alignItems: "flex-start", gap: 10,
+                marginBottom: 10, fontSize: 15, color: COLOR.text, lineHeight: 1.6,
               }}>
-                <div style={{
-                  fontSize: 10, fontWeight: 700, letterSpacing: "0.08em",
-                  color: COLOR.textTertiary, marginBottom: 8,
-                }}>
-                  {card.label}
-                </div>
-                <BlurredData onRequestAccess={onRequestAccess}>
-                  <div style={{
-                    fontFamily: FONT.mono, fontSize: 22, fontWeight: 700,
-                    color: COLOR.text, marginBottom: 2,
-                  }}>
-                    {card.value}
-                  </div>
-                  <div style={{ fontSize: 12, color: COLOR.textTertiary }}>
-                    {card.sublabel}
-                  </div>
-                </BlurredData>
-              </div>
+                <span style={{
+                  display: "inline-block", width: 7, height: 7,
+                  borderRadius: "50%", background: COLOR.gold,
+                  marginTop: 8, flexShrink: 0,
+                }} />
+                {b}
+              </li>
             ))}
+          </ul>
+          <div style={{
+            fontSize: 13, color: COLOR.textTertiary, lineHeight: 1.5,
+            paddingTop: 14, borderTop: `1px solid ${COLOR.borderSubtle}`,
+          }}>
+            {context}
           </div>
         </div>
       </FadeIn>
@@ -4021,58 +4351,272 @@ function RecommendationSummary({ inputs, onRequestAccess }) {
 }
 
 // ═══════════════════════════════════════════════════════════
-// "WHAT TO DISCUSS WITH YOUR CLIENT" SECTION
-// PMM rationale: Advisor-specific value add. These are conversation
-// starters the advisor should raise with their client.
+// CLIENT CONVERSATION GUIDE — 5-Stage Vertical Stepper
+// PMM rationale: Structured framework that walks advisors through
+// the full conversation arc — from making the case to acting on timing.
+// Each stage expands to reveal bullets, key question, and deep dive links.
 // ═══════════════════════════════════════════════════════════
 
-function DiscussionPointsSection({ inputs, recommendedCredits, onNavigate }) {
-  const points = getDiscussionPoints(inputs, recommendedCredits);
+function ConversationGuide({ inputs, onNavigate, browseMode = false }) {
+  const [openStages, setOpenStages] = useState(new Set());
+  const [checked, setChecked] = useState(() => {
+    try {
+      const saved = localStorage.getItem("cp-checklist");
+      return saved ? JSON.parse(saved) : {};
+    } catch { return {}; }
+  });
+
+  const toggle = (num) => {
+    setOpenStages(prev => {
+      const next = new Set(prev);
+      if (next.has(num)) next.delete(num);
+      else next.add(num);
+      return next;
+    });
+  };
+
+  const toggleCheck = (taskId) => {
+    setChecked(prev => {
+      const next = { ...prev, [taskId]: !prev[taskId] };
+      try { localStorage.setItem("cp-checklist", JSON.stringify(next)); } catch {}
+      return next;
+    });
+  };
+
+  const resetChecklist = () => {
+    setChecked({});
+    try { localStorage.removeItem("cp-checklist"); } catch {}
+  };
+
+  // Determine recommended credits for §48E FEOC highlighting
+  const recommendedCredits = inputs ? getRecommendedCredits(inputs.approach, inputs.predictability) : [];
+  const has48E = recommendedCredits.includes("48E");
 
   return (
-    <div id="cp-section-discussion" style={{ marginBottom: 36 }}>
+    <div id="cp-section-guide" style={{ marginBottom: 36 }}>
       <FadeIn delay={200}>
         <h2 style={{
           fontFamily: FONT.display, fontSize: 28, fontWeight: 400,
           color: COLOR.text, margin: "0 0 16px",
         }}>
-          What to discuss with your client
+          Client Conversation Guide
         </h2>
         <div style={{
           background: COLOR.card, border: `1px solid ${COLOR.border}`,
-          borderRadius: 12, padding: "22px 26px",
+          borderRadius: 12, padding: "24px 28px",
         }}>
-          {points.map((point, i) => (
-            <div key={i} style={{
-              display: "flex", gap: 12, alignItems: "flex-start",
-              marginBottom: i < points.length - 1 ? 14 : 0,
-              paddingBottom: i < points.length - 1 ? 14 : 0,
-              borderBottom: i < points.length - 1 ? `1px solid ${COLOR.borderSubtle}` : "none",
-            }}>
-              <span style={{
-                color: COLOR.gold, fontSize: 14, flexShrink: 0, marginTop: 1,
-              }}>·</span>
-              <span style={{
-                fontSize: 15, color: COLOR.textSecondary, lineHeight: 1.6, flex: 1,
-              }}>
-                {point.text}
-              </span>
-              <button
-                onClick={() => {
-                  // Navigate to a relevant deep dive. Pick the first recommended credit.
-                  const creditKey = recommendedCredits[0] || "45X";
-                  onNavigate(creditKey);
-                }}
-                style={{
-                  background: "none", border: "none", cursor: "pointer",
-                  fontSize: 12, fontWeight: 600, color: COLOR.gold,
-                  fontFamily: FONT.body, whiteSpace: "nowrap", flexShrink: 0,
-                }}
+          {CONVERSATION_STAGES.map((stage, idx) => {
+            const isOpen = openStages.has(stage.number);
+            const isLast = idx === CONVERSATION_STAGES.length - 1;
+
+            return (
+              <div key={stage.number} style={{ display: "flex", gap: 18 }}>
+                {/* Left column: numbered circle + vertical line */}
+                <div style={{
+                  display: "flex", flexDirection: "column", alignItems: "center",
+                  flexShrink: 0, width: 36,
+                }}>
+                  <div
+                    onClick={() => toggle(stage.number)}
+                    style={{
+                      width: 36, height: 36, borderRadius: "50%",
+                      background: COLOR.gold, color: "#fff",
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      fontSize: 15, fontWeight: 700, cursor: "pointer",
+                      flexShrink: 0,
+                    }}
+                  >
+                    {stage.number}
+                  </div>
+                  {!isLast && (
+                    <div style={{
+                      width: 2, flex: 1, minHeight: 16,
+                      background: COLOR.borderSubtle,
+                    }} />
+                  )}
+                </div>
+
+                {/* Right column: title + summary + expandable tasks */}
+                <div style={{
+                  flex: 1, paddingBottom: isLast ? 0 : 20,
+                }}>
+                  <button
+                    onClick={() => toggle(stage.number)}
+                    style={{
+                      background: "none", border: "none", cursor: "pointer",
+                      padding: 0, textAlign: "left", fontFamily: FONT.body,
+                      display: "flex", alignItems: "center", gap: 8,
+                      width: "100%",
+                    }}
+                  >
+                    <span style={{
+                      fontSize: 15, fontWeight: 700, color: COLOR.text,
+                      letterSpacing: "0.02em",
+                    }}>
+                      {stage.title}
+                    </span>
+                    <span style={{
+                      fontSize: 14, color: COLOR.textTertiary, flexShrink: 0,
+                      transition: "transform 0.2s ease",
+                      transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
+                      display: "inline-block",
+                    }}>
+                      &#9662;
+                    </span>
+                  </button>
+                  <p style={{
+                    fontSize: 13, color: COLOR.textSecondary, lineHeight: 1.5,
+                    margin: "4px 0 0",
+                  }}>
+                    {stage.summary}
+                  </p>
+
+                  {/* Expandable task list */}
+                  {isOpen && (
+                    <div style={{ marginTop: 14, animation: "fadeIn 0.2s ease" }}>
+                      {stage.tasks.map((task) => {
+                        const isChecked = !!checked[task.id];
+                        // Conditional highlighting
+                        const showConditionalNote = !browseMode && task.conditional && inputs &&
+                          inputs[task.conditional.field] === task.conditional.value;
+                        // §48E FEOC highlight
+                        const isFEOCHighlight = !browseMode && has48E && task.id === "stage3-task2";
+
+                        return (
+                          <div
+                            key={task.id}
+                            style={{
+                              padding: "12px 14px", marginBottom: 8,
+                              background: isFEOCHighlight ? COLOR.goldBg : COLOR.bgSubtle,
+                              border: `1px solid ${isFEOCHighlight ? COLOR.goldBorder : COLOR.borderSubtle}`,
+                              borderRadius: 8,
+                              opacity: isChecked ? 0.5 : 1,
+                              transition: "opacity 0.2s ease",
+                            }}
+                          >
+                            <label style={{
+                              display: "flex", alignItems: "flex-start", gap: 10,
+                              cursor: "pointer",
+                            }}>
+                              <input
+                                type="checkbox"
+                                checked={isChecked}
+                                onChange={() => toggleCheck(task.id)}
+                                style={{
+                                  accentColor: COLOR.gold, width: 16, height: 16,
+                                  marginTop: 2, flexShrink: 0, cursor: "pointer",
+                                }}
+                              />
+                              <div style={{ flex: 1 }}>
+                                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                                  <span style={{
+                                    fontSize: 14, fontWeight: 600, color: COLOR.text,
+                                    textDecoration: isChecked ? "line-through" : "none",
+                                  }}>
+                                    {task.label}
+                                  </span>
+                                  {showConditionalNote && (
+                                    <span style={{
+                                      fontSize: 10, fontWeight: 700, letterSpacing: "0.06em",
+                                      padding: "2px 6px", borderRadius: 3,
+                                      background: COLOR.gold, color: "#fff",
+                                    }}>
+                                      {task.conditional.note}
+                                    </span>
+                                  )}
+                                </div>
+                                <p style={{
+                                  fontSize: 13, color: COLOR.textSecondary, lineHeight: 1.55,
+                                  margin: "4px 0 0",
+                                }}>
+                                  {task.context}
+                                </p>
+                                {task.linkLabel && task.linkTarget && (
+                                  <div style={{ marginTop: 6 }}>
+                                    {task.linkType === "external" ? (
+                                      <a
+                                        href={task.linkTarget}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        style={{
+                                          fontSize: 13, fontWeight: 600, color: COLOR.gold,
+                                          textDecoration: "none",
+                                        }}
+                                      >
+                                        {task.linkLabel} ↗
+                                      </a>
+                                    ) : task.linkType === "anchor" ? (
+                                      <button
+                                        onClick={(e) => {
+                                          e.preventDefault();
+                                          const el = document.getElementById(task.linkTarget);
+                                          if (el) el.scrollIntoView({ behavior: "smooth" });
+                                        }}
+                                        style={{
+                                          background: "none", border: "none", cursor: "pointer",
+                                          fontSize: 13, fontWeight: 600, color: COLOR.gold,
+                                          fontFamily: FONT.body, padding: 0,
+                                        }}
+                                      >
+                                        {task.linkLabel} →
+                                      </button>
+                                    ) : (
+                                      <button
+                                        onClick={(e) => {
+                                          e.preventDefault();
+                                          onNavigate(task.linkTarget);
+                                        }}
+                                        style={{
+                                          background: "none", border: "none", cursor: "pointer",
+                                          fontSize: 13, fontWeight: 600, color: COLOR.gold,
+                                          fontFamily: FONT.body, padding: 0,
+                                        }}
+                                      >
+                                        {task.linkLabel} →
+                                      </button>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            </label>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+
+          {/* Footer: Reset checklist + CTA */}
+          <div style={{
+            marginTop: 20, paddingTop: 16,
+            borderTop: `1px solid ${COLOR.borderSubtle}`,
+            display: "flex", alignItems: "center", justifyContent: "space-between",
+          }}>
+            <button
+              onClick={resetChecklist}
+              style={{
+                background: "none", border: "none", cursor: "pointer",
+                fontSize: 12, color: COLOR.textTertiary, fontFamily: FONT.body,
+                padding: 0, textDecoration: "underline",
+              }}
+            >
+              Reset checklist
+            </button>
+            <span style={{ fontSize: 13, color: COLOR.textTertiary }}>
+              Ready to start a transaction?{" "}
+              <a
+                href="https://www.cruxclimate.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: COLOR.gold, fontWeight: 600, textDecoration: "none" }}
               >
-                View →
-              </button>
-            </div>
-          ))}
+                Explore credits on Crux →
+              </a>
+            </span>
+          </div>
         </div>
       </FadeIn>
     </div>
@@ -4103,7 +4647,7 @@ function CreditCardsSection({ recommendedCredits, onNavigate, onRequestAccess })
           Recommended for your client
         </h2>
         <p style={{ fontSize: 13, color: COLOR.textTertiary, margin: "0 0 20px" }}>
-          Based on your client's approach and timeline
+          Based on your client's profile and approach
         </p>
       </FadeIn>
 
@@ -4122,6 +4666,7 @@ function CreditCardsSection({ recommendedCredits, onNavigate, onRequestAccess })
               delay={150 + i * 80}
               recommended={true}
               onRequestAccess={onRequestAccess}
+              qualitative={true}
             />
           ) : null;
         })}
@@ -4152,6 +4697,7 @@ function CreditCardsSection({ recommendedCredits, onNavigate, onRequestAccess })
                   delay={450 + i * 80}
                   recommended={false}
                   onRequestAccess={onRequestAccess}
+                  qualitative={true}
                 />
               ) : null;
             })}
@@ -4187,7 +4733,7 @@ function computeUrgency(dateStr) {
   return "FUTURE";
 }
 
-function buildDeadlines(persona) {
+function buildDeadlines() {
   const dateRank = (d) => {
     if (d.startsWith("Late")) return new Date("2026-12-01").getTime();
     const parsed = new Date(d);
@@ -4195,15 +4741,6 @@ function buildDeadlines(persona) {
   };
   return TIMELINE
     .filter(t => !t.past)
-    .filter(t => {
-      if (!persona || persona === "advisor") return true;
-      // Manufacturer: only show deadlines related to §45X or FEOC
-      if (persona === "seller-manufacturer") {
-        return !t.credits || t.credits.length === 0 || t.credits.includes("45X");
-      }
-      const rel = t.personaRelevance && t.personaRelevance[persona];
-      return rel === "high" || rel === "medium";
-    })
     .map(t => ({
       date: t.d,
       description: t.e,
@@ -4217,7 +4754,7 @@ function buildDeadlines(persona) {
 // Deadlines — show ALL for advisors, highlight recommended credit deadlines
 function DeadlinesTimeline({ recommendedCredits }) {
   // Show all non-past deadlines for advisor full picture
-  const deadlines = buildDeadlines("advisor");
+  const deadlines = buildDeadlines();
   if (deadlines.length === 0) return null;
 
   return (
@@ -4266,7 +4803,7 @@ function DeadlinesTimeline({ recommendedCredits }) {
                   {item.description}
                 </span>
 
-                {/* Credit pills + urgency tag */}
+                {/* Credit pills */}
                 <div style={{
                   display: "flex", alignItems: "center", gap: 6,
                   flexShrink: 0,
@@ -4281,13 +4818,6 @@ function DeadlinesTimeline({ recommendedCredits }) {
                       §{cr}
                     </span>
                   ))}
-                  <span style={{
-                    fontSize: 10, fontWeight: 700, letterSpacing: "0.06em",
-                    padding: "2px 8px", borderRadius: 4,
-                    color: us.color, background: us.bg,
-                  }}>
-                    {item.urgency}
-                  </span>
                 </div>
               </div>
             </FadeIn>
@@ -4318,13 +4848,13 @@ function feedTypeFromSource(source) {
   return "regulatory";
 }
 
-function buildIntelFeed(persona, showAll) {
+function buildIntelFeed() {
   const dateRank = (d) => {
     if (d.startsWith("Late")) return new Date("2026-12-01").getTime();
     const parsed = new Date(d);
     return isNaN(parsed.getTime()) ? 0 : parsed.getTime();
   };
-  let items = NEWS.map(n => ({
+  const items = NEWS.map(n => ({
     date: n.date,
     title: n.title,
     summary: n.summary,
@@ -4332,16 +4862,8 @@ function buildIntelFeed(persona, showAll) {
     feedType: feedTypeFromSource(n.source),
     source: n.source,
     severity: n.severity,
-    personaRelevance: n.personaRelevance || {},
     originalNews: n,
   }));
-
-  if (!showAll && persona && persona !== "advisor") {
-    items = items.filter(item => {
-      const rel = item.personaRelevance[persona];
-      return rel === "high" || rel === "medium";
-    });
-  }
 
   // Reverse-chronological (newest first)
   items.sort((a, b) => dateRank(b.date) - dateRank(a.date));
@@ -4351,7 +4873,7 @@ function buildIntelFeed(persona, showAll) {
 // IntelFeed — always shows all items for advisors (full picture)
 function IntelFeed({ onNavigate }) {
   const [activeRegItem, setActiveRegItem] = useState(null);
-  const feed = buildIntelFeed("advisor", true);
+  const feed = buildIntelFeed();
 
   return (
     <div id="cp-section-intelligence" style={{ marginBottom: 36 }}>
@@ -4360,7 +4882,6 @@ function IntelFeed({ onNavigate }) {
           item={activeRegItem}
           onClose={() => setActiveRegItem(null)}
           onNavigate={onNavigate}
-          persona={"advisor"}
         />
       )}
 
@@ -4554,7 +5075,7 @@ function SubscribeBlock() {
   );
 }
 
-function DownloadPDFButton({ persona }) {
+function DownloadPDFButton() {
   const [showCapture, setShowCapture] = useState(false);
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
@@ -4570,7 +5091,7 @@ function DownloadPDFButton({ persona }) {
     fetch("/.netlify/functions/subscribe", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: trimmed, source: "pdf_download", persona, timestamp: new Date().toISOString() }),
+      body: JSON.stringify({ email: trimmed, source: "pdf_download", timestamp: new Date().toISOString() }),
     }).catch(() => {});
     setSent(true);
     setTimeout(() => { setSent(false); setShowCapture(false); setEmail(""); }, 3000);
@@ -4667,7 +5188,7 @@ function DownloadPDFButton({ persona }) {
 // ═══════════════════════════════════════════════════════════
 
 function ResultsPage({ inputs, onNavigate, onRequestAccess, onNewAssessment, onEditInputs }) {
-  const recommendedCredits = getRecommendedCredits(inputs.approach, inputs.liability);
+  const recommendedCredits = getRecommendedCredits(inputs.approach, inputs.predictability);
 
   return (
     <div>
@@ -4703,7 +5224,7 @@ function ResultsPage({ inputs, onNavigate, onRequestAccess, onNewAssessment, onE
       </div>
 
       {/* 1. Recommendation Summary */}
-      <RecommendationSummary inputs={inputs} onRequestAccess={onRequestAccess} />
+      <RecommendationSummary inputs={inputs} />
 
       {/* 2. Recommended + Other Credits */}
       <CreditCardsSection
@@ -4712,10 +5233,9 @@ function ResultsPage({ inputs, onNavigate, onRequestAccess, onNewAssessment, onE
         onRequestAccess={onRequestAccess}
       />
 
-      {/* 3. What to Discuss */}
-      <DiscussionPointsSection
+      {/* 3. Client Conversation Guide */}
+      <ConversationGuide
         inputs={inputs}
-        recommendedCredits={recommendedCredits}
         onNavigate={onNavigate}
       />
 
@@ -5203,12 +5723,14 @@ function AskSidebar({ ctx, open, onClose, currentView }) {
 // Hash routing helpers
 function viewToHash(v) {
   if (v === "home") return "#/";
+  if (v === "browse") return "#/browse";
   if (v === "feocCheck") return "#/feoc";
   if (v.startsWith("feocCheck:")) return "#/feoc/" + v.split(":")[1];
   return "#/credit/" + v.toLowerCase();
 }
 function hashToView(hash) {
   if (!hash || hash === "#/" || hash === "#") return "home";
+  if (hash === "#/browse") return "browse";
   if (hash === "#/feoc") return "feocCheck";
   if (hash.startsWith("#/feoc/")) return "feocCheck:" + hash.slice(7).toUpperCase();
   if (hash.startsWith("#/credit/")) return hash.slice(9).toUpperCase();
@@ -5223,11 +5745,20 @@ export default function CreditPulse() {
   const [wizardInputs, setWizardInputs] = useState(() => {
     try {
       const stored = localStorage.getItem("cp-wizard-inputs");
-      return stored ? JSON.parse(stored) : null;
+      if (!stored) return null;
+      const parsed = JSON.parse(stored);
+      // Schema migration: old inputs had industry/timeline, new schema has predictability
+      if (parsed.industry || parsed.timeline || !parsed.predictability) {
+        localStorage.removeItem("cp-wizard-inputs");
+        return null;
+      }
+      return parsed;
     } catch { return null; }
   });
   // Show wizard in edit mode (pre-filled) vs fresh
   const [editingWizard, setEditingWizard] = useState(false);
+  const [showingWizard, setShowingWizard] = useState(false);
+  const [browseMode, setBrowseMode] = useState(() => window.location.hash === "#/browse");
   const [showAccessModal, setShowAccessModal] = useState(false);
   const ref = useRef(null);
 
@@ -5241,14 +5772,35 @@ export default function CreditPulse() {
       const v = hashToView(window.location.hash);
       setView(v);
       setFade(true);
+      if (v === "browse") {
+        setBrowseMode(true);
+        setShowingWizard(false);
+      } else if (v === "home" && !window.location.hash.includes("browse")) {
+        setBrowseMode(false);
+      }
     }
     window.addEventListener("hashchange", onHashChange);
     return () => window.removeEventListener("hashchange", onHashChange);
   }, []);
 
+  function handleStartAssessment() {
+    setShowingWizard(true);
+    setBrowseMode(false);
+  }
+
+  function handleBrowse() {
+    setBrowseMode(true);
+    setShowingWizard(false);
+    setView("home");
+    window.location.hash = "#/browse";
+    if (ref.current) ref.current.scrollTo({ top: 0 });
+  }
+
   function handleWizardComplete(inputs) {
     setWizardInputs(inputs);
     setEditingWizard(false);
+    setShowingWizard(false);
+    setBrowseMode(false);
     try { localStorage.setItem("cp-wizard-inputs", JSON.stringify(inputs)); } catch {}
     // Navigate to results (home view)
     setView("home");
@@ -5259,7 +5811,10 @@ export default function CreditPulse() {
   function handleNewAssessment() {
     setWizardInputs(null);
     setEditingWizard(false);
+    setShowingWizard(false);
+    setBrowseMode(false);
     try { localStorage.removeItem("cp-wizard-inputs"); } catch {}
+    try { localStorage.removeItem("cp-checklist"); } catch {}
     setView("home");
     window.location.hash = "#/";
     if (ref.current) ref.current.scrollTo({ top: 0 });
@@ -5283,8 +5838,44 @@ export default function CreditPulse() {
               view === "feocCheck" || view.startsWith("feocCheck:") ? ctxAll() + "\n\nThe user is currently using the FEOC Compliance Check tool." :
               ctxFor(view);
 
-  // Determine if we should show the landing page (no wizard inputs) or the results
-  const showLanding = !wizardInputs || editingWizard;
+  // Determine rendering state:
+  // 1. Landing page: no wizard inputs, not browsing, not showing wizard
+  // 2. Fresh wizard: showingWizard but no inputs yet
+  // 3. Results: wizardInputs present and not editing
+  // 4. Edit wizard: wizardInputs present and editingWizard
+  // 5. Browse: browseMode
+  const isLanding = !wizardInputs && !browseMode && !showingWizard && view === "home";
+  const isFreshWizard = showingWizard && !wizardInputs && !editingWizard;
+  const isEditWizard = editingWizard && wizardInputs;
+  const isResults = wizardInputs && !editingWizard && !browseMode;
+  const isBrowse = browseMode;
+  const isDeepDive = view !== "home" && view !== "browse" && !view.startsWith("feocCheck");
+  const isFeoc = view === "feocCheck" || view.startsWith("feocCheck:");
+
+  // Nav anchors differ between results and browse
+  const navAnchors = isResults ? [
+    { label: "Recommendation", id: "recommendation" },
+    { label: "Credits", id: "credits" },
+    { label: "Guide", id: "guide" },
+    { label: "Deadlines", id: "deadlines" },
+    { label: "Intelligence", id: "intelligence" },
+  ] : isBrowse ? [
+    { label: "Credits", id: "credits" },
+    { label: "Guide", id: "guide" },
+    { label: "Deadlines", id: "deadlines" },
+    { label: "Intelligence", id: "intelligence" },
+  ] : [];
+
+  // Deep dive back label
+  const backLabel = isBrowse || (browseMode && isDeepDive) ? "Back to dashboard" : "Back to results";
+  const backHandler = () => {
+    if (browseMode) {
+      setView("home");
+      window.location.hash = "#/browse";
+    } else {
+      nav("home");
+    }
+  };
 
   return (
     <div ref={ref} style={{
@@ -5303,6 +5894,7 @@ export default function CreditPulse() {
         ::selection { background: ${COLOR.gold}30; color: ${COLOR.text}; }
         @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
         @keyframes gateOverlayIn { from { opacity: 0; transform: translate(-50%,-50%) scale(0.95); } to { opacity: 1; transform: translate(-50%,-50%) scale(1); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
 
         /* Responsive */
         @media (max-width: 768px) {
@@ -5332,60 +5924,111 @@ export default function CreditPulse() {
         }
       `}</style>
 
-      {/* Landing page — shown when no wizard inputs or editing */}
-      {showLanding && view === "home" ? (
-        editingWizard && wizardInputs ? (
-          /* Editing mode — show landing with pre-filled wizard */
-          <div style={{ minHeight: "100vh", background: COLOR.bg }}>
-            {/* Top bar */}
-            <div style={{
-              maxWidth: 980, margin: "0 auto", padding: "14px 28px",
-              display: "flex", justifyContent: "space-between", alignItems: "center",
-              borderBottom: `1px solid ${COLOR.border}`,
-            }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <div style={{
-                  width: 24, height: 24, borderRadius: 6,
-                  background: `linear-gradient(135deg, ${COLOR.gold}, ${COLOR.goldDim})`,
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                }}>
-                  <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#fff" }} />
-                </div>
-                <span style={{ fontSize: 15, fontWeight: 700, color: COLOR.text, letterSpacing: "0.06em" }}>
-                  CREDITPULSE
-                </span>
+      {/* STATE 1: Landing page */}
+      {isLanding && !isDeepDive && !isFeoc ? (
+        <LandingPage onStartAssessment={handleStartAssessment} onBrowse={handleBrowse} />
+
+      /* STATE 2: Fresh wizard (no prior inputs) */
+      ) : isFreshWizard && !isDeepDive && !isFeoc ? (
+        <div style={{ minHeight: "100vh", background: COLOR.bg }}>
+          {/* Top bar */}
+          <div style={{
+            maxWidth: 980, margin: "0 auto", padding: "14px 28px",
+            display: "flex", justifyContent: "space-between", alignItems: "center",
+            borderBottom: `1px solid ${COLOR.border}`,
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <div style={{
+                width: 24, height: 24, borderRadius: 6,
+                background: `linear-gradient(135deg, ${COLOR.gold}, ${COLOR.goldDim})`,
+                display: "flex", alignItems: "center", justifyContent: "center",
+              }}>
+                <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#fff" }} />
               </div>
-              <button
-                onClick={() => setEditingWizard(false)}
-                style={{
-                  background: "none", border: "none", cursor: "pointer",
-                  fontSize: 13, fontWeight: 500, color: COLOR.gold,
-                  fontFamily: FONT.body,
-                }}
-              >
-                ← Back to results
-              </button>
+              <span style={{ fontSize: 15, fontWeight: 700, color: COLOR.text, letterSpacing: "0.06em" }}>
+                CREDITPULSE
+              </span>
             </div>
-            <div style={{ maxWidth: 780, margin: "0 auto", padding: "40px 28px" }}>
-              <FadeIn>
-                <h2 style={{
-                  fontFamily: FONT.display, fontSize: 28, fontWeight: 400,
-                  color: COLOR.text, margin: "0 0 8px", textAlign: "center",
-                }}>
-                  Edit your client's profile
-                </h2>
-                <p style={{
-                  fontSize: 14, color: COLOR.textTertiary, margin: "0 0 32px", textAlign: "center",
-                }}>
-                  Adjust any input and see updated results.
-                </p>
-              </FadeIn>
-              <IntakeWizard onComplete={handleWizardComplete} initialInputs={wizardInputs} />
-            </div>
+            <button
+              onClick={handleNewAssessment}
+              style={{
+                background: "none", border: "none", cursor: "pointer",
+                fontSize: 13, fontWeight: 500, color: COLOR.gold,
+                fontFamily: FONT.body,
+              }}
+            >
+              ← Back
+            </button>
           </div>
-        ) : (
-          <LandingPage onComplete={handleWizardComplete} />
-        )
+          <div style={{ maxWidth: 780, margin: "0 auto", padding: "40px 28px" }}>
+            <FadeIn>
+              <h2 style={{
+                fontFamily: FONT.display, fontSize: 28, fontWeight: 400,
+                color: COLOR.text, margin: "0 0 8px", textAlign: "center",
+              }}>
+                Client assessment
+              </h2>
+              <p style={{
+                fontSize: 14, color: COLOR.textTertiary, margin: "0 0 32px", textAlign: "center",
+              }}>
+                Answer a few questions to get a tailored recommendation.
+              </p>
+            </FadeIn>
+            <IntakeWizard onComplete={handleWizardComplete} />
+          </div>
+        </div>
+
+      /* STATE 4: Edit wizard (pre-filled) */
+      ) : isEditWizard && !isDeepDive && !isFeoc ? (
+        <div style={{ minHeight: "100vh", background: COLOR.bg }}>
+          {/* Top bar */}
+          <div style={{
+            maxWidth: 980, margin: "0 auto", padding: "14px 28px",
+            display: "flex", justifyContent: "space-between", alignItems: "center",
+            borderBottom: `1px solid ${COLOR.border}`,
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <div style={{
+                width: 24, height: 24, borderRadius: 6,
+                background: `linear-gradient(135deg, ${COLOR.gold}, ${COLOR.goldDim})`,
+                display: "flex", alignItems: "center", justifyContent: "center",
+              }}>
+                <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#fff" }} />
+              </div>
+              <span style={{ fontSize: 15, fontWeight: 700, color: COLOR.text, letterSpacing: "0.06em" }}>
+                CREDITPULSE
+              </span>
+            </div>
+            <button
+              onClick={() => setEditingWizard(false)}
+              style={{
+                background: "none", border: "none", cursor: "pointer",
+                fontSize: 13, fontWeight: 500, color: COLOR.gold,
+                fontFamily: FONT.body,
+              }}
+            >
+              ← Back to results
+            </button>
+          </div>
+          <div style={{ maxWidth: 780, margin: "0 auto", padding: "40px 28px" }}>
+            <FadeIn>
+              <h2 style={{
+                fontFamily: FONT.display, fontSize: 28, fontWeight: 400,
+                color: COLOR.text, margin: "0 0 8px", textAlign: "center",
+              }}>
+                Edit your client's profile
+              </h2>
+              <p style={{
+                fontSize: 14, color: COLOR.textTertiary, margin: "0 0 32px", textAlign: "center",
+              }}>
+                Adjust any input and see updated results.
+              </p>
+            </FadeIn>
+            <IntakeWizard onComplete={handleWizardComplete} initialInputs={wizardInputs} />
+          </div>
+        </div>
+
+      /* STATES 3 & 5: Results, Browse, Deep Dive, FEOC */
       ) : (<>
         {/* Top bar — branding + attribution */}
         <div style={{
@@ -5396,9 +6039,9 @@ export default function CreditPulse() {
           <div
             style={{
               display: "flex", alignItems: "center", gap: 10,
-              cursor: view !== "home" ? "pointer" : "default",
+              cursor: (isDeepDive || isFeoc) ? "pointer" : "default",
             }}
-            onClick={view !== "home" ? () => nav("home") : undefined}
+            onClick={(isDeepDive || isFeoc) ? backHandler : undefined}
           >
             <div style={{
               width: 24, height: 24, borderRadius: 6,
@@ -5444,11 +6087,11 @@ export default function CreditPulse() {
           <span style={{ fontSize: 12, color: COLOR.textTertiary }}>
             Last updated {LAST_UPDATED} · Data from Crux's 2025 Market Intelligence Report
           </span>
-          <DownloadPDFButton persona={"advisor"} />
+          <DownloadPDFButton />
         </div>
 
-        {/* Sticky nav bar — section anchors on results page only */}
-        {view === "home" && wizardInputs && (
+        {/* Sticky nav bar — section anchors on results/browse pages */}
+        {(view === "home" || view === "browse") && navAnchors.length > 0 && (
           <div className="cp-sticky-nav" style={{
             position: "sticky", top: 0, zIndex: 100,
             background: "rgba(250, 250, 248, 0.95)",
@@ -5461,12 +6104,7 @@ export default function CreditPulse() {
               display: "flex", alignItems: "center", gap: 0,
               height: 48,
             }}>
-              {[
-                { label: "Recommendation", id: "recommendation" },
-                { label: "Credits", id: "credits" },
-                { label: "Deadlines", id: "deadlines" },
-                { label: "Intelligence", id: "intelligence" },
-              ].map((link) => (
+              {navAnchors.map((link) => (
                 <button
                   key={link.id}
                   onClick={() => {
@@ -5493,6 +6131,24 @@ export default function CreditPulse() {
                   {link.label}
                 </button>
               ))}
+              {isResults && (
+                <>
+                  <div style={{ flex: 1 }} />
+                  <button
+                    onClick={handleBrowse}
+                    style={{
+                      background: "none", border: "none", cursor: "pointer",
+                      fontFamily: FONT.body, fontSize: 13, fontWeight: 500,
+                      color: COLOR.gold,
+                      padding: "12px 14px",
+                      borderBottom: "2px solid transparent",
+                      transition: "all 0.15s",
+                    }}
+                  >
+                    Browse all →
+                  </button>
+                </>
+              )}
             </div>
           </div>
         )}
@@ -5501,8 +6157,28 @@ export default function CreditPulse() {
           maxWidth: 980, margin: "0 auto", padding: "32px 28px 80px",
           opacity: fade ? 1 : 0, transition: "opacity 0.25s ease",
         }}>
-          {/* Content */}
-          {view === "home" && wizardInputs ? (
+          {/* Content routing */}
+          {isFeoc ? (
+            <FEOCDecisionTree
+              onBack={backHandler}
+              onNavigate={nav}
+              preselectedCredit={view.includes(":") ? view.split(":")[1] : null}
+            />
+          ) : isDeepDive ? (
+            <DeepDive
+              creditKey={view}
+              onBack={backHandler}
+              backLabel={backLabel}
+              onNavigate={nav}
+              onRequestAccess={openAccessModal}
+            />
+          ) : isBrowse ? (
+            <BrowseDashboard
+              onNavigate={nav}
+              onRequestAccess={openAccessModal}
+              onStartAssessment={handleStartAssessment}
+            />
+          ) : isResults ? (
             <ResultsPage
               inputs={wizardInputs}
               onNavigate={nav}
@@ -5510,15 +6186,7 @@ export default function CreditPulse() {
               onNewAssessment={handleNewAssessment}
               onEditInputs={handleEditInputs}
             />
-          ) : view === "feocCheck" || view.startsWith("feocCheck:") ? (
-            <FEOCDecisionTree
-              onBack={() => nav("home")}
-              onNavigate={nav}
-              preselectedCredit={view.includes(":") ? view.split(":")[1] : null}
-            />
-          ) : (
-            <DeepDive creditKey={view} onBack={() => nav("home")} onNavigate={nav} onRequestAccess={openAccessModal} />
-          )}
+          ) : null}
         </div>
 
         {/* AI Sidebar */}
@@ -5529,7 +6197,6 @@ export default function CreditPulse() {
       {showAccessModal && (
         <AccessModal
           onClose={() => setShowAccessModal(false)}
-          persona={"advisor"}
         />
       )}
     </div>
