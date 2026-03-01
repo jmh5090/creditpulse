@@ -3987,19 +3987,13 @@ function LandingPage({ onStartAssessment, onBrowse }) {
             fontFamily: FONT.display, fontSize: 42, fontWeight: 400,
             color: COLOR.text, margin: "0 0 16px", lineHeight: 1.2,
           }}>
-            Should your client buy clean energy tax credits?
+            What are you looking to accomplish today?
           </h1>
           <p style={{
             fontSize: 17, color: COLOR.textSecondary, lineHeight: 1.6,
             margin: "0 0 12px", maxWidth: 640, marginLeft: "auto", marginRight: "auto",
           }}>
             CreditPulse helps tax advisors evaluate transferable tax credits for their corporate clients — from credit selection to risk assessment to deal structure.
-          </p>
-          <p style={{
-            fontSize: 13, color: COLOR.textTertiary, lineHeight: 1.5,
-            margin: "0 0 40px",
-          }}>
-            Powered by data from Crux Climate's 2025 Market Intelligence Report — based on ~$55B in TTC transactions representing ~80% of market activity.
           </p>
         </FadeIn>
 
@@ -4014,6 +4008,7 @@ function LandingPage({ onStartAssessment, onBrowse }) {
               background: COLOR.card, border: `1px solid ${COLOR.border}`,
               borderRadius: 12, padding: "28px 24px", textAlign: "left",
               boxShadow: "0 2px 12px rgba(0,0,0,0.04)",
+              display: "flex", flexDirection: "column",
             }}>
               <h3 style={{
                 fontFamily: FONT.display, fontSize: 20, fontWeight: 400,
@@ -4023,7 +4018,7 @@ function LandingPage({ onStartAssessment, onBrowse }) {
               </h3>
               <p style={{
                 fontSize: 13, color: COLOR.textTertiary, lineHeight: 1.5,
-                margin: "0 0 20px",
+                margin: "0 0 20px", flex: 1,
               }}>
                 Answer a few questions about your client and get a personalized credit recommendation with discussion points for your next meeting.
               </p>
@@ -4047,6 +4042,7 @@ function LandingPage({ onStartAssessment, onBrowse }) {
               background: COLOR.card, border: `1px solid ${COLOR.border}`,
               borderRadius: 12, padding: "28px 24px", textAlign: "left",
               boxShadow: "0 2px 12px rgba(0,0,0,0.04)",
+              display: "flex", flexDirection: "column",
             }}>
               <h3 style={{
                 fontFamily: FONT.display, fontSize: 20, fontWeight: 400,
@@ -4056,7 +4052,7 @@ function LandingPage({ onStartAssessment, onBrowse }) {
               </h3>
               <p style={{
                 fontSize: 13, color: COLOR.textTertiary, lineHeight: 1.5,
-                margin: "0 0 20px",
+                margin: "0 0 20px", flex: 1,
               }}>
                 Explore all available credit types, upcoming deadlines, and the latest regulatory and market developments.
               </p>
@@ -4108,6 +4104,16 @@ function LandingPage({ onStartAssessment, onBrowse }) {
               </div>
             ))}
           </div>
+        </FadeIn>
+
+        {/* Footer — data source attribution */}
+        <FadeIn delay={300}>
+          <p style={{
+            fontSize: 12, color: COLOR.textTertiary, lineHeight: 1.5,
+            margin: "32px 0 0", textAlign: "center",
+          }}>
+            Powered by data from Crux Climate's 2025 Market Intelligence Report — based on ~$55B in TTC transactions representing ~80% of market activity.
+          </p>
         </FadeIn>
       </div>
     </div>
