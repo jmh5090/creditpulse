@@ -96,154 +96,185 @@ const RISK_MAP = {
   Elevated: { color: COLOR.red, level: 3, label: "ELEVATED" },
 };
 
-// ═══════════════════════════════════════════════════════════
-// PERSONA SEGMENTATION
-// ═══════════════════════════════════════════════════════════
 
-const PERSONAS = {
-  buyer: {
-    label: "Buyer",
-    shortLabel: "Buyer",
-    headerLabel: "Buyer",
-    desc: "Corporations, tax departments, CFOs",
-    question: "I'm looking to purchase tax credits to reduce my federal tax liability",
-  },
-  "seller-developer": {
-    label: "Seller — Project Developer",
-    shortLabel: "Seller — Developer",
-    headerLabel: "Developer",
-    desc: "Solar, wind, biogas, SAF, renewable energy developers",
-    question: "I generate credits through clean energy projects and want to monetize them",
-  },
-  "seller-manufacturer": {
-    label: "Seller — Manufacturer",
-    shortLabel: "Seller — Manufacturer",
-    headerLabel: "Manufacturer",
-    desc: "45X production credits, battery, solar component, critical mineral producers",
-    question: "I earn credits through domestic clean energy manufacturing",
-  },
-  advisor: {
-    label: "Advisor / Intermediary",
-    shortLabel: "Advisor",
-    headerLabel: "Advisor",
-    desc: "Tax equity firms, brokers, law firms, CPAs, consultants",
-    question: "I help clients navigate tax credit transactions",
-  },
-};
-
-const FEOC_CTA_TEXT = {
-  buyer: {
-    title: "Check FEOC compliance before you buy",
-    desc: "Foreign entity rules can disqualify credits entirely. Verify before you transact.",
-  },
-  "seller-developer": {
-    title: "Prove your project credits are FEOC-compliant",
-    desc: "Buyers are requiring supply chain verification. Demonstrate compliance to protect your project\u2019s credit value.",
-  },
-  "seller-manufacturer": {
-    title: "Check your supply chain against FEOC thresholds",
-    desc: "MACR thresholds are tightening annually. Verify your component supply chain now.",
-  },
-  advisor: {
-    title: "FEOC compliance decision tree",
-    desc: "Walk your clients through foreign entity restrictions. Step-by-step guidance for each credit.",
-  },
-};
-
-const BRIDGE_CTA = {
-  buyer: {
-    pretext: "Ready to reduce your tax bill?",
-    cta: "See how much you could save",
-    secondaryCta: "Talk to a marketplace specialist",
-    desc: "Explore credits on Crux \u2014 compare pricing, connect with verified sellers, and reduce your federal tax liability.",
-  },
-  "seller-developer": {
-    pretext: "Ready to monetize your credits?",
-    cta: "List your credits",
-    secondaryCta: "Get a valuation",
-    desc: "Reach qualified corporate buyers, set your price, and close faster on the Crux marketplace.",
-  },
-  "seller-manufacturer": {
-    pretext: "Ready to sell your production credits?",
-    cta: "List your credits",
-    secondaryCta: "Understand your credit value",
-    desc: "Connect directly with corporate buyers for your \u00A745X manufacturing credits on the Crux marketplace.",
-  },
-  advisor: {
-    pretext: "Need deal-ready intelligence for your clients?",
-    cta: "Request partnership information",
-    secondaryCta: "Access full market report",
-    desc: "Access real-time pricing, compliance data, and transaction support through the Crux platform.",
-  },
-  generic: {
-    pretext: "CreditPulse is powered by Crux Climate data.",
-    cta: "Learn about the Crux platform",
-    desc: "The marketplace where clean energy tax credits are bought and sold.",
-  },
-};
-
-const STAT_ORDER = {
-  buyer:                [0, 2, 1],  // Pricing, Timeline, Mkt Share
-  "seller-developer":   [1, 0, 2],  // Mkt Share, Pricing, Timeline
-  "seller-manufacturer": [0, 1, 2], // Pricing, Mkt Share, Timeline
-  advisor:              [2, 0, 1],  // Timeline, Pricing, Mkt Share
-};
+// Deep dive default tab — now always "market" for advisor audience
+const DEEP_DIVE_DEFAULT_TAB = "market";
 
 // ═══════════════════════════════════════════════════════════
-// LAYER 1 — "THE ANSWER" (hero data per persona)
-// Replaces PERSONA_EDITORIAL + PERSONA_BRIEFING with a single
-// opinionated block answering each persona's #1 question.
+// INTAKE WIZARD OPTIONS
+// PMM rationale: The wizard captures enough about the client to
+// generate a personalized recommendation without requiring an
+// account or API call. All logic is client-side conditional rendering.
 // ═══════════════════════════════════════════════════════════
 
-const PERSONA_HERO = {
-  buyer: {
-    personaLabel: "BUYER MARKET SNAPSHOT",
-    headline: "TTC pricing at 12-month lows \u2014 your savings window is open",
-    body: "Transfer credits are at their cheapest in a year as OBBBA thinned the buyer pool \u2014 but a 2026 rebound is forecast.",
-    statCards: [
-      { creditLabel: "\u00A745X MANUFACTURING", price: "93\u201396\u00A2", subtitle: "per dollar \u00B7 IG pricing", tag: "\u2193 4\u20137% discount to par", tagColor: "green" },
-      { creditLabel: "\u00A748E CLEAN ELECTRICITY", price: "~89\u00A2", subtitle: "per dollar \u00B7 tech-neutral ITC", tag: "SUNSETTING \u00B7 deadline Jul 4", tagColor: "orange" },
-    ],
-  },
-  "seller-developer": {
-    personaLabel: "DEVELOPER MARKET SNAPSHOT",
-    headline: "Your credits are in demand \u2014 here\u2019s what buyers are paying",
-    body: "The transfer market grew 48% YoY to ~$42B, and the Jul 4, 2026 construction deadline is reshaping which credits reach market.",
-    statCards: [
-      { creditLabel: "\u00A748E CLEAN ELECTRICITY", price: "~89\u00A2", subtitle: "per dollar \u00B7 tech-neutral ITC", tag: "SUNSETTING \u00B7 deadline Jul 4", tagColor: "orange" },
-      { creditLabel: "\u00A745Z CLEAN FUEL", price: "Varies", subtitle: "CI-based \u00B7 new market", tag: "48% YoY market growth", tagColor: "green" },
-    ],
-  },
-  "seller-manufacturer": {
-    personaLabel: "MANUFACTURER MARKET SNAPSHOT",
-    headline: "\u00A745X is the most actively traded credit \u2014 your monetization window",
-    body: "Manufacturing production credits command top-of-market pricing at 93\u201396\u00A2, with 30% of listings receiving bids on day one.",
-    statCards: [
-      { creditLabel: "\u00A745X MANUFACTURING", price: "93\u201396\u00A2", subtitle: "per dollar (IG) \u00B7 top of market", tag: "30% of listings get bids day one", tagColor: "green" },
-      { creditLabel: "MARKET SHARE", price: "27%", subtitle: "of transfer market volume", tag: "Most actively traded PTC", tagColor: "green" },
-    ],
-  },
-  advisor: {
-    personaLabel: "ADVISOR MARKET SNAPSHOT",
-    headline: "Market at $63B and 12-month pricing lows \u2014 significant inventory in play",
-    body: "Total tax credit monetization reached $63B in 2025 (+27% YoY). Transfer market ~$42B (+48%), with $8\u201310B in unsold 2025-vintage credits still available.",
-    statCards: [
-      { creditLabel: "\u00A745X MANUFACTURING", price: "93\u201396\u00A2", subtitle: "per dollar \u00B7 IG PTC", tag: "\u2193 4\u20137% discount to par", tagColor: "green" },
-      { creditLabel: "\u00A748E CLEAN ELECTRICITY", price: "~89\u00A2", subtitle: "per dollar \u00B7 tech-neutral ITC", tag: "SUNSETTING \u00B7 deadline Jul 4", tagColor: "orange" },
-    ],
-  },
-};
+const WIZARD_INDUSTRIES = [
+  "Manufacturing",
+  "Energy & Utilities",
+  "Technology",
+  "Financial Services",
+  "Healthcare",
+  "Real Estate",
+  "Retail & Consumer",
+  "Other",
+];
+
+const WIZARD_LIABILITY = [
+  { value: "under10", label: "Under $10M" },
+  { value: "10to50", label: "$10M – $50M" },
+  { value: "50to200", label: "$50M – $200M" },
+  { value: "over200", label: "Over $200M" },
+];
+
+const WIZARD_EXPERIENCE = [
+  { value: "first", label: "First time" },
+  { value: "some", label: "Some experience" },
+  { value: "active", label: "Active buyer" },
+];
+
+const WIZARD_APPROACH = [
+  { value: "conservative", label: "Conservative", desc: "Established credit types with proven deal structures" },
+  { value: "balanced", label: "Balanced", desc: "Mix of established and emerging credits for favorable pricing" },
+  { value: "maximizing", label: "Maximizing value", desc: "Full range of credit types, including newer ones trading at steeper discounts" },
+];
+
+const WIZARD_TIMELINE = [
+  { value: "thisyear", label: "This tax year", desc: "Need credits that can close quickly to offset current liability" },
+  { value: "1to2years", label: "Next 1–2 years", desc: "Planning ahead, more flexibility on timing" },
+  { value: "longterm", label: "Long-term strategy", desc: "Building a multi-year credit purchasing program" },
+];
 
 // ═══════════════════════════════════════════════════════════
-// LAYER 2 — "YOUR NEXT MOVE" (curated credit cards per persona)
+// RECOMMENDATION ENGINE
+// PMM rationale: Maps wizard inputs → personalized recommendation.
+// No API calls — all conditional rendering based on input combos.
 // ═══════════════════════════════════════════════════════════
 
-const PERSONA_NEXT_MOVE = {
-  buyer: { credits: ["45X", "48E"], layout: "grid-2" },
-  "seller-developer": { credits: ["48E", "45Z", "45Q"], layout: "grid-3" },
-  "seller-manufacturer": { credits: ["45X"], extraCards: ["48C"], layout: "featured" },
-  advisor: { credits: ["48E", "45X", "45Z", "45Q"], showOther: true, showTerminated: true, layout: "grid-full" },
-};
+function getRecommendedCredits(approach, liability) {
+  // If liability is $200M+, always recommend at least §45X + §48E
+  if (liability === "over200" && approach === "conservative") {
+    return ["45X", "48E"];
+  }
+  if (approach === "conservative") return ["45X"];
+  if (approach === "balanced") return ["45X", "48E"];
+  // maximizing
+  return ["45X", "48E", "45Z", "45Q"];
+}
+
+function getLiabilityFraming(liability) {
+  if (liability === "under10") return "At your client's liability level, a focused approach on a single credit type will be most efficient.";
+  if (liability === "10to50") return "Your client's liability supports a meaningful credit position in one or two credit types.";
+  if (liability === "50to200") return "At this scale, your client can benefit from a diversified approach across multiple credit types.";
+  return "Your client's tax liability supports a portfolio strategy across the full range of available credits.";
+}
+
+function getRecommendationText(inputs) {
+  const { approach, timeline, experience, liability } = inputs;
+  let rec = "";
+
+  // Main recommendation based on approach + timeline + experience
+  if (approach === "conservative" && timeline === "thisyear" && experience === "first") {
+    rec = "Your client is a strong fit for §45X Advanced Manufacturing credits — the most liquid credit type with proven deal structures and fastest close times. As a first-time buyer, focus on investment-grade sellers with recapture insurance. Current market conditions favor buyers.";
+  } else if (approach === "conservative" && timeline === "thisyear") {
+    rec = "With current pricing near 12-month lows, this is a favorable window for your client to expand their §45X position. IG-rated credits are closing in 8–16 weeks.";
+  } else if (approach === "conservative") {
+    rec = "§45X credits offer the most straightforward path — proven deal structures, highest liquidity, and the fastest close times in the market. A conservative approach with established sellers minimizes complexity.";
+  } else if (approach === "balanced" && timeline === "thisyear" && experience === "first") {
+    rec = "Your client should consider both §45X and §48E credits. §45X offers the most straightforward deal structure; §48E (Clean Electricity Investment) provides access to the largest credit segment. A split approach gives diversification from the start.";
+  } else if (approach === "balanced") {
+    rec = "§45X and §48E credits offer the best balance of pricing, liquidity, and manageable complexity for your client. §48E requires attention to FEOC compliance and developer documentation.";
+  } else if (approach === "maximizing" && (timeline === "1to2years" || timeline === "thisyear")) {
+    rec = "Your client can access the full range of transferable credits, including §45Z (clean fuels) and §45Q (carbon capture). These emerging credit types trade at steeper discounts but require more due diligence and longer close timelines.";
+  } else if (approach === "maximizing" && timeline === "longterm") {
+    rec = "A multi-year purchasing program should consider a portfolio approach across credit types. §45X and §48E for near-term savings, with §45Z and §45Q positions as those markets mature and pricing improves.";
+  } else {
+    rec = "§45X and §48E credits offer a strong foundation. §45X provides the most liquid market with proven structures, while §48E covers the largest credit segment with technology-neutral eligibility.";
+  }
+
+  // Append liability framing
+  const liabilityText = getLiabilityFraming(liability);
+
+  // Append first-time buyer note
+  const firstTimeNote = experience === "first"
+    ? " As a first-time buyer, we recommend reviewing the risk profile and FEOC guidance for each recommended credit below."
+    : "";
+
+  // Combine into natural prose (2-3 sentences)
+  return `${rec} ${liabilityText}${firstTimeNote}`;
+}
+
+function getStatCards(recommendedCredits) {
+  const cards = [];
+  if (recommendedCredits.includes("45X")) {
+    cards.push({ label: "§45X PRICING", value: "93–96¢", sublabel: "per dollar · IG pricing" });
+  }
+  if (recommendedCredits.includes("48E")) {
+    cards.push({ label: "§48E PRICING", value: "~89¢", sublabel: "per dollar · tech-neutral ITC" });
+  }
+  if (cards.length < 3) {
+    cards.push({ label: "AVERAGE CLOSE TIME", value: "8–16 wks", sublabel: "listing → close" });
+  }
+  return cards;
+}
+
+function getDiscussionPoints(inputs, recommendedCredits) {
+  const points = [];
+
+  // Always include
+  points.push({
+    text: "Current market pricing and how it compares to historical ranges",
+    tab: "market",
+  });
+  points.push({
+    text: "Timeline expectations — from listing to close",
+    tab: "market",
+  });
+
+  // First-time buyer
+  if (inputs.experience === "first") {
+    points.push({
+      text: "What recapture risk means and how to mitigate it",
+      tab: "risk",
+    });
+    points.push({
+      text: "Basic transfer mechanics — one-time transfer, IRS registration process",
+      tab: "overview",
+    });
+  }
+
+  // If §48E recommended
+  if (recommendedCredits.includes("48E")) {
+    points.push({
+      text: "FEOC compliance requirements and what documentation to expect from sellers",
+      tab: "guidance",
+    });
+  }
+
+  // Balanced or maximizing
+  if (inputs.approach === "balanced" || inputs.approach === "maximizing") {
+    points.push({
+      text: "The IG vs. non-IG pricing spread and what it means for credit quality",
+      tab: "market",
+    });
+  }
+
+  // Long-term timeline
+  if (inputs.timeline === "longterm") {
+    points.push({
+      text: "How phasedown schedules affect credit availability and pricing over time",
+      tab: "overview",
+    });
+  }
+
+  // Large liability
+  if (inputs.liability === "50to200" || inputs.liability === "over200") {
+    points.push({
+      text: "Portfolio diversification across credit types",
+      tab: "market",
+    });
+  }
+
+  return points;
+}
 
 const CREDITS = {
   "45X": {
@@ -342,7 +373,8 @@ const CREDITS = {
     status: "sunsetting",
     tagline: "Up to 30%+ of clean power & storage project costs",
     personaTaglines: {
-      buyer: "Largest credit segment \u2014 $42B transfer market. Trading at a discount to legacy credits.",
+      // PMM rationale: Changed "$42B" to qualitative — specific market sizing is proprietary.
+      buyer: "Largest credit segment in the transfer market. Trading at a discount to legacy credits.",
       "seller-developer": "Energy storage nearly tripled market share. Wind/solar deadline is July 4, 2026.",
       "seller-manufacturer": "ITC credits from projects using your manufactured components. Drives demand for your \u00A745X credits.",
       advisor: "Recapture risk, PWA compliance, and FEOC are the three key advisory issues.",
@@ -422,13 +454,108 @@ const CREDITS = {
       "Buyers: focus on recapture protection and developer PWA compliance."
     ],
     mkt: {
-      share: "Largest credit segment. Transfer market reached ~$42B in 2025. Tech-neutral §48E entering market but trading at $0.01–0.02 discount to legacy §48 credits. ~25% of Fortune 1000 now active as tax credit buyers.",
+      share: "Largest credit segment in the transfer market. Tech-neutral §48E entering market but trading at a modest discount to legacy §48 credits. A growing share of Fortune 1000 companies now active as tax credit buyers.",
       price: "IG ITC: 93.1¢ in 2H2025 (down from 94.0¢ in 1H). Non-IG ITC: 90.1¢ (down from 91.0¢). IG PTC: 94.0¢ (down from 95.0¢). Only ~10% of TE investors actively pursuing tech-neutral credits. Crux forecasts solar ITC pricing rebound in 2026."
     },
     stats: [
       { label: "Market size", value: "$63B total monetization" },
       { label: "Pricing", value: "IG ITC: 93.1¢ | Non-IG: 90.1¢" },
       { label: "Pipeline", value: "170 GW safe-harbored" }
+    ]
+  },
+  "45Y": {
+    sec: "§45Y", name: "Clean Electricity Production", type: "PTC",
+    status: "sunsetting",
+    tagline: "Per-kWh payment for generating zero-emission electricity",
+    personaTaglines: {
+      buyer: "Tech-neutral PTC trading at a modest discount to legacy credits. OBBBA deadline applies to wind/solar.",
+      "seller-developer": "Your per-kWh production credit. Buyer demand recovering as construction deadline creates urgency.",
+      "seller-manufacturer": "PTC credits from projects using your manufactured components. Drives demand for your §45X credits.",
+      advisor: "The PTC counterpart to §48E. Same construction deadline, same FEOC issues, different credit structure.",
+    },
+    pricing: "~94¢", pricingCtx: "per $1",
+    pricingDetail: {
+      type: "ig_split",
+      ig: { low: 93, high: 95, label: "93–95¢" },
+      nonIg: { low: 90, high: 93, label: "90–93¢" },
+      spread: "~2–3¢",
+      source: "Crux market observations",
+      note: "Tech-neutral §45Y credits trading at 1–2¢ discount to legacy §45 PTCs. FEOC qualification risk is the primary pricing constraint. Crux forecasts PTC pricing recovery in 2026."
+    },
+    share: "22%", shareCtx: "of PTC volume (combined with §45)",
+    timeline: "8–14 wks", timelineCtx: "listing → close",
+    risk: "Moderate",
+    keyDate: "7/4/2026", keyDateLabel: "Wind/solar construction deadline",
+    nextDate: { date: "Jul 4, 2026", label: "Begin construction for wind/solar", urgent: true },
+    obbbaWinners: "Geothermal, nuclear, and hydropower preserved long-term. Fuel cells get improved terms.",
+    obbbaLosers: "Wind/solar dead unless construction starts by Jul 4, 2026. Biomass faces phasedown.",
+    sum: "Pays electricity producers a per-kilowatt-hour credit for generating zero-emission power. Technology-neutral — any qualifying source earns the same base rate.",
+    howItWorks: {
+      eligible: [
+        "Wind power facilities",
+        "Solar power facilities",
+        "Geothermal electricity generation",
+        "Nuclear power (new builds)",
+        "Hydropower (new or upgraded facilities)",
+        "Marine energy and waste-to-energy"
+      ],
+      valueTable: [
+        ["Base rate", "0.3¢/kWh"],
+        ["With PWA", "1.5¢/kWh"],
+        ["+ Domestic content", "Up to +10% bonus"],
+        ["+ Energy community", "Up to +10% bonus"],
+        ["Annual inflation adjustment", "Applied each year"]
+      ],
+      transfer: "One-time transfer under §6418. Similar structure to §48E transfers.",
+      duration: "10-year credit period from placed-in-service date. Wind/solar must begin construction by Jul 4, 2026."
+    },
+    risks: {
+      summary: "Lower structural risk than ITC — no recapture. Primary risks are production variability and FEOC compliance. Construction deadline creates time pressure for wind/solar.",
+      underwriting: [
+        { text: "Production risk — credits tied to actual generation, not investment. Weather and curtailment matter.", severity: "medium" },
+        { text: "FEOC compliance — same foreign entity restrictions as §48E.", severity: "high" }
+      ],
+      mitigable: [
+        { text: "Historical production data and P50/P90 estimates for resource assessment.", action: "Documentation" },
+        { text: "Supply chain mapping for FEOC compliance — same process as §48E.", action: "Verification" },
+        { text: "Independent energy yield assessment before transacting.", action: "Verification" }
+      ],
+      uncertain: [
+        "How will the IRS treat production shortfalls — is there a minimum threshold?",
+        "Will curtailment by grid operators affect credit eligibility?",
+        "How does the technology-neutral framework interact with existing state incentives?"
+      ]
+    },
+    guidance: {
+      status: "Core rules finalized alongside §48E. FEOC interim guidance Feb 2026. Same construction deadline framework.",
+      open: [
+        "How are production shortfalls treated — is there a minimum generation threshold?",
+        "Do the construction-start safe harbors from §48E apply identically to §45Y?",
+        "How will grid curtailment affect credit calculations?"
+      ]
+    },
+    feoc: "Same FEOC framework as §48E. PFE/SFE & FIE prohibitions: effective for taxable years beginning after July 4, 2025 (Jan 1, 2026 for calendar-year taxpayers). MACR thresholds follow §48E schedule for qualified facilities. Notice 2026-15 MACR calculation guidance applies to §45Y projects.",
+    dates: [
+      { d: "7/4/2026", e: "Deadline to start construction for wind/solar", urgent: true },
+      { d: "12/31/2027", e: "Wind/solar must be operational" },
+      { d: "12/31/2033", e: "Other clean tech begins phasing down" },
+      { d: "12/31/2035", e: "Credit ends for remaining technologies" }
+    ],
+    bl: [
+      "The per-kWh production credit for zero-emission electricity — technology-neutral.",
+      "Same Jul 4, 2026 construction deadline as §48E for wind/solar.",
+      "No recapture risk — unlike the ITC, credits are earned on production, not investment.",
+      "Tech-neutral credits trading at slight discount to legacy — gap expected to close.",
+      "Geothermal, nuclear, and hydro have longer runway than wind/solar."
+    ],
+    mkt: {
+      share: "Growing share of PTC market as tech-neutral framework gains adoption. Combined with legacy §45, PTCs represent a significant portion of the transfer market. Wind and solar projects dominate volume.",
+      price: "IG PTC: ~94¢ (similar to §45X PTC pricing). Non-IG: ~91¢. Tech-neutral credits trading at 1–2¢ discount to legacy §45 due to FEOC uncertainty. Crux forecasts PTC pricing recovery in 2026."
+    },
+    stats: [
+      { label: "Pricing", value: "IG PTC: ~94¢ | Non-IG: ~91¢" },
+      { label: "Deadline", value: "Jul 4, 2026 construction start" },
+      { label: "Duration", value: "10-year credit period" }
     ]
   },
   "45Z": {
@@ -1433,80 +1560,32 @@ function FadeIn({ children, delay = 0, style = {} }) {
 // PMM rationale: CreditPulse gives away the full market narrative (credit names,
 // deadlines, qualitative trends, intelligence headlines) for free. Specific
 // pricing, market share figures, and transaction data — the numbers a buyer,
-// seller, or advisor needs to make a deal — are gated behind a single email
-// field. This creates a clear value exchange: urgency and context are free,
-// decision-grade data converts to a lead.
+// seller, or advisor needs to make a deal — are gated behind an email capture
+// modal. This creates a clear value exchange: urgency and context are free,
+// decision-grade data converts to a platform interest lead.
 
 // PMM rationale: Blur (not a hard block) signals that real data exists behind
 // the gate. Users can see the *shape* of numbers, charts, and columns — creating
 // desire rather than frustration. A hard "locked" icon grid feels like a paywall;
 // a frosted-glass blur feels like a preview.
-function GatedContent({ isUnlocked, onRequestUnlock, children, style = {} }) {
-  const [showOverlay, setShowOverlay] = useState(false);
-  const wrapperRef = useRef(null);
 
-  if (isUnlocked) return <>{children}</>;
-
-  return (
-    <div
-      ref={wrapperRef}
-      style={{ position: "relative", ...style }}
-      onClick={(e) => {
-        e.stopPropagation();
-        setShowOverlay(true);
-      }}
-    >
-      <div style={{
-        filter: "blur(6px)",
-        userSelect: "none",
-        pointerEvents: "none",
-      }}>
-        {children}
-      </div>
-      <div style={{
-        position: "absolute", inset: 0,
-        background: "rgba(250, 250, 248, 0.25)",
-        borderRadius: 8,
-        cursor: "pointer",
-      }} />
-      {showOverlay && (
-        <EmailCaptureOverlay
-          anchorRef={wrapperRef}
-          onSubmit={(email) => {
-            onRequestUnlock(email);
-            setShowOverlay(false);
-          }}
-          onClose={() => setShowOverlay(false)}
-        />
-      )}
-    </div>
-  );
-}
-
-// PMM rationale: Single email field, contextual (not a centered modal), minimal
-// friction. Every additional form field (name, company, phone) reduces conversion
-// rate. The overlay appears anchored to the gated content the user clicked —
-// reinforcing the value exchange at the moment of highest intent.
-function EmailCaptureOverlay({ anchorRef, onSubmit, onClose }) {
+// ── Access Modal ──
+// PMM rationale: Instead of linking to the Crux homepage (low-intent), clicking blurred
+// data opens an email capture modal. This converts curiosity into a qualified lead.
+// The modal is non-aggressive: user initiated the click, × close and click-outside both
+// dismiss, and localStorage remembers submission so it only asks once.
+function AccessModal({ onClose, persona }) {
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
-  const overlayRef = useRef(null);
+  const [sent, setSent] = useState(false);
+  const already = (() => {
+    try { return localStorage.getItem("creditpulse_platform_interest") === "true"; } catch { return false; }
+  })();
 
   useEffect(() => {
-    function handleClick(e) {
-      if (overlayRef.current && !overlayRef.current.contains(e.target)) {
-        onClose();
-      }
-    }
-    function handleKey(e) {
-      if (e.key === "Escape") onClose();
-    }
-    document.addEventListener("mousedown", handleClick);
-    document.addEventListener("keydown", handleKey);
-    return () => {
-      document.removeEventListener("mousedown", handleClick);
-      document.removeEventListener("keydown", handleKey);
-    };
+    function onKey(e) { if (e.key === "Escape") onClose(); }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
   }, [onClose]);
 
   function handleSubmit(e) {
@@ -1516,78 +1595,277 @@ function EmailCaptureOverlay({ anchorRef, onSubmit, onClose }) {
       setError("Please enter a valid email address");
       return;
     }
-    onSubmit(trimmed);
+    fetch("/.netlify/functions/subscribe", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: trimmed, source: "platform_interest", persona, timestamp: new Date().toISOString() }),
+    }).catch(() => {});
+    setSent(true);
+    try { localStorage.setItem("creditpulse_platform_interest", "true"); } catch {}
+    setTimeout(() => onClose(), 2500);
   }
 
   return (
     <div
-      ref={overlayRef}
-      onClick={(e) => e.stopPropagation()}
+      onClick={onClose}
       style={{
-        position: "absolute",
-        top: "50%", left: "50%",
-        transform: "translate(-50%, -50%)",
-        zIndex: 200,
-        background: "#FFFFFF",
-        borderRadius: 14,
-        padding: "28px 28px 22px",
-        boxShadow: "0 12px 40px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06)",
-        border: `1px solid ${COLOR.border}`,
-        width: "min(360px, 90%)",
-        animation: "gateOverlayIn 0.2s ease",
+        position: "fixed", inset: 0, zIndex: 9999,
+        background: "rgba(0,0,0,0.25)", backdropFilter: "blur(6px)",
+        display: "flex", alignItems: "center", justifyContent: "center",
+        padding: 20,
       }}
     >
-      <h3 style={{
-        fontFamily: FONT.display, fontSize: 22, fontWeight: 400,
-        color: COLOR.text, margin: "0 0 8px", lineHeight: 1.3,
-      }}>
-        Unlock full market intelligence
-      </h3>
-      <p style={{
-        fontSize: 14, color: COLOR.textSecondary, lineHeight: 1.5,
-        margin: "0 0 18px",
-      }}>
-        Enter your email to access pricing data, market trends, and transaction insights.
-      </p>
-      <form onSubmit={handleSubmit} style={{ display: "flex", gap: 8 }}>
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => { setEmail(e.target.value); setError(""); }}
-          placeholder="you@company.com"
-          autoFocus
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          background: "#FFFFFF", borderRadius: 16,
+          padding: "32px 32px 28px", width: "100%", maxWidth: 400,
+          boxShadow: "0 16px 48px rgba(0,0,0,0.14), 0 4px 12px rgba(0,0,0,0.06)",
+          border: `1px solid ${COLOR.border}`,
+          position: "relative",
+        }}
+      >
+        {/* Close button */}
+        <button
+          onClick={onClose}
+          aria-label="Close"
           style={{
-            flex: 1, padding: "10px 14px",
-            fontFamily: FONT.body, fontSize: 14,
-            border: `1px solid ${error ? COLOR.red : COLOR.border}`,
-            borderRadius: 8, outline: "none",
-            transition: "border-color 0.15s",
-            color: COLOR.text,
-            background: "#FFFFFF",
+            position: "absolute", top: 14, right: 14,
+            width: 32, height: 32, borderRadius: 8,
+            background: COLOR.bgSubtle, border: `1px solid ${COLOR.borderSubtle}`,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            cursor: "pointer", fontSize: 16, color: COLOR.textTertiary,
+            lineHeight: 1, fontFamily: FONT.body,
+            transition: "background 0.15s",
           }}
-          onFocus={(e) => { e.currentTarget.style.borderColor = error ? COLOR.red : COLOR.goldBorder; }}
-          onBlur={(e) => { e.currentTarget.style.borderColor = error ? COLOR.red : COLOR.border; }}
-        />
-        <button type="submit" style={{
-          background: COLOR.gold, color: "#fff",
-          border: "none", borderRadius: 8,
-          padding: "10px 20px", fontWeight: 700, fontSize: 14,
-          cursor: "pointer", fontFamily: FONT.body,
-          whiteSpace: "nowrap", transition: "background 0.15s",
-          flexShrink: 0,
-        }}>
-          Unlock
+          onMouseEnter={(e) => { e.currentTarget.style.background = COLOR.active; }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = COLOR.bgSubtle; }}
+        >
+          ×
         </button>
-      </form>
-      {error && (
-        <div style={{ fontSize: 12, color: COLOR.red, marginTop: 6 }}>{error}</div>
-      )}
-      <p style={{
-        fontSize: 11, color: COLOR.textMuted, margin: "14px 0 0",
-        textAlign: "center",
+
+        {sent || already ? (
+          /* Success / already submitted state */
+          <div style={{ textAlign: "center", padding: "12px 0" }}>
+            <div style={{
+              width: 48, height: 48, borderRadius: "50%",
+              background: COLOR.greenBg, border: `1px solid ${COLOR.greenBorder}`,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              margin: "0 auto 16px", fontSize: 22,
+            }}>
+              ✓
+            </div>
+            <div style={{
+              fontFamily: FONT.display, fontSize: 22, fontWeight: 400,
+              color: COLOR.text, marginBottom: 8,
+            }}>
+              {already && !sent ? "You're already on the list" : "You're on the list"}
+            </div>
+            <p style={{ fontSize: 14, color: COLOR.textSecondary, lineHeight: 1.55, margin: 0 }}>
+              We'll reach out with next steps to get you access to live transaction data.
+            </p>
+          </div>
+        ) : (
+          /* Email capture form */
+          <>
+            <div style={{
+              fontFamily: FONT.display, fontSize: 24, fontWeight: 400,
+              color: COLOR.text, marginBottom: 8, lineHeight: 1.3,
+              paddingRight: 28,
+            }}>
+              See live transaction data
+            </div>
+            <p style={{
+              fontSize: 14, color: COLOR.textSecondary, lineHeight: 1.55,
+              margin: "0 0 20px",
+            }}>
+              Enter your email to request access to the Crux platform — real-time pricing, verified counterparties, and market analytics.
+            </p>
+            <form onSubmit={handleSubmit}>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => { setEmail(e.target.value); setError(""); }}
+                placeholder="you@company.com"
+                autoFocus
+                style={{
+                  width: "100%", padding: "11px 14px",
+                  fontFamily: FONT.body, fontSize: 14,
+                  border: `1px solid ${error ? COLOR.red : COLOR.border}`,
+                  borderRadius: 8, outline: "none",
+                  color: COLOR.text, background: "#FFFFFF",
+                  transition: "border-color 0.15s",
+                  boxSizing: "border-box",
+                  marginBottom: 10,
+                }}
+                onFocus={(e) => { e.currentTarget.style.borderColor = error ? COLOR.red : COLOR.gold; }}
+                onBlur={(e) => { e.currentTarget.style.borderColor = error ? COLOR.red : COLOR.border; }}
+              />
+              {error && (
+                <div style={{ fontSize: 12, color: COLOR.red, marginBottom: 8 }}>{error}</div>
+              )}
+              <button
+                type="submit"
+                style={{
+                  width: "100%", padding: "11px 20px",
+                  background: COLOR.gold, color: "#fff",
+                  border: "none", borderRadius: 8,
+                  fontSize: 14, fontWeight: 700,
+                  cursor: "pointer", fontFamily: FONT.body,
+                  transition: "background 0.15s",
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = COLOR.goldDim; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = COLOR.gold; }}
+              >
+                Request access
+              </button>
+            </form>
+            <p style={{
+              fontSize: 11, color: COLOR.textMuted, margin: "12px 0 0",
+              textAlign: "center",
+            }}>
+              No spam — just platform access and market updates.
+            </p>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── BlurredData ──
+// PMM rationale: Two-tier blur UX. Small inline elements (prices, tags, mini-stats) use
+// blur-only at rest with a hover tooltip — keeps the page clean and editorial. Large
+// sections (charts, tables) keep a persistent pill because they're big enough to carry it
+// and users need an obvious affordance for chart-sized content.
+// Clicking opens the AccessModal instead of linking externally.
+function BlurredData({ children, style = {}, onRequestAccess, large = false }) {
+  const [hovered, setHovered] = useState(false);
+
+  return (
+    <div
+      role="button"
+      tabIndex={0}
+      style={{
+        position: "relative",
+        display: large ? "block" : "inline-block",
+        textDecoration: "none",
+        cursor: "pointer",
+        ...style,
+      }}
+      onClick={(e) => { e.stopPropagation(); if (onRequestAccess) onRequestAccess(); }}
+      onKeyDown={(e) => { if (e.key === "Enter" && onRequestAccess) onRequestAccess(); }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      <div style={{
+        filter: hovered && !large ? "blur(6px)" : "blur(8px)",
+        transition: "filter 0.2s ease",
+        userSelect: "none",
+        pointerEvents: "none",
       }}>
-        Join 2,000+ clean energy professionals
-      </p>
+        {children}
+      </div>
+      {large ? (
+        /* Large sections: persistent centered pill */
+        <div style={{
+          position: "absolute", inset: 0,
+          background: "rgba(250, 250, 248, 0.4)",
+          borderRadius: 8,
+          display: "flex", alignItems: "center", justifyContent: "center",
+        }}>
+          <span style={{
+            background: "#FFFFFF",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.04)",
+            borderRadius: 20,
+            padding: "8px 18px",
+            fontSize: 14,
+            fontWeight: 600,
+            color: COLOR.gold,
+            fontFamily: FONT.body,
+            whiteSpace: "nowrap",
+            letterSpacing: "0.01em",
+          }}>
+            See live data →
+          </span>
+        </div>
+      ) : (
+        /* Small elements: transparent overlay + hover tooltip */
+        <>
+          <div style={{
+            position: "absolute", inset: 0,
+            background: hovered ? "rgba(250, 250, 248, 0.15)" : "rgba(250, 250, 248, 0.3)",
+            borderRadius: 4,
+            transition: "background 0.2s ease",
+          }} />
+          {hovered && (
+            <div style={{
+              position: "absolute",
+              left: "50%",
+              bottom: "100%",
+              transform: "translateX(-50%)",
+              marginBottom: 4,
+              background: COLOR.text,
+              color: "#FFFFFF",
+              fontSize: 11,
+              fontWeight: 600,
+              fontFamily: FONT.body,
+              padding: "4px 10px",
+              borderRadius: 4,
+              whiteSpace: "nowrap",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+              zIndex: 10,
+              pointerEvents: "none",
+              letterSpacing: "0.01em",
+            }}>
+              See live data →
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
+// PMM rationale: Single consolidated banner per page. Clicking opens the email
+// capture modal instead of linking externally.
+function DataBanner({ onRequestAccess }) {
+  return (
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={() => { if (onRequestAccess) onRequestAccess(); }}
+      onKeyDown={(e) => { if (e.key === "Enter" && onRequestAccess) onRequestAccess(); }}
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 8,
+        padding: "10px 16px",
+        margin: "16px 0",
+        background: `linear-gradient(135deg, ${COLOR.bgSubtle}, rgba(191, 155, 48, 0.04))`,
+        border: `1px solid ${COLOR.borderSubtle}`,
+        borderRadius: 8,
+        cursor: "pointer",
+        transition: "border-color 0.2s ease",
+      }}
+    >
+      <span style={{
+        fontSize: 12,
+        color: COLOR.textTertiary,
+        fontFamily: FONT.body,
+        letterSpacing: "0.01em",
+      }}>
+        Pricing data powered by Crux
+      </span>
+      <span style={{
+        fontSize: 12,
+        fontWeight: 600,
+        color: COLOR.gold,
+        fontFamily: FONT.body,
+      }}>
+        See live transaction data →
+      </span>
     </div>
   );
 }
@@ -1771,24 +2049,9 @@ function PricingChart({ detail }) {
   return null;
 }
 
-// Metric card used in hero strip and deep dives
-function MetricCard({ label, value, sublabel, style = {}, isUnlocked, onRequestUnlock }) {
-  const valueContent = (
-    <>
-      <div style={{
-        fontFamily: FONT.mono, fontSize: 24, fontWeight: 700,
-        color: COLOR.text, marginBottom: 3,
-      }}>
-        {value}
-      </div>
-      {sublabel && (
-        <div style={{ fontSize: 12, color: COLOR.textTertiary, lineHeight: 1.3 }}>
-          {sublabel}
-        </div>
-      )}
-    </>
-  );
-
+// PMM rationale: MetricCard labels (PRICING, MARKET SHARE, DEAL TIMELINE) stay visible
+// on deep dive pages — they show the shape of data Crux has. Values blur → platform CTA.
+function MetricCard({ label, value, sublabel, style = {}, onRequestAccess }) {
   return (
     <div style={{
       padding: "20px 18px",
@@ -1802,22 +2065,32 @@ function MetricCard({ label, value, sublabel, style = {}, isUnlocked, onRequestU
       }}>
         {label}
       </div>
-      {isUnlocked !== undefined ? (
-        <GatedContent isUnlocked={isUnlocked} onRequestUnlock={onRequestUnlock}>
-          {valueContent}
-        </GatedContent>
-      ) : valueContent}
+      <BlurredData onRequestAccess={onRequestAccess}>
+        <div style={{
+          fontFamily: FONT.mono, fontSize: 24, fontWeight: 700,
+          color: COLOR.text, marginBottom: 3,
+        }}>
+          {value}
+        </div>
+        {sublabel && (
+          <div style={{ fontSize: 12, color: COLOR.textTertiary, lineHeight: 1.3 }}>
+            {sublabel}
+          </div>
+        )}
+      </BlurredData>
     </div>
   );
 }
 
-// Credit card — clean, scannable, no jargon
-function CreditCard({ credit, onClick, delay = 0, persona, isUnlocked, onRequestUnlock }) {
+// Credit card — advisor-focused, supports recommended highlight
+// PMM rationale: Recommended cards get amber left border + RECOMMENDED tag.
+// All cards use advisor tagline. "View full analysis →" link to deep dive.
+function CreditCard({ credit, onClick, delay = 0, recommended = false, onRequestAccess }) {
   const [hov, setHov] = useState(false);
   const c = credit;
-  const tagline = (persona && c.personaTaglines?.[persona]) || c.tagline;
+  // Always use advisor tagline
+  const tagline = c.personaTaglines?.advisor || c.tagline;
 
-  // Determine if sunsetting deserves a visible warning
   const isSunsetting = c.status === "sunsetting";
 
   return (
@@ -1829,6 +2102,7 @@ function CreditCard({ credit, onClick, delay = 0, persona, isUnlocked, onRequest
         style={{
           background: hov ? COLOR.cardHover : COLOR.card,
           border: `1px solid ${hov ? COLOR.borderHover : COLOR.border}`,
+          borderLeft: recommended ? `4px solid ${COLOR.gold}` : `1px solid ${hov ? COLOR.borderHover : COLOR.border}`,
           borderRadius: 12, padding: "22px 24px",
           height: "100%", boxSizing: "border-box",
           cursor: "pointer",
@@ -1837,8 +2111,18 @@ function CreditCard({ credit, onClick, delay = 0, persona, isUnlocked, onRequest
           boxShadow: hov ? "0 8px 24px rgba(0,0,0,0.08)" : "0 1px 3px rgba(0,0,0,0.04)",
         }}
       >
-        {/* Top row: section + sunsetting warning only */}
-        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+        {/* Top row: recommended tag + section + sunsetting */}
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10, flexWrap: "wrap" }}>
+          {recommended && (
+            <span style={{
+              fontSize: 10, fontWeight: 700, letterSpacing: "0.08em",
+              padding: "3px 8px", borderRadius: 4,
+              color: COLOR.gold, background: COLOR.goldBg,
+              border: `1px solid ${COLOR.goldBorder}`,
+            }}>
+              RECOMMENDED
+            </span>
+          )}
           <span style={{
             fontFamily: FONT.mono, fontSize: 14, fontWeight: 700,
             color: COLOR.gold,
@@ -1864,7 +2148,7 @@ function CreditCard({ credit, onClick, delay = 0, persona, isUnlocked, onRequest
           {c.name}
         </h3>
 
-        {/* Tagline — persona-aware */}
+        {/* Tagline — advisor-focused */}
         <p style={{
           fontSize: 14, color: COLOR.textSecondary, lineHeight: 1.55,
           margin: "0 0 16px",
@@ -1872,32 +2156,25 @@ function CreditCard({ credit, onClick, delay = 0, persona, isUnlocked, onRequest
           {tagline}
         </p>
 
-        {/* Mini stats row — reordered by persona */}
-        {/* PMM rationale: For Seller — Project Developer, this is the primary gate.
-            Developers want to know "what are buyers paying?" The card name and tagline
-            (free) hook interest; pricing/share/timeline figures (gated) convert.
-            Labels stay visible so users know exactly what's behind the blur. */}
+        {/* Mini stats row — advisor ordering: Timeline, Pricing, Mkt Share */}
+        {/* PMM rationale: All proprietary data → blur. Labels visible. */}
         <div style={{
           display: "grid", gridTemplateColumns: "1fr 1fr 1fr",
           gap: 1, background: COLOR.borderSubtle, borderRadius: 8, overflow: "hidden",
         }}>
-          {(() => {
-            const allStats = [
-              [c.pricing, "Pricing"],
-              [c.share, "Mkt Share"],
-              [c.timeline, "Timeline"],
-            ];
-            const order = (persona && STAT_ORDER[persona]) || [0, 1, 2];
-            return order.map(i => allStats[i]);
-          })().map(([val, label], i) => (
+          {[
+            [c.timeline, "Timeline"],
+            [c.pricing, "Pricing"],
+            [c.share, "Mkt Share"],
+          ].map(([val, label], i) => (
             <div key={i} style={{
               background: COLOR.bgSubtle, padding: "10px 8px", textAlign: "center",
             }}>
-              <GatedContent isUnlocked={isUnlocked} onRequestUnlock={onRequestUnlock}>
+              <BlurredData onRequestAccess={onRequestAccess}>
                 <div style={{ fontFamily: FONT.mono, fontSize: 14, fontWeight: 700, color: COLOR.text }}>
                   {val}
                 </div>
-              </GatedContent>
+              </BlurredData>
               <div style={{ fontSize: 10, color: COLOR.textTertiary, letterSpacing: "0.06em", fontWeight: 600, marginTop: 2 }}>
                 {label.toUpperCase()}
               </div>
@@ -1905,7 +2182,7 @@ function CreditCard({ credit, onClick, delay = 0, persona, isUnlocked, onRequest
           ))}
         </div>
 
-        {/* Next important date — not expiration, but what's coming next */}
+        {/* Next important date */}
         <div style={{
           display: "flex", alignItems: "center", gap: 8,
           marginTop: 14, padding: "9px 12px",
@@ -1929,6 +2206,16 @@ function CreditCard({ credit, onClick, delay = 0, persona, isUnlocked, onRequest
           </span>
           <span style={{ fontSize: 12, color: COLOR.textSecondary }}>
             {c.nextDate?.label}
+          </span>
+        </div>
+
+        {/* View full analysis link */}
+        <div style={{ marginTop: 12, textAlign: "right" }}>
+          <span style={{
+            fontSize: 13, fontWeight: 600, color: COLOR.gold,
+            fontFamily: FONT.body,
+          }}>
+            View full analysis →
           </span>
         </div>
       </div>
@@ -1973,9 +2260,9 @@ function Tabs({ tabs, activeTab, onTabChange }) {
 // DEEP DIVE PAGE
 // ═══════════════════════════════════════════════════════════
 
-function DeepDive({ creditKey, onBack, onNavigate, isUnlocked, onRequestUnlock }) {
+function DeepDive({ creditKey, onBack, onNavigate, onRequestAccess }) {
   const c = CREDITS[creditKey];
-  const [tab, setTab] = useState("overview");
+  const [tab, setTab] = useState(DEEP_DIVE_DEFAULT_TAB);
 
   if (!c) return null;
 
@@ -1997,7 +2284,7 @@ function DeepDive({ creditKey, onBack, onNavigate, isUnlocked, onRequestUnlock }
           fontFamily: FONT.body, fontWeight: 500, display: "flex", alignItems: "center", gap: 6,
         }}
       >
-        <span style={{ fontSize: 16 }}>←</span> Market Overview
+        <span style={{ fontSize: 16 }}>←</span> Back to results
       </button>
 
       {/* Header */}
@@ -2026,19 +2313,9 @@ function DeepDive({ creditKey, onBack, onNavigate, isUnlocked, onRequestUnlock }
         </div>
       </FadeIn>
 
-      {/* Stats bar */}
-      {/* PMM rationale: Deep dive stats bar surfaces the same pricing/share/timeline
-          figures gated on credit cards — labels stay visible, only values blur. */}
-      <FadeIn delay={80}>
-        <div className="cp-metric-strip" style={{
-          display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 1,
-          background: COLOR.border, borderRadius: 10, overflow: "hidden", marginBottom: 28,
-        }}>
-          <MetricCard label="Pricing" value={c.pricing} sublabel={c.pricingCtx} isUnlocked={isUnlocked} onRequestUnlock={onRequestUnlock} />
-          <MetricCard label="Market Share" value={c.share} sublabel={c.shareCtx} isUnlocked={isUnlocked} onRequestUnlock={onRequestUnlock} />
-          <MetricCard label="Deal Timeline" value={c.timeline} sublabel={c.timelineCtx} isUnlocked={isUnlocked} onRequestUnlock={onRequestUnlock} />
-        </div>
-      </FadeIn>
+      {/* PMM rationale: Removed standalone metric strip — values are all blurred so the
+          boxes were just empty space. Same data is surfaced on dashboard credit cards and
+          in the Market Data tab where it has richer context. */}
 
       {/* Tabs */}
       <FadeIn delay={160}>
@@ -2193,7 +2470,7 @@ function DeepDive({ creditKey, onBack, onNavigate, isUnlocked, onRequestUnlock }
               borderRadius: 10, padding: "18px 22px", marginBottom: 16,
             }}>
               <div style={{ fontSize: 11, fontWeight: 700, color: COLOR.red, letterSpacing: "0.08em", marginBottom: 14 }}>
-                WHAT YOU'RE UNDERWRITING
+                WHAT YOUR CLIENT IS UNDERWRITING
               </div>
               {c.risks.underwriting.map((r, i) => (
                 <div key={i} style={{
@@ -2221,7 +2498,7 @@ function DeepDive({ creditKey, onBack, onNavigate, isUnlocked, onRequestUnlock }
               borderRadius: 10, padding: "18px 22px", marginBottom: 16,
             }}>
               <div style={{ fontSize: 11, fontWeight: 700, color: COLOR.green, letterSpacing: "0.08em", marginBottom: 14 }}>
-                WHAT YOU CAN MITIGATE
+                RISK MITIGATION OPTIONS
               </div>
               {c.risks.mitigable.map((r, i) => (
                 <div key={i} style={{
@@ -2261,8 +2538,9 @@ function DeepDive({ creditKey, onBack, onNavigate, isUnlocked, onRequestUnlock }
         {tab === "market" && (
           <div>
             {/* Pricing */}
-            {/* PMM rationale: The entire pricing chart is gated — it's pure transaction-grade
-                data. The section label stays visible so users know what's behind the blur. */}
+            {/* PMM rationale: The entire pricing chart is blurred — it's pure transaction-grade
+                data. The section label and IG/Non-IG labels stay visible so users see the
+                structure of data Crux has. The blur creates desire. The platform CTA captures it. */}
             <div style={{
               background: COLOR.card, border: `1px solid ${COLOR.border}`,
               borderRadius: 10, padding: "22px", marginBottom: 16,
@@ -2270,16 +2548,18 @@ function DeepDive({ creditKey, onBack, onNavigate, isUnlocked, onRequestUnlock }
               <div style={{ fontSize: 12, fontWeight: 700, color: COLOR.gold, letterSpacing: "0.08em", marginBottom: 18 }}>
                 CREDIT PRICING
               </div>
-              <GatedContent isUnlocked={isUnlocked} onRequestUnlock={onRequestUnlock}>
+              <BlurredData large onRequestAccess={onRequestAccess}>
                 <PricingChart detail={c.pricingDetail} />
-              </GatedContent>
+              </BlurredData>
             </div>
 
             {/* Cross-credit comparison */}
-            {/* PMM rationale: For Advisors, the cross-credit comparison is the primary gate.
-                Visible column headers + row labels ("§45X", "Pricing", "Risk") signal exactly
-                what data lives behind the blur — strong conversion for users who need
-                comprehensive, side-by-side figures for client meetings. */}
+            {/* PMM rationale: The cross-credit comparison table is almost entirely blurred —
+                this is the clearest demonstration of Crux's data depth. Column headers (§45X,
+                §48E, §45Z, §45Q) and row labels (Pricing, Risk, Mkt Share, Timeline) stay
+                visible to show the shape of the data. Risk values ("Low", "Moderate",
+                "Elevated") are qualitative assessments, not data — so they stay visible.
+                Everything else is proprietary → blur. */}
             <div style={{
               background: COLOR.card, border: `1px solid ${COLOR.border}`,
               borderRadius: 10, padding: "22px", marginBottom: 16, overflowX: "auto",
@@ -2323,7 +2603,8 @@ function DeepDive({ creditKey, onBack, onNavigate, isUnlocked, onRequestUnlock }
                         const isCurrent = key === creditKey;
                         let val = CREDITS[key][row.key];
                         let cellColor = COLOR.textSecondary;
-                        if (row.key === "risk") {
+                        const isRiskRow = row.key === "risk";
+                        if (isRiskRow) {
                           cellColor = RISK_MAP[val]?.color || COLOR.textSecondary;
                         }
                         return (
@@ -2334,9 +2615,16 @@ function DeepDive({ creditKey, onBack, onNavigate, isUnlocked, onRequestUnlock }
                             background: isCurrent ? COLOR.goldBg : "transparent",
                             borderBottom: `1px solid ${COLOR.borderSubtle}`,
                           }}>
-                            <GatedContent isUnlocked={isUnlocked} onRequestUnlock={onRequestUnlock}>
+                            {/* PMM rationale: Risk values are qualitative assessments ("Low",
+                                "Moderate", "Elevated") — these are Crux's analytical opinions,
+                                not data. Everything else is proprietary. */}
+                            {isRiskRow ? (
                               <span>{val}</span>
-                            </GatedContent>
+                            ) : (
+                              <BlurredData onRequestAccess={onRequestAccess}>
+                                <span>{val}</span>
+                              </BlurredData>
+                            )}
                           </td>
                         );
                       })}
@@ -2347,6 +2635,8 @@ function DeepDive({ creditKey, onBack, onNavigate, isUnlocked, onRequestUnlock }
             </div>
 
             {/* Deal structure */}
+            {/* PMM rationale: Deal structure stats (market share, deal timeline) are
+                redundant with the top stat bar — blur for consistency. */}
             <div style={{
               background: COLOR.card, border: `1px solid ${COLOR.border}`,
               borderRadius: 10, padding: "18px 22px", marginBottom: 16,
@@ -2357,13 +2647,17 @@ function DeepDive({ creditKey, onBack, onNavigate, isUnlocked, onRequestUnlock }
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                 <div style={{ padding: "10px 14px", background: COLOR.bgSubtle, borderRadius: 6, border: `1px solid ${COLOR.borderSubtle}` }}>
                   <div style={{ fontSize: 10, fontWeight: 600, color: COLOR.textTertiary, marginBottom: 4 }}>MARKET SHARE</div>
-                  <div style={{ fontFamily: FONT.mono, fontSize: 16, fontWeight: 700, color: COLOR.text }}>{c.share}</div>
-                  <div style={{ fontSize: 11, color: COLOR.textTertiary }}>{c.shareCtx}</div>
+                  <BlurredData onRequestAccess={onRequestAccess}>
+                    <div style={{ fontFamily: FONT.mono, fontSize: 16, fontWeight: 700, color: COLOR.text }}>{c.share}</div>
+                    <div style={{ fontSize: 11, color: COLOR.textTertiary }}>{c.shareCtx}</div>
+                  </BlurredData>
                 </div>
                 <div style={{ padding: "10px 14px", background: COLOR.bgSubtle, borderRadius: 6, border: `1px solid ${COLOR.borderSubtle}` }}>
                   <div style={{ fontSize: 10, fontWeight: 600, color: COLOR.textTertiary, marginBottom: 4 }}>DEAL TIMELINE</div>
-                  <div style={{ fontFamily: FONT.mono, fontSize: 16, fontWeight: 700, color: COLOR.text }}>{c.timeline}</div>
-                  <div style={{ fontSize: 11, color: COLOR.textTertiary }}>{c.timelineCtx}</div>
+                  <BlurredData onRequestAccess={onRequestAccess}>
+                    <div style={{ fontFamily: FONT.mono, fontSize: 16, fontWeight: 700, color: COLOR.text }}>{c.timeline}</div>
+                    <div style={{ fontSize: 11, color: COLOR.textTertiary }}>{c.timelineCtx}</div>
+                  </BlurredData>
                 </div>
               </div>
             </div>
@@ -2372,7 +2666,7 @@ function DeepDive({ creditKey, onBack, onNavigate, isUnlocked, onRequestUnlock }
 
         {tab === "guidance" && (
           <div>
-            {/* FEOC */}
+            {/* FEOC — parsed into scannable items instead of a text blob */}
             <div style={{
               background: COLOR.card, border: `1px solid ${COLOR.border}`,
               borderRadius: 10, padding: "18px 22px", marginBottom: 16,
@@ -2380,7 +2674,25 @@ function DeepDive({ creditKey, onBack, onNavigate, isUnlocked, onRequestUnlock }
               <div style={{ fontSize: 11, fontWeight: 700, color: COLOR.gold, letterSpacing: "0.08em", marginBottom: 12 }}>
                 FOREIGN ENTITY RESTRICTIONS (FEOC)
               </div>
-              <p style={{ fontSize: 13, color: COLOR.textSecondary, lineHeight: 1.65, margin: 0 }}>{c.feoc}</p>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {c.feoc.split(/\.\s+/).filter(Boolean).map((sentence, i) => {
+                  const clean = sentence.replace(/\.$/, "").trim();
+                  if (!clean) return null;
+                  return (
+                    <div key={i} style={{
+                      display: "flex", gap: 10, alignItems: "flex-start",
+                    }}>
+                      <span style={{
+                        flexShrink: 0, width: 5, height: 5, borderRadius: "50%",
+                        background: COLOR.gold, marginTop: 7, opacity: 0.5,
+                      }} />
+                      <span style={{ fontSize: 13, color: COLOR.textSecondary, lineHeight: 1.55 }}>
+                        {clean}.
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
 
             {/* FEOC compliance tool CTA */}
@@ -2444,7 +2756,7 @@ function DeepDive({ creditKey, onBack, onNavigate, isUnlocked, onRequestUnlock }
         background: COLOR.bgSubtle, borderRadius: 8, border: `1px solid ${COLOR.borderSubtle}`,
       }}>
         <p style={{ fontSize: 10, color: COLOR.textMuted, margin: 0, lineHeight: 1.6 }}>
-          <strong style={{ color: COLOR.textTertiary }}>Disclaimer:</strong> CreditPulse is educational only. Not legal, tax, or investment advice. Consult qualified advisors. Data as of {LAST_UPDATED}.
+          <strong style={{ color: COLOR.textTertiary }}>Disclaimer:</strong> CreditPulse is educational only. Not legal, tax, or investment advice. Data sourced from IRA/OBBBA statutory text, IRS/Treasury guidance, and Crux Climate market reports including &ldquo;The State of Clean Energy Finance: 2025 Market Intelligence Report&rdquo; (Feb 2026) &mdash; based on ~$55B in TTC transactions representing ~80% of market activity. Last updated {LAST_UPDATED}. Consult qualified advisors before transacting.
         </p>
       </div>
     </div>
@@ -3179,210 +3491,402 @@ function FEOCDecisionTree({ onBack, onNavigate, preselectedCredit }) {
 }
 
 // ═══════════════════════════════════════════════════════════
-// PERSONA COMPONENTS
+// ADVISOR INTAKE WIZARD
+// PMM rationale: The wizard replaces the persona selector. Instead of
+// "who are you?" it asks "tell us about your client." This captures
+// enough context to generate a personalized recommendation without
+// requiring an account or API call. All logic is client-side.
 // ═══════════════════════════════════════════════════════════
 
-function PersonaLandingScreen({ onSelect }) {
+function IntakeWizard({ onComplete, initialInputs }) {
+  const [step, setStep] = useState(1);
+  const [inputs, setInputs] = useState(initialInputs || {
+    industry: "",
+    liability: "",
+    experience: "",
+    approach: "",
+    timeline: "",
+  });
+
+  const update = (key, val) => setInputs(prev => ({ ...prev, [key]: val }));
+
+  const step1Valid = inputs.industry && inputs.liability && inputs.experience;
+  const step2Valid = inputs.approach && inputs.timeline;
+
   return (
-    <div style={{
-      minHeight: "100vh",
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      justifyContent: "center",
-      padding: "40px 20px",
-      background: COLOR.bg,
-    }}>
-      <FadeIn>
-        <div style={{ maxWidth: 680, width: "100%", textAlign: "center" }}>
-          {/* Logo */}
+    <FadeIn>
+      <div style={{
+        maxWidth: 640, margin: "0 auto",
+        background: COLOR.card, border: `1px solid ${COLOR.border}`,
+        borderRadius: 16, padding: "36px 40px",
+        boxShadow: "0 2px 12px rgba(0,0,0,0.04)",
+      }}>
+        {/* Progress indicator */}
+        <div style={{
+          fontSize: 13, color: COLOR.textTertiary, marginBottom: 24,
+          display: "flex", alignItems: "center", gap: 12,
+        }}>
+          <span style={{ fontWeight: 600, color: COLOR.gold }}>Step {step} of 2</span>
           <div style={{
-            display: "flex", alignItems: "center", justifyContent: "center",
-            gap: 10, marginBottom: 40,
+            flex: 1, height: 3, background: COLOR.borderSubtle, borderRadius: 2,
+            overflow: "hidden",
           }}>
             <div style={{
-              width: 28, height: 28, borderRadius: 7,
-              background: `linear-gradient(135deg, ${COLOR.gold}, ${COLOR.goldDim})`,
-              display: "flex", alignItems: "center", justifyContent: "center",
-            }}>
-              <div style={{ width: 7, height: 7, borderRadius: "50%", background: "#fff" }} />
-            </div>
-            <span style={{
-              fontSize: 16, fontWeight: 700, color: COLOR.text,
-              letterSpacing: "0.06em",
-            }}>
-              CREDITPULSE
-            </span>
-            <span style={{
-              fontSize: 12, color: COLOR.textTertiary, fontWeight: 400,
-              marginLeft: 4,
-            }}>
-              Clean energy tax credit intelligence
-            </span>
+              height: "100%", background: COLOR.gold, borderRadius: 2,
+              width: step === 1 ? "50%" : "100%",
+              transition: "width 0.3s ease",
+            }} />
           </div>
+        </div>
 
-          {/* Heading */}
-          <h1 style={{
-            fontFamily: FONT.display, fontSize: 36, fontWeight: 400,
-            color: COLOR.text, margin: "0 0 10px", lineHeight: 1.3,
+        {step === 1 ? (
+          <div>
+            <h3 style={{
+              fontFamily: FONT.display, fontSize: 24, fontWeight: 400,
+              color: COLOR.text, margin: "0 0 6px",
+            }}>
+              About your client
+            </h3>
+            <p style={{ fontSize: 14, color: COLOR.textTertiary, margin: "0 0 28px" }}>
+              Help us understand who we're advising for.
+            </p>
+
+            {/* Industry */}
+            <div style={{ marginBottom: 22 }}>
+              <label style={{
+                display: "block", fontSize: 13, fontWeight: 600,
+                color: COLOR.textSecondary, marginBottom: 8,
+              }}>
+                Industry
+              </label>
+              <select
+                value={inputs.industry}
+                onChange={(e) => update("industry", e.target.value)}
+                style={{
+                  width: "100%", padding: "12px 14px",
+                  fontFamily: FONT.body, fontSize: 15,
+                  border: `1px solid ${COLOR.border}`,
+                  borderRadius: 8, outline: "none",
+                  color: inputs.industry ? COLOR.text : COLOR.textMuted,
+                  background: "#FFFFFF", cursor: "pointer",
+                  appearance: "none",
+                  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%239a958e' d='M6 8L1 3h10z'/%3E%3C/svg%3E")`,
+                  backgroundRepeat: "no-repeat",
+                  backgroundPosition: "right 14px center",
+                }}
+              >
+                <option value="">Select industry...</option>
+                {WIZARD_INDUSTRIES.map(ind => (
+                  <option key={ind} value={ind}>{ind}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Tax liability */}
+            <div style={{ marginBottom: 22 }}>
+              <label style={{
+                display: "block", fontSize: 13, fontWeight: 600,
+                color: COLOR.textSecondary, marginBottom: 8,
+              }}>
+                Approximate annual federal tax liability
+              </label>
+              <select
+                value={inputs.liability}
+                onChange={(e) => update("liability", e.target.value)}
+                style={{
+                  width: "100%", padding: "12px 14px",
+                  fontFamily: FONT.body, fontSize: 15,
+                  border: `1px solid ${COLOR.border}`,
+                  borderRadius: 8, outline: "none",
+                  color: inputs.liability ? COLOR.text : COLOR.textMuted,
+                  background: "#FFFFFF", cursor: "pointer",
+                  appearance: "none",
+                  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%239a958e' d='M6 8L1 3h10z'/%3E%3C/svg%3E")`,
+                  backgroundRepeat: "no-repeat",
+                  backgroundPosition: "right 14px center",
+                }}
+              >
+                <option value="">Select range...</option>
+                {WIZARD_LIABILITY.map(l => (
+                  <option key={l.value} value={l.value}>{l.label}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Experience */}
+            <div style={{ marginBottom: 28 }}>
+              <label style={{
+                display: "block", fontSize: 13, fontWeight: 600,
+                color: COLOR.textSecondary, marginBottom: 10,
+              }}>
+                Has your client purchased transferable tax credits before?
+              </label>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {WIZARD_EXPERIENCE.map(exp => (
+                  <label
+                    key={exp.value}
+                    style={{
+                      display: "flex", alignItems: "center", gap: 12,
+                      padding: "12px 16px", borderRadius: 8,
+                      border: `1px solid ${inputs.experience === exp.value ? COLOR.goldBorder : COLOR.border}`,
+                      background: inputs.experience === exp.value ? COLOR.goldBg : "transparent",
+                      cursor: "pointer", transition: "all 0.15s",
+                    }}
+                  >
+                    <input
+                      type="radio"
+                      name="experience"
+                      value={exp.value}
+                      checked={inputs.experience === exp.value}
+                      onChange={() => update("experience", exp.value)}
+                      style={{ accentColor: COLOR.gold, width: 18, height: 18 }}
+                    />
+                    <span style={{
+                      fontSize: 15, color: COLOR.text, fontWeight: inputs.experience === exp.value ? 600 : 400,
+                    }}>
+                      {exp.label}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            <button
+              onClick={() => { if (step1Valid) setStep(2); }}
+              disabled={!step1Valid}
+              style={{
+                width: "100%", padding: "14px 24px",
+                background: step1Valid ? COLOR.gold : COLOR.border,
+                color: step1Valid ? "#fff" : COLOR.textMuted,
+                border: "none", borderRadius: 8,
+                fontSize: 15, fontWeight: 700,
+                cursor: step1Valid ? "pointer" : "not-allowed",
+                fontFamily: FONT.body, transition: "background 0.15s",
+              }}
+            >
+              Next
+            </button>
+          </div>
+        ) : (
+          <div>
+            <h3 style={{
+              fontFamily: FONT.display, fontSize: 24, fontWeight: 400,
+              color: COLOR.text, margin: "0 0 6px",
+            }}>
+              Priorities
+            </h3>
+            <p style={{ fontSize: 14, color: COLOR.textTertiary, margin: "0 0 28px" }}>
+              How should we shape the recommendation?
+            </p>
+
+            {/* Approach */}
+            <div style={{ marginBottom: 22 }}>
+              <label style={{
+                display: "block", fontSize: 13, fontWeight: 600,
+                color: COLOR.textSecondary, marginBottom: 10,
+              }}>
+                Approach to credit selection
+              </label>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {WIZARD_APPROACH.map(a => (
+                  <label
+                    key={a.value}
+                    style={{
+                      display: "flex", alignItems: "flex-start", gap: 12,
+                      padding: "14px 16px", borderRadius: 8,
+                      border: `1px solid ${inputs.approach === a.value ? COLOR.goldBorder : COLOR.border}`,
+                      background: inputs.approach === a.value ? COLOR.goldBg : "transparent",
+                      cursor: "pointer", transition: "all 0.15s",
+                    }}
+                  >
+                    <input
+                      type="radio"
+                      name="approach"
+                      value={a.value}
+                      checked={inputs.approach === a.value}
+                      onChange={() => update("approach", a.value)}
+                      style={{ accentColor: COLOR.gold, width: 18, height: 18, marginTop: 2 }}
+                    />
+                    <div>
+                      <span style={{
+                        fontSize: 15, color: COLOR.text, fontWeight: inputs.approach === a.value ? 600 : 400,
+                      }}>
+                        {a.label}
+                      </span>
+                      <div style={{ fontSize: 13, color: COLOR.textTertiary, marginTop: 2 }}>
+                        {a.desc}
+                      </div>
+                    </div>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* Timeline */}
+            <div style={{ marginBottom: 28 }}>
+              <label style={{
+                display: "block", fontSize: 13, fontWeight: 600,
+                color: COLOR.textSecondary, marginBottom: 10,
+              }}>
+                Timeline
+              </label>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {WIZARD_TIMELINE.map(t => (
+                  <label
+                    key={t.value}
+                    style={{
+                      display: "flex", alignItems: "flex-start", gap: 12,
+                      padding: "14px 16px", borderRadius: 8,
+                      border: `1px solid ${inputs.timeline === t.value ? COLOR.goldBorder : COLOR.border}`,
+                      background: inputs.timeline === t.value ? COLOR.goldBg : "transparent",
+                      cursor: "pointer", transition: "all 0.15s",
+                    }}
+                  >
+                    <input
+                      type="radio"
+                      name="timeline"
+                      value={t.value}
+                      checked={inputs.timeline === t.value}
+                      onChange={() => update("timeline", t.value)}
+                      style={{ accentColor: COLOR.gold, width: 18, height: 18, marginTop: 2 }}
+                    />
+                    <div>
+                      <span style={{
+                        fontSize: 15, color: COLOR.text, fontWeight: inputs.timeline === t.value ? 600 : 400,
+                      }}>
+                        {t.label}
+                      </span>
+                      <div style={{ fontSize: 13, color: COLOR.textTertiary, marginTop: 2 }}>
+                        {t.desc}
+                      </div>
+                    </div>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            <div style={{ display: "flex", gap: 12 }}>
+              <button
+                onClick={() => setStep(1)}
+                style={{
+                  padding: "14px 20px",
+                  background: "transparent", color: COLOR.textSecondary,
+                  border: `1px solid ${COLOR.border}`, borderRadius: 8,
+                  fontSize: 15, fontWeight: 500,
+                  cursor: "pointer", fontFamily: FONT.body,
+                }}
+              >
+                Back
+              </button>
+              <button
+                onClick={() => { if (step2Valid) onComplete(inputs); }}
+                disabled={!step2Valid}
+                style={{
+                  flex: 1, padding: "14px 24px",
+                  background: step2Valid ? COLOR.gold : COLOR.border,
+                  color: step2Valid ? "#fff" : COLOR.textMuted,
+                  border: "none", borderRadius: 8,
+                  fontSize: 15, fontWeight: 700,
+                  cursor: step2Valid ? "pointer" : "not-allowed",
+                  fontFamily: FONT.body, transition: "background 0.15s",
+                }}
+              >
+                See results
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </FadeIn>
+  );
+}
+
+function LandingPage({ onComplete }) {
+  return (
+    <div style={{
+      minHeight: "100vh", background: COLOR.bg,
+    }}>
+      {/* Top bar */}
+      <div style={{
+        maxWidth: 980, margin: "0 auto", padding: "14px 28px",
+        display: "flex", justifyContent: "space-between", alignItems: "center",
+        borderBottom: `1px solid ${COLOR.border}`,
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{
+            width: 24, height: 24, borderRadius: 6,
+            background: `linear-gradient(135deg, ${COLOR.gold}, ${COLOR.goldDim})`,
+            display: "flex", alignItems: "center", justifyContent: "center",
           }}>
-            What brings you to CreditPulse?
+            <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#fff" }} />
+          </div>
+          <span style={{
+            fontSize: 15, fontWeight: 700, color: COLOR.text,
+            letterSpacing: "0.06em",
+          }}>
+            CREDITPULSE
+          </span>
+          <span className="cp-tagline" style={{
+            fontSize: 11, color: COLOR.textTertiary, fontWeight: 400,
+            marginLeft: 4,
+          }}>
+            Clean energy tax credit intelligence
+          </span>
+        </div>
+        <span style={{ fontSize: 11, color: COLOR.textTertiary }}>
+          Built by{" "}
+          <a
+            href="https://www.linkedin.com/in/jaredhutchinson/"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              color: COLOR.textSecondary, textDecoration: "none",
+              borderBottom: `1px solid ${COLOR.border}`, fontWeight: 500,
+            }}
+          >
+            Jared Hutchinson
+          </a>
+        </span>
+      </div>
+
+      {/* Hero Section */}
+      <div style={{ maxWidth: 780, margin: "0 auto", padding: "60px 28px 40px", textAlign: "center" }}>
+        <FadeIn>
+          <h1 style={{
+            fontFamily: FONT.display, fontSize: 42, fontWeight: 400,
+            color: COLOR.text, margin: "0 0 16px", lineHeight: 1.2,
+          }}>
+            Should your client buy clean energy tax credits?
           </h1>
           <p style={{
-            fontSize: 15, color: COLOR.textTertiary, margin: "0 0 36px",
+            fontSize: 17, color: COLOR.textSecondary, lineHeight: 1.6,
+            margin: "0 0 12px", maxWidth: 640, marginLeft: "auto", marginRight: "auto",
           }}>
-            We'll tailor your market view. You can change this anytime.
+            CreditPulse helps advisors evaluate whether transferable tax credits are a fit for their corporate clients — and what they need to know if they are.
           </p>
-
-          {/* Persona cards — 2x2 grid */}
-          <div className="cp-persona-grid" style={{
-            display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 16,
-            marginBottom: 24, textAlign: "left",
+          <p style={{
+            fontSize: 13, color: COLOR.textTertiary, lineHeight: 1.5,
+            margin: "0 0 48px",
           }}>
-            {Object.entries(PERSONAS).map(([key, p]) => (
-              <PersonaLandingCard key={key} persona={p} onClick={() => onSelect(key)} />
-            ))}
-          </div>
+            Powered by data from Crux Climate's 2025 Market Intelligence Report — based on ~$55B in TTC transactions representing ~80% of market activity.
+          </p>
+        </FadeIn>
 
-          {/* Skip link */}
-          <div
-            onClick={() => onSelect("generic")}
-            style={{
-              fontSize: 13, color: COLOR.textTertiary, cursor: "pointer",
-              textAlign: "center", padding: "8px 0",
-              transition: "color 0.15s",
-            }}
-            onMouseEnter={(e) => { e.currentTarget.style.color = COLOR.textSecondary; }}
-            onMouseLeave={(e) => { e.currentTarget.style.color = COLOR.textTertiary; }}
-          >
-            Skip — show me everything
-          </div>
-        </div>
-      </FadeIn>
-    </div>
-  );
-}
-
-function PersonaLandingCard({ persona, onClick }) {
-  const [hov, setHov] = useState(false);
-  return (
-    <div
-      onClick={onClick}
-      onMouseEnter={() => setHov(true)}
-      onMouseLeave={() => setHov(false)}
-      style={{
-        background: COLOR.card,
-        border: `1px solid ${hov ? COLOR.goldBorder : COLOR.border}`,
-        borderRadius: 12, padding: "24px 24px 22px",
-        cursor: "pointer",
-        transition: "all 0.2s ease",
-        transform: hov ? "translateY(-2px)" : "translateY(0)",
-        boxShadow: hov ? "0 8px 24px rgba(0,0,0,0.08)" : "0 1px 3px rgba(0,0,0,0.04)",
-      }}
-    >
-      <div style={{
-        fontFamily: FONT.display, fontSize: 18, fontWeight: 400,
-        color: COLOR.text, marginBottom: 10,
-      }}>
-        {persona.label}
-      </div>
-      <div style={{
-        fontSize: 14, color: COLOR.gold, fontStyle: "italic",
-        lineHeight: 1.55, marginBottom: 12,
-      }}>
-        {"\u201C"}{persona.question}{"\u201D"}
-      </div>
-      <div style={{
-        fontSize: 12, color: COLOR.textSecondary, lineHeight: 1.5,
-      }}>
-        {persona.desc}
+        <IntakeWizard onComplete={onComplete} />
       </div>
     </div>
   );
 }
 
-function PersonaIndicator({ persona, onSelect }) {
-  const [open, setOpen] = useState(false);
-  const ref = useRef(null);
-  const p = PERSONAS[persona];
-
-  // Close on outside click
-  useEffect(() => {
-    if (!open) return;
-    function handleClick(e) {
-      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
-    }
-    document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
-  }, [open]);
-
-  if (!p) return null;
-
-  return (
-    <div ref={ref} style={{ position: "relative" }}>
-      <button
-        onClick={() => setOpen(!open)}
-        style={{
-          display: "flex", alignItems: "center", gap: 6,
-          background: "transparent", border: "none",
-          padding: "4px 0",
-          fontSize: 14, fontWeight: 700, color: COLOR.gold,
-          cursor: "pointer", fontFamily: FONT.body,
-          transition: "all 0.15s",
-        }}
-      >
-        {p.headerLabel || p.shortLabel}
-        <span style={{ fontSize: 10, opacity: 0.7 }}>{"\u25BE"}</span>
-      </button>
-
-      {open && (
-        <div style={{
-          position: "absolute", top: "100%", left: 0, paddingTop: 4,
-          zIndex: 200,
-        }}>
-          <div style={{
-            background: COLOR.card, border: `1px solid ${COLOR.border}`,
-            borderRadius: 8, overflow: "hidden", minWidth: 240,
-            boxShadow: "0 4px 24px rgba(0,0,0,0.10)",
-          }}>
-            {Object.entries(PERSONAS).map(([key, pp]) => (
-              <button
-                key={key}
-                onClick={() => { onSelect(key); setOpen(false); }}
-                style={{
-                  display: "block", width: "100%", textAlign: "left",
-                  padding: "10px 16px", border: "none",
-                  background: key === persona ? COLOR.goldBg : "transparent",
-                  color: key === persona ? COLOR.gold : COLOR.textSecondary,
-                  fontSize: 13, fontWeight: key === persona ? 700 : 400,
-                  cursor: "pointer", fontFamily: FONT.body,
-                  borderBottom: `1px solid ${COLOR.borderSubtle}`,
-                  transition: "background 0.1s",
-                }}
-                onMouseEnter={(e) => { if (key !== persona) e.currentTarget.style.background = COLOR.hover; }}
-                onMouseLeave={(e) => { if (key !== persona) e.currentTarget.style.background = "transparent"; }}
-              >
-                {pp.shortLabel}
-                <div style={{ fontSize: 11, color: COLOR.textTertiary, marginTop: 2 }}>
-                  {pp.desc}
-                </div>
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function PlatformBridgeCTA({ persona }) {
+// PMM rationale: Advisor-focused CTA. "Give your client access to the market leader"
+// reinforces Crux's dominance. The ~80% market share claim is the differentiator.
+function PlatformBridgeCTA({ onRequestAccess }) {
   const [hov, setHov] = useState(false);
   const [hovSecondary, setHovSecondary] = useState(false);
-  const bridge = (persona && BRIDGE_CTA[persona]) || BRIDGE_CTA.generic;
 
   return (
     <FadeIn delay={650}>
-      <div style={{
+      <div id="cp-section-cta" style={{
         background: "#F5F0E8", border: "1px solid #E8DFD0",
         borderRadius: 14,
         padding: "26px 28px", marginBottom: 48,
@@ -3397,19 +3901,17 @@ function PlatformBridgeCTA({ persona }) {
           fontFamily: FONT.display, fontSize: 21, fontWeight: 400,
           color: COLOR.text, marginBottom: 8, lineHeight: 1.35,
         }}>
-          {bridge.pretext}
+          Give your client access to the market leader
         </div>
         <p style={{
           fontSize: 14, color: "#6B5E4F", lineHeight: 1.6,
           margin: "0 0 18px", maxWidth: 600,
         }}>
-          {bridge.desc}
+          Crux processes ~80% of all tax credit transfers. Connect your client with verified sellers, real-time pricing, and deal execution — backed by the industry's deepest transaction data.
         </p>
         <div style={{ display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
-          <a
-            href="https://www.cruxclimate.com"
-            target="_blank"
-            rel="noopener noreferrer"
+          <button
+            onClick={() => { if (onRequestAccess) onRequestAccess(); }}
             onMouseEnter={() => setHov(true)}
             onMouseLeave={() => setHov(false)}
             style={{
@@ -3422,30 +3924,26 @@ function PlatformBridgeCTA({ persona }) {
               transition: "background 0.15s",
             }}
           >
-            {bridge.cta} {"\u2192"}
-          </a>
-          {bridge.secondaryCta && (
-            <a
-              href="https://www.cruxclimate.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              onMouseEnter={() => setHovSecondary(true)}
-              onMouseLeave={() => setHovSecondary(false)}
-              style={{
-                display: "inline-block",
-                background: hovSecondary ? "rgba(196,184,164,0.12)" : "transparent",
-                color: COLOR.textSecondary,
-                border: "1.5px solid #C4B8A4",
-                borderRadius: 8,
-                padding: "9px 20px", fontSize: 14, fontWeight: 600,
-                cursor: "pointer", fontFamily: FONT.body,
-                textDecoration: "none",
-                transition: "all 0.15s",
-              }}
-            >
-              {bridge.secondaryCta}
-            </a>
-          )}
+            Explore Crux for advisors →
+          </button>
+          <button
+            onClick={() => { if (onRequestAccess) onRequestAccess(); }}
+            onMouseEnter={() => setHovSecondary(true)}
+            onMouseLeave={() => setHovSecondary(false)}
+            style={{
+              display: "inline-block",
+              background: hovSecondary ? "rgba(196,184,164,0.12)" : "transparent",
+              color: COLOR.textSecondary,
+              border: "1.5px solid #C4B8A4",
+              borderRadius: 8,
+              padding: "9px 20px", fontSize: 14, fontWeight: 600,
+              cursor: "pointer", fontFamily: FONT.body,
+              textDecoration: "none",
+              transition: "all 0.15s",
+            }}
+          >
+            Request partnership information
+          </button>
         </div>
       </div>
     </FadeIn>
@@ -3453,283 +3951,212 @@ function PlatformBridgeCTA({ persona }) {
 }
 
 // ═══════════════════════════════════════════════════════════
-// LAYER 1 — "THE ANSWER" (Hero Block)
+// RECOMMENDATION SUMMARY
+// PMM rationale: The "aha moment" — synthesizes wizard inputs into
+// a clear, personalized recommendation. Stat cards below are blurred
+// to drive platform conversion.
 // ═══════════════════════════════════════════════════════════
 
-function HeroBlock({ persona, isUnlocked, onRequestUnlock }) {
-  const hero = persona && PERSONA_HERO[persona];
-  if (!hero) return null;
-
-  const tagColors = {
-    green: { bg: COLOR.activeBg, text: COLOR.activeText },
-    orange: { bg: COLOR.sunsetBg, text: COLOR.sunsetText },
-  };
+function RecommendationSummary({ inputs, onRequestAccess }) {
+  const recommendedCredits = getRecommendedCredits(inputs.approach, inputs.liability);
+  const recommendation = getRecommendationText(inputs);
+  const statCards = getStatCards(recommendedCredits);
 
   return (
-    <FadeIn>
-      <div id="cp-section-hero" style={{ marginBottom: 40 }}>
-        <div className="cp-hero-grid" style={{
-          display: "grid", gridTemplateColumns: "1fr 1fr", gap: 40, alignItems: "center",
+    <div id="cp-section-recommendation" style={{ marginBottom: 36 }}>
+      <FadeIn>
+        <div style={{
+          background: COLOR.card, border: `1px solid ${COLOR.border}`,
+          borderRadius: 14, padding: "28px 32px",
+          boxShadow: "0 2px 12px rgba(0,0,0,0.04)",
         }}>
-          {/* Left column — headline + context */}
-          <div>
-            <div style={{
-              fontSize: 12, fontWeight: 600, letterSpacing: "0.06em",
-              color: COLOR.gold, textTransform: "uppercase", marginBottom: 14,
-            }}>
-              {hero.personaLabel}
-            </div>
-            <h1 style={{
-              fontFamily: FONT.display, fontSize: 36, fontWeight: 400,
-              color: COLOR.text, margin: "0 0 14px", lineHeight: 1.25,
-            }}>
-              {hero.headline}
-            </h1>
-            <p style={{
-              fontSize: 16, color: COLOR.textSecondary, lineHeight: 1.6,
-              margin: 0,
-            }}>
-              {hero.body}
-            </p>
-          </div>
-
-          {/* Right column — stat cards */}
-          <div className="cp-hero-stats" style={{
-            display: "grid",
-            gridTemplateColumns: hero.statCards.length >= 2 ? "1fr 1fr" : "1fr",
-            gap: 16,
+          <div style={{
+            fontSize: 11, fontWeight: 700, letterSpacing: "0.08em",
+            color: COLOR.gold, marginBottom: 14,
           }}>
-            {hero.statCards.map((card, i) => {
-              const tc = tagColors[card.tagColor] || tagColors.green;
-              return (
-                <div key={i} style={{
-                  background: COLOR.card,
-                  border: `1px solid ${COLOR.border}`,
-                  borderRadius: 14,
-                  padding: "20px 20px 18px",
-                  boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
+            BASED ON YOUR CLIENT'S PROFILE
+          </div>
+          <p style={{
+            fontSize: 16, color: COLOR.text, lineHeight: 1.7,
+            margin: "0 0 24px", maxWidth: 700,
+          }}>
+            {recommendation}
+          </p>
+
+          {/* Blurred stat cards */}
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: `repeat(${statCards.length}, 1fr)`,
+            gap: 1, background: COLOR.borderSubtle, borderRadius: 10,
+            overflow: "hidden",
+          }}>
+            {statCards.map((card, i) => (
+              <div key={i} style={{
+                background: COLOR.bgSubtle, padding: "18px 16px", textAlign: "center",
+              }}>
+                <div style={{
+                  fontSize: 10, fontWeight: 700, letterSpacing: "0.08em",
+                  color: COLOR.textTertiary, marginBottom: 8,
                 }}>
-                  <div style={{
-                    fontSize: 11, fontWeight: 600, letterSpacing: "0.06em",
-                    color: COLOR.textTertiary, textTransform: "uppercase", marginBottom: 10,
-                  }}>
-                    {card.creditLabel}
-                  </div>
-                  {/* PMM rationale: The hero stat card price is the primary gate for Buyers.
-                      A CFO scanning this page sees "§45X MANUFACTURING" (free) but the specific
-                      "93–96¢" price hits the blur — that's the conversion moment. */}
-                  <GatedContent isUnlocked={isUnlocked} onRequestUnlock={onRequestUnlock}>
-                    <div style={{
-                      fontFamily: FONT.display, fontSize: 40, fontWeight: 400,
-                      color: COLOR.text, lineHeight: 1.1, marginBottom: 6,
-                    }}>
-                      {card.price}
-                    </div>
-                    <div style={{
-                      fontSize: 13, color: COLOR.textTertiary, marginBottom: 12,
-                    }}>
-                      {card.subtitle}
-                    </div>
-                    <div style={{
-                      display: "inline-block",
-                      fontSize: 11, fontWeight: 600,
-                      padding: "4px 10px", borderRadius: 6,
-                      background: tc.bg, color: tc.text,
-                    }}>
-                      {card.tag}
-                    </div>
-                  </GatedContent>
+                  {card.label}
                 </div>
-              );
-            })}
+                <BlurredData onRequestAccess={onRequestAccess}>
+                  <div style={{
+                    fontFamily: FONT.mono, fontSize: 22, fontWeight: 700,
+                    color: COLOR.text, marginBottom: 2,
+                  }}>
+                    {card.value}
+                  </div>
+                  <div style={{ fontSize: 12, color: COLOR.textTertiary }}>
+                    {card.sublabel}
+                  </div>
+                </BlurredData>
+              </div>
+            ))}
           </div>
         </div>
-      </div>
-    </FadeIn>
+      </FadeIn>
+    </div>
   );
 }
 
 // ═══════════════════════════════════════════════════════════
-// LAYER 2 — "YOUR NEXT MOVE" (Curated Credit Cards)
+// "WHAT TO DISCUSS WITH YOUR CLIENT" SECTION
+// PMM rationale: Advisor-specific value add. These are conversation
+// starters the advisor should raise with their client.
 // ═══════════════════════════════════════════════════════════
 
-const SECTION_TITLES = {
-  buyer: { heading: "Credits available now", subtitle: "Curated for tax credit buyers" },
-  "seller-developer": { heading: "Your credit types", subtitle: "Curated for project developers" },
-  "seller-manufacturer": { heading: "Your 45X credits", subtitle: "Curated for manufacturers" },
-  advisor: { heading: "Market overview", subtitle: "Full credit landscape" },
-};
+function DiscussionPointsSection({ inputs, recommendedCredits, onNavigate }) {
+  const points = getDiscussionPoints(inputs, recommendedCredits);
 
-function NextMoveSection({ persona, onNavigate, isUnlocked, onRequestUnlock }) {
-  const config = persona && PERSONA_NEXT_MOVE[persona];
-  if (!config) return null;
+  return (
+    <div id="cp-section-discussion" style={{ marginBottom: 36 }}>
+      <FadeIn delay={200}>
+        <h2 style={{
+          fontFamily: FONT.display, fontSize: 28, fontWeight: 400,
+          color: COLOR.text, margin: "0 0 16px",
+        }}>
+          What to discuss with your client
+        </h2>
+        <div style={{
+          background: COLOR.card, border: `1px solid ${COLOR.border}`,
+          borderRadius: 12, padding: "22px 26px",
+        }}>
+          {points.map((point, i) => (
+            <div key={i} style={{
+              display: "flex", gap: 12, alignItems: "flex-start",
+              marginBottom: i < points.length - 1 ? 14 : 0,
+              paddingBottom: i < points.length - 1 ? 14 : 0,
+              borderBottom: i < points.length - 1 ? `1px solid ${COLOR.borderSubtle}` : "none",
+            }}>
+              <span style={{
+                color: COLOR.gold, fontSize: 14, flexShrink: 0, marginTop: 1,
+              }}>·</span>
+              <span style={{
+                fontSize: 15, color: COLOR.textSecondary, lineHeight: 1.6, flex: 1,
+              }}>
+                {point.text}
+              </span>
+              <button
+                onClick={() => {
+                  // Navigate to a relevant deep dive. Pick the first recommended credit.
+                  const creditKey = recommendedCredits[0] || "45X";
+                  onNavigate(creditKey);
+                }}
+                style={{
+                  background: "none", border: "none", cursor: "pointer",
+                  fontSize: 12, fontWeight: 600, color: COLOR.gold,
+                  fontFamily: FONT.body, whiteSpace: "nowrap", flexShrink: 0,
+                }}
+              >
+                View →
+              </button>
+            </div>
+          ))}
+        </div>
+      </FadeIn>
+    </div>
+  );
+}
 
-  const isAdvisor = persona === "advisor";
-  const titles = SECTION_TITLES[persona] || { heading: "Credits", subtitle: "" };
+// HeroBlock removed — replaced by RecommendationSummary in the advisor pivot
+
+// ═══════════════════════════════════════════════════════════
+// CREDIT CARDS SECTION — Recommended + Other Available
+// PMM rationale: Recommended credits get a visual highlight (amber
+// left border + RECOMMENDED tag). All other credits are still shown
+// so advisors have the full picture.
+// ═══════════════════════════════════════════════════════════
+
+function CreditCardsSection({ recommendedCredits, onNavigate, onRequestAccess }) {
+  const allCreditKeys = Object.keys(CREDITS);
+  const otherCredits = allCreditKeys.filter(k => !recommendedCredits.includes(k));
 
   return (
     <div id="cp-section-credits" style={{ marginBottom: 36 }}>
+      {/* Recommended credits */}
       <FadeIn delay={100}>
-        <div style={{
-          display: "flex", alignItems: "baseline", justifyContent: "space-between",
-          marginBottom: 20,
+        <h2 style={{
+          fontFamily: FONT.display, fontSize: 28, fontWeight: 400,
+          color: COLOR.text, margin: "0 0 6px",
         }}>
-          <div>
-            <h2 style={{
-              fontFamily: FONT.display, fontSize: 28, fontWeight: 400,
-              color: COLOR.text, margin: 0,
-            }}>
-              {titles.heading}
-            </h2>
-            <p style={{ fontSize: 13, color: COLOR.textTertiary, margin: "4px 0 0" }}>
-              {titles.subtitle}
-            </p>
-          </div>
-          {isAdvisor && (
-            <span style={{ fontSize: 12, color: COLOR.textTertiary }}>
-              {Object.keys(CREDITS).length + OTHER_CREDITS.length + TERMINATED.length} credits tracked
-            </span>
-          )}
-        </div>
+          Recommended for your client
+        </h2>
+        <p style={{ fontSize: 13, color: COLOR.textTertiary, margin: "0 0 20px" }}>
+          Based on your client's approach and timeline
+        </p>
       </FadeIn>
 
-      {/* Credit cards */}
-      {config.layout === "featured" ? (
-        /* Manufacturer: featured 45X + compact 48C */
-        <div style={{ marginBottom: 20 }}>
-          <div style={{ marginBottom: 14 }}>
-            {config.credits.map((key, i) => {
-              const credit = CREDITS[key];
-              return credit ? (
-                <CreditCard
-                  key={key}
-                  credit={credit}
-                  onClick={() => onNavigate(key)}
-                  delay={150 + i * 80}
-                  persona={persona}
-                  isUnlocked={isUnlocked}
-                  onRequestUnlock={onRequestUnlock}
-                />
-              ) : null;
-            })}
-          </div>
-          {/* Compact 48C card from OTHER_CREDITS */}
-          {config.extraCards && config.extraCards.map(sec => {
-            const cr = OTHER_CREDITS.find(c => c.sec === "\u00A7" + sec);
-            if (!cr) return null;
-            return (
-              <FadeIn key={sec} delay={300}>
-                <div style={{
-                  background: COLOR.card, border: `1px solid ${COLOR.border}`,
-                  borderRadius: 10, padding: "16px 20px",
-                  display: "flex", alignItems: "center", justifyContent: "space-between",
-                }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-                    <span style={{
-                      fontFamily: FONT.mono, fontSize: 14, fontWeight: 700, color: COLOR.gold,
-                    }}>
-                      {cr.sec}
-                    </span>
-                    <div>
-                      <div style={{ fontSize: 14, fontWeight: 500, color: COLOR.text }}>{cr.name}</div>
-                      <div style={{ fontSize: 13, color: COLOR.textSecondary }}>{cr.note}</div>
-                    </div>
-                  </div>
-                  <span style={{
-                    fontSize: 11, color: COLOR.textTertiary, fontStyle: "italic", flexShrink: 0,
-                  }}>
-                    Deep dive coming soon
-                  </span>
-                </div>
-              </FadeIn>
-            );
-          })}
-        </div>
-      ) : (
-        /* Standard grid: 2-col or 3-col depending on card count */
-        <div>
+      <div className="cp-credit-grid" style={{
+        display: "grid",
+        gridTemplateColumns: recommendedCredits.length <= 2 ? "repeat(2,1fr)" : "repeat(2,1fr)",
+        gap: 14, marginBottom: 32,
+      }}>
+        {recommendedCredits.map((key, i) => {
+          const credit = CREDITS[key];
+          return credit ? (
+            <CreditCard
+              key={key}
+              credit={credit}
+              onClick={() => onNavigate(key)}
+              delay={150 + i * 80}
+              recommended={true}
+              onRequestAccess={onRequestAccess}
+            />
+          ) : null;
+        })}
+      </div>
+
+      {/* Other available credits */}
+      {otherCredits.length > 0 && (
+        <>
+          <FadeIn delay={400}>
+            <h3 style={{
+              fontSize: 16, fontWeight: 600, color: COLOR.textSecondary,
+              margin: "0 0 14px", letterSpacing: "0.02em",
+            }}>
+              Other available credits
+            </h3>
+          </FadeIn>
           <div className="cp-credit-grid" style={{
-            display: "grid",
-            gridTemplateColumns: config.credits.length <= 2 ? "repeat(2,1fr)" : "repeat(2,1fr)",
-            gap: 14, marginBottom: 20,
+            display: "grid", gridTemplateColumns: "repeat(2,1fr)",
+            gap: 14, marginBottom: 16,
           }}>
-            {config.credits.map((key, i) => {
+            {otherCredits.map((key, i) => {
               const credit = CREDITS[key];
               return credit ? (
                 <CreditCard
                   key={key}
                   credit={credit}
                   onClick={() => onNavigate(key)}
-                  delay={150 + i * 80}
-                  persona={persona}
-                  isUnlocked={isUnlocked}
-                  onRequestUnlock={onRequestUnlock}
+                  delay={450 + i * 80}
+                  recommended={false}
+                  onRequestAccess={onRequestAccess}
                 />
               ) : null;
             })}
           </div>
-
-          {/* Advisor-only: Other Active Credits + Terminated */}
-          {config.showOther && (
-            <FadeIn delay={500}>
-              <div style={{
-                background: COLOR.card, border: `1px solid ${COLOR.border}`,
-                borderRadius: 10, overflow: "hidden", marginBottom: 12,
-              }}>
-                <div style={{
-                  padding: "14px 20px", display: "flex", alignItems: "center",
-                  justifyContent: "space-between",
-                  borderBottom: `1px solid ${COLOR.borderSubtle}`,
-                }}>
-                  <span style={{
-                    fontSize: 12, fontWeight: 700, color: COLOR.gold,
-                    letterSpacing: "0.08em",
-                  }}>
-                    OTHER ACTIVE CREDITS
-                  </span>
-                  <span style={{ fontSize: 11, color: COLOR.textTertiary, fontStyle: "italic" }}>
-                    Deep dives coming soon
-                  </span>
-                </div>
-                {OTHER_CREDITS.map((cr, i) => (
-                  <div key={i} className="cp-other-row" style={{
-                    display: "grid", gridTemplateColumns: "70px 1fr auto",
-                    alignItems: "center", gap: 14,
-                    padding: "12px 20px",
-                    borderBottom: i < OTHER_CREDITS.length - 1 ? `1px solid ${COLOR.borderSubtle}` : "none",
-                  }}>
-                    <span style={{
-                      fontFamily: FONT.mono, fontSize: 13, fontWeight: 700, color: COLOR.gold,
-                    }}>
-                      {cr.sec}
-                    </span>
-                    <div>
-                      <span style={{ fontSize: 14, color: COLOR.text, fontWeight: 500 }}>{cr.name}</span>
-                      <span style={{ fontSize: 13, color: COLOR.textTertiary, marginLeft: 10 }}>{cr.note}</span>
-                    </div>
-                    {cr.status && (
-                      <span className="cp-other-status" style={{
-                        fontSize: 10, fontWeight: 700, letterSpacing: "0.06em",
-                        padding: "3px 8px", borderRadius: 4,
-                        color: cr.status === "modified" ? COLOR.amber : COLOR.textSecondary,
-                        background: cr.status === "modified" ? COLOR.amberBg : COLOR.active,
-                        border: `1px solid ${cr.status === "modified" ? COLOR.amberBorder : COLOR.border}`,
-                      }}>
-                        {cr.status === "modified" ? "MODIFIED" : "ACTIVE"}
-                      </span>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </FadeIn>
-          )}
-
-          {config.showTerminated && (
-            <FadeIn delay={550}>
-              <TerminatedSection />
-            </FadeIn>
-          )}
-        </div>
+        </>
       )}
     </div>
   );
@@ -3770,6 +4197,10 @@ function buildDeadlines(persona) {
     .filter(t => !t.past)
     .filter(t => {
       if (!persona || persona === "advisor") return true;
+      // Manufacturer: only show deadlines related to §45X or FEOC
+      if (persona === "seller-manufacturer") {
+        return !t.credits || t.credits.length === 0 || t.credits.includes("45X");
+      }
       const rel = t.personaRelevance && t.personaRelevance[persona];
       return rel === "high" || rel === "medium";
     })
@@ -3782,8 +4213,11 @@ function buildDeadlines(persona) {
     .sort((a, b) => dateRank(a.date) - dateRank(b.date));
 }
 
-function DeadlinesTimeline({ persona }) {
-  const deadlines = buildDeadlines(persona);
+
+// Deadlines — show ALL for advisors, highlight recommended credit deadlines
+function DeadlinesTimeline({ recommendedCredits }) {
+  // Show all non-past deadlines for advisor full picture
+  const deadlines = buildDeadlines("advisor");
   if (deadlines.length === 0) return null;
 
   return (
@@ -3800,6 +4234,9 @@ function DeadlinesTimeline({ persona }) {
       <div>
         {deadlines.map((item, i) => {
           const us = URGENCY_STYLE[item.urgency];
+          // Highlight deadlines for recommended credits
+          const isRecommended = recommendedCredits &&
+            item.credits && item.credits.some(cr => recommendedCredits.includes(cr));
           return (
             <FadeIn key={i} delay={250 + i * 50}>
               <div style={{
@@ -3810,10 +4247,11 @@ function DeadlinesTimeline({ persona }) {
                 padding: "12px 0",
                 borderBottom: i < deadlines.length - 1 ? `1px solid #f0ede8` : "none",
               }}>
-                {/* Date */}
+                {/* Date — bolder for recommended credit deadlines */}
                 <span style={{
-                  fontSize: 14, fontWeight: 600,
-                  color: us.color,
+                  fontSize: 14,
+                  fontWeight: isRecommended ? 700 : 500,
+                  color: isRecommended ? (us.color === COLOR.textTertiary ? COLOR.gold : us.color) : us.color,
                 }}>
                   {item.date}
                 </span>
@@ -3821,7 +4259,9 @@ function DeadlinesTimeline({ persona }) {
                 {/* Description */}
                 <span style={{
                   fontSize: 14,
-                  color: COLOR.text, lineHeight: 1.4,
+                  fontWeight: isRecommended ? 600 : 400,
+                  color: isRecommended ? COLOR.text : COLOR.textSecondary,
+                  lineHeight: 1.4,
                 }}>
                   {item.description}
                 </span>
@@ -3835,9 +4275,10 @@ function DeadlinesTimeline({ persona }) {
                     <span key={cr} style={{
                       fontSize: 11, fontWeight: 600,
                       padding: "2px 6px", borderRadius: 3,
-                      color: COLOR.textSecondary, background: "#F5F3EF",
+                      color: recommendedCredits && recommendedCredits.includes(cr) ? COLOR.gold : COLOR.textSecondary,
+                      background: recommendedCredits && recommendedCredits.includes(cr) ? COLOR.goldBg : "#F5F3EF",
                     }}>
-                      {"\u00A7"}{cr}
+                      §{cr}
                     </span>
                   ))}
                   <span style={{
@@ -3907,11 +4348,10 @@ function buildIntelFeed(persona, showAll) {
   return items;
 }
 
-function IntelFeed({ persona, onNavigate }) {
-  const [showAll, setShowAll] = useState(false);
+// IntelFeed — always shows all items for advisors (full picture)
+function IntelFeed({ onNavigate }) {
   const [activeRegItem, setActiveRegItem] = useState(null);
-  const isAdvisor = persona === "advisor";
-  const feed = buildIntelFeed(persona, showAll || isAdvisor);
+  const feed = buildIntelFeed("advisor", true);
 
   return (
     <div id="cp-section-intelligence" style={{ marginBottom: 36 }}>
@@ -3920,7 +4360,7 @@ function IntelFeed({ persona, onNavigate }) {
           item={activeRegItem}
           onClose={() => setActiveRegItem(null)}
           onNavigate={onNavigate}
-          persona={persona}
+          persona={"advisor"}
         />
       )}
 
@@ -3940,22 +4380,7 @@ function IntelFeed({ persona, onNavigate }) {
               Based on Crux's 2025 Market Intelligence Report
             </span>
           </div>
-          {!isAdvisor && (
-            <button
-              onClick={() => setShowAll(!showAll)}
-              style={{
-                background: showAll ? COLOR.goldBg : "transparent",
-                border: `1px solid ${showAll ? COLOR.goldBorder : COLOR.border}`,
-                borderRadius: 6, padding: "5px 12px",
-                fontSize: 12, fontWeight: 600,
-                color: showAll ? COLOR.gold : COLOR.textTertiary,
-                cursor: "pointer", fontFamily: FONT.body,
-                transition: "all 0.15s",
-              }}
-            >
-              {showAll ? "Showing all" : "Relevant to you"}
-            </button>
-          )}
+          {/* Advisors see all items — no filter toggle needed */}
         </div>
       </FadeIn>
 
@@ -4039,26 +4464,272 @@ function IntelFeed({ persona, onNavigate }) {
 }
 
 // ═══════════════════════════════════════════════════════════
+// EMAIL SUBSCRIBE + PDF DOWNLOAD
+// ═══════════════════════════════════════════════════════════
+
+// PMM rationale: The email capture is decoupled from the data. We're not trading data
+// for emails — we're building a nurture list of people who want to stay informed. This
+// list gets emailed when CreditPulse is updated with new report data, driving them back
+// to CreditPulse, which drives them toward the platform. It's a content flywheel, not a gate.
+
+function SubscribeBlock() {
+  const [email, setEmail] = useState("");
+  const [submitted, setSubmitted] = useState(() => {
+    try { return localStorage.getItem("creditpulse_subscribed") === "true"; } catch { return false; }
+  });
+  const [error, setError] = useState("");
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    const trimmed = email.trim();
+    if (!trimmed || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
+      setError("Please enter a valid email address");
+      return;
+    }
+    fetch("/.netlify/functions/subscribe", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: trimmed, source: "subscribe", timestamp: new Date().toISOString() }),
+    }).catch(() => {});
+    setSubmitted(true);
+    try { localStorage.setItem("creditpulse_subscribed", "true"); } catch {}
+  }
+
+  if (submitted) return null;
+
+  return (
+    <FadeIn delay={700}>
+      <div style={{
+        background: "#F5F0E8", border: "1px solid #E8DFD0",
+        borderRadius: 14, padding: "24px 28px", marginBottom: 24,
+      }}>
+        <h3 style={{
+          fontFamily: FONT.display, fontSize: 20, fontWeight: 400,
+          color: COLOR.text, margin: "0 0 6px", lineHeight: 1.35,
+        }}>
+          Stay current for your clients
+        </h3>
+        <p style={{
+          fontSize: 14, color: COLOR.textSecondary, lineHeight: 1.55,
+          margin: "0 0 16px",
+        }}>
+          Get notified when CreditPulse is updated with new market data and regulatory changes.
+        </p>
+        <form onSubmit={handleSubmit} style={{ display: "flex", gap: 8, marginBottom: 8 }}>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => { setEmail(e.target.value); setError(""); }}
+            placeholder="you@company.com"
+            style={{
+              flex: 1, padding: "10px 14px",
+              fontFamily: FONT.body, fontSize: 14,
+              border: `1px solid ${error ? COLOR.red : "#E8DFD0"}`,
+              borderRadius: 8, outline: "none",
+              transition: "border-color 0.15s",
+              color: COLOR.text, background: "#FFFFFF",
+            }}
+            onFocus={(e) => { e.currentTarget.style.borderColor = error ? COLOR.red : COLOR.goldBorder; }}
+            onBlur={(e) => { e.currentTarget.style.borderColor = error ? COLOR.red : "#E8DFD0"; }}
+          />
+          <button type="submit" style={{
+            background: COLOR.gold, color: "#fff",
+            border: "none", borderRadius: 8,
+            padding: "10px 20px", fontWeight: 700, fontSize: 14,
+            cursor: "pointer", fontFamily: FONT.body,
+            whiteSpace: "nowrap", transition: "background 0.15s",
+            flexShrink: 0,
+          }}>
+            Subscribe
+          </button>
+        </form>
+        {error && (
+          <div style={{ fontSize: 12, color: COLOR.red, marginBottom: 4 }}>{error}</div>
+        )}
+        <p style={{ fontSize: 11, color: COLOR.textMuted, margin: 0 }}>
+          Last updated {LAST_UPDATED} · Based on Crux's 2025 Market Intelligence Report
+        </p>
+      </div>
+    </FadeIn>
+  );
+}
+
+function DownloadPDFButton({ persona }) {
+  const [showCapture, setShowCapture] = useState(false);
+  const [email, setEmail] = useState("");
+  const [sent, setSent] = useState(false);
+  const [error, setError] = useState("");
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    const trimmed = email.trim();
+    if (!trimmed || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
+      setError("Please enter a valid email address");
+      return;
+    }
+    fetch("/.netlify/functions/subscribe", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: trimmed, source: "pdf_download", persona, timestamp: new Date().toISOString() }),
+    }).catch(() => {});
+    setSent(true);
+    setTimeout(() => { setSent(false); setShowCapture(false); setEmail(""); }, 3000);
+  }
+
+  return (
+    <div style={{ position: "relative" }}>
+      <button
+        onClick={() => setShowCapture(!showCapture)}
+        style={{
+          background: "none", border: "none", cursor: "pointer",
+          fontFamily: FONT.body, fontSize: 12, color: COLOR.textTertiary,
+          padding: "4px 0", fontWeight: 500,
+          borderBottom: `1px solid ${COLOR.border}`,
+          transition: "color 0.15s",
+        }}
+        onMouseEnter={(e) => { e.currentTarget.style.color = COLOR.textSecondary; }}
+        onMouseLeave={(e) => { e.currentTarget.style.color = COLOR.textTertiary; }}
+      >
+        Download this analysis as PDF
+      </button>
+      {showCapture && (
+        <div style={{
+          position: "absolute", top: "100%", right: 0, marginTop: 8,
+          background: "#FFFFFF", borderRadius: 12, padding: "18px 18px 14px",
+          boxShadow: "0 8px 32px rgba(0,0,0,0.12), 0 2px 6px rgba(0,0,0,0.06)",
+          border: `1px solid ${COLOR.border}`, width: 300, zIndex: 50,
+        }}>
+          {sent ? (
+            <div style={{ textAlign: "center", padding: "8px 0" }}>
+              <div style={{ fontSize: 14, fontWeight: 600, color: COLOR.green, marginBottom: 4 }}>
+                PDF sent to your inbox
+              </div>
+              <div style={{ fontSize: 12, color: COLOR.textTertiary }}>
+                Check your email for the CreditPulse analysis
+              </div>
+            </div>
+          ) : (
+            <>
+              <div style={{ fontSize: 14, fontWeight: 600, color: COLOR.text, marginBottom: 8 }}>
+                Enter your email to receive the PDF
+              </div>
+              <form onSubmit={handleSubmit} style={{ display: "flex", gap: 8 }}>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => { setEmail(e.target.value); setError(""); }}
+                  placeholder="you@company.com"
+                  autoFocus
+                  style={{
+                    flex: 1, padding: "8px 12px",
+                    fontFamily: FONT.body, fontSize: 13,
+                    border: `1px solid ${error ? COLOR.red : COLOR.border}`,
+                    borderRadius: 6, outline: "none",
+                    color: COLOR.text, background: "#FFFFFF",
+                  }}
+                />
+                <button type="submit" style={{
+                  background: COLOR.gold, color: "#fff",
+                  border: "none", borderRadius: 6,
+                  padding: "8px 14px", fontWeight: 700, fontSize: 13,
+                  cursor: "pointer", fontFamily: FONT.body,
+                  whiteSpace: "nowrap", flexShrink: 0,
+                }}>
+                  Send PDF
+                </button>
+              </form>
+              {error && (
+                <div style={{ fontSize: 11, color: COLOR.red, marginTop: 4 }}>{error}</div>
+              )}
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════
 // MARKET OVERVIEW (HOME)
 // ═══════════════════════════════════════════════════════════
 
-function MarketOverview({ onNavigate, persona, isUnlocked, onRequestUnlock }) {
+// ═══════════════════════════════════════════════════════════
+// RESULTS PAGE — The personalized advisor experience
+// PMM rationale: After the intake wizard, this page synthesizes
+// everything into a recommendation. Structure:
+// 1. Recommendation Summary (the "aha moment")
+// 2. Recommended Credits + Other Available Credits
+// 3. What to Discuss with Your Client
+// 4. Key Deadlines (all shown, recommended highlighted)
+// 5. Platform CTA
+// 6. Intelligence Feed (all items, unfiltered)
+// 7. Subscribe
+// ═══════════════════════════════════════════════════════════
+
+function ResultsPage({ inputs, onNavigate, onRequestAccess, onNewAssessment, onEditInputs }) {
+  const recommendedCredits = getRecommendedCredits(inputs.approach, inputs.liability);
+
   return (
     <div>
-      {/* Layer 1 — "The Answer" */}
-      <HeroBlock persona={persona} isUnlocked={isUnlocked} onRequestUnlock={onRequestUnlock} />
+      {/* Top action buttons — visible without scrolling */}
+      <div style={{
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+        marginBottom: 28,
+      }}>
+        <button
+          onClick={onNewAssessment}
+          style={{
+            background: "transparent", border: `1.5px solid ${COLOR.border}`,
+            borderRadius: 8, padding: "9px 18px",
+            fontSize: 13, fontWeight: 600, color: COLOR.textSecondary,
+            cursor: "pointer", fontFamily: FONT.body,
+            transition: "all 0.15s",
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.borderColor = COLOR.goldBorder; e.currentTarget.style.color = COLOR.gold; }}
+          onMouseLeave={(e) => { e.currentTarget.style.borderColor = COLOR.border; e.currentTarget.style.color = COLOR.textSecondary; }}
+        >
+          New client assessment
+        </button>
+        <button
+          onClick={onEditInputs}
+          style={{
+            background: "none", border: "none",
+            fontSize: 13, fontWeight: 500, color: COLOR.gold,
+            cursor: "pointer", fontFamily: FONT.body,
+          }}
+        >
+          Edit inputs →
+        </button>
+      </div>
 
-      {/* Layer 2 — Credits */}
-      <NextMoveSection persona={persona} onNavigate={onNavigate} isUnlocked={isUnlocked} onRequestUnlock={onRequestUnlock} />
+      {/* 1. Recommendation Summary */}
+      <RecommendationSummary inputs={inputs} onRequestAccess={onRequestAccess} />
 
-      {/* Layer 3a — Key Deadlines Timeline */}
-      <DeadlinesTimeline persona={persona} />
+      {/* 2. Recommended + Other Credits */}
+      <CreditCardsSection
+        recommendedCredits={recommendedCredits}
+        onNavigate={onNavigate}
+        onRequestAccess={onRequestAccess}
+      />
 
-      {/* Layer 3b — Platform CTA (after deadlines for maximum urgency context) */}
-      <PlatformBridgeCTA persona={persona} />
+      {/* 3. What to Discuss */}
+      <DiscussionPointsSection
+        inputs={inputs}
+        recommendedCredits={recommendedCredits}
+        onNavigate={onNavigate}
+      />
 
-      {/* Layer 4 — Market Intelligence Feed */}
-      <IntelFeed persona={persona} onNavigate={onNavigate} />
+      {/* 4. Key Deadlines */}
+      <DeadlinesTimeline recommendedCredits={recommendedCredits} />
+
+      {/* 5. Platform CTA */}
+      <PlatformBridgeCTA onRequestAccess={onRequestAccess} />
+
+      {/* 6. Intelligence Feed */}
+      <IntelFeed onNavigate={onNavigate} />
+
+      {/* 7. Subscribe */}
+      <SubscribeBlock />
 
       {/* Disclaimer */}
       <div style={{
@@ -4124,7 +4795,7 @@ function ctxAll() {
   const all = keys.map(k => ctxFor(k)).join("\n---\n");
   const other = OTHER_CREDITS.map(c => `${c.sec} ${c.name} (${c.type}) — ${c.note}`).join("\n");
   const term = TERMINATED.map(c => `${c.sec} ${c.name} — terminated ${c.date}`).join("\n");
-  return all + "\nMARKET 2025: $63B total tax credit monetization (+27% YoY). Transfer market ~$42B (+48%). Tax equity $36.6B (+22%). ~25% of F1000 buying credits. 170 GW wind+solar safe-harbored. $8-10B unsold 2025 credits in 2026. Battery costs $108/kWh. 19 GW storage deployed (+72% YoY). Crux forecasts pricing rebound for solar ITC and §45X in 2026. Market increasingly selective — sponsor quality and project readiness differentiate access to capital. Hybrid TE structures 68% of commitments. Tech-neutral credits trading $0.01-0.02 below legacy.";
+  return all + "\nMARKET 2025: Record total tax credit monetization. Transfer market grew substantially. Significant unsold 2025-vintage credits available in 2026. Crux forecasts pricing rebound for solar ITC and §45X in 2026. Market increasingly selective — sponsor quality and project readiness differentiate access to capital. Tech-neutral credits trading at a modest discount to legacy.";
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -4548,37 +5219,21 @@ export default function CreditPulse() {
   const [view, setView] = useState(() => hashToView(window.location.hash));
   const [fade, setFade] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [persona, setPersona] = useState(() => {
+  // Wizard inputs stored in state and localStorage
+  const [wizardInputs, setWizardInputs] = useState(() => {
     try {
-      const stored = localStorage.getItem("cp-persona");
-      // Migrate old "seller" persona to null (force re-selection with new 4-persona system)
-      if (stored === "seller") {
-        localStorage.removeItem("cp-persona");
-        return null;
-      }
-      return stored || null;
+      const stored = localStorage.getItem("cp-wizard-inputs");
+      return stored ? JSON.parse(stored) : null;
     } catch { return null; }
   });
+  // Show wizard in edit mode (pre-filled) vs fresh
+  const [editingWizard, setEditingWizard] = useState(false);
+  const [showAccessModal, setShowAccessModal] = useState(false);
   const ref = useRef(null);
 
-  // Content gating state — persisted in localStorage so unlocked sessions survive
-  // refreshes, persona switches, and deep-dive navigation
-  const [isUnlocked, setIsUnlocked] = useState(() => {
-    try { return localStorage.getItem("creditpulse_unlocked") === "true"; } catch { return false; }
-  });
-
-  // PMM rationale: Fire-and-forget POST to serverless function on unlock. In production
-  // this would feed a CRM (HubSpot, Salesforce) or email platform (Mailchimp, Customer.io).
-  // For the portfolio piece, it demonstrates the capture mechanic exists.
-  function unlockContent(email) {
-    setIsUnlocked(true);
-    try { localStorage.setItem("creditpulse_unlocked", "true"); } catch {}
-    fetch("/.netlify/functions/capture-email", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, persona, source: view, timestamp: new Date().toISOString() }),
-    }).catch(() => {});
-  }
+  // PMM rationale: Clicking blurred data opens an email capture modal instead of linking
+  // to the Crux homepage. Converts curiosity into a qualified platform interest lead.
+  const openAccessModal = () => setShowAccessModal(true);
 
   // Sync hash → view on browser back/forward
   useEffect(() => {
@@ -4591,10 +5246,27 @@ export default function CreditPulse() {
     return () => window.removeEventListener("hashchange", onHashChange);
   }, []);
 
-  function selectPersona(p) {
-    setPersona(p);
-    try { localStorage.setItem("cp-persona", p); } catch {}
+  function handleWizardComplete(inputs) {
+    setWizardInputs(inputs);
+    setEditingWizard(false);
+    try { localStorage.setItem("cp-wizard-inputs", JSON.stringify(inputs)); } catch {}
+    // Navigate to results (home view)
+    setView("home");
+    window.location.hash = "#/";
     if (ref.current) ref.current.scrollTo({ top: 0 });
+  }
+
+  function handleNewAssessment() {
+    setWizardInputs(null);
+    setEditingWizard(false);
+    try { localStorage.removeItem("cp-wizard-inputs"); } catch {}
+    setView("home");
+    window.location.hash = "#/";
+    if (ref.current) ref.current.scrollTo({ top: 0 });
+  }
+
+  function handleEditInputs() {
+    setEditingWizard(true);
   }
 
   function nav(v) {
@@ -4608,8 +5280,11 @@ export default function CreditPulse() {
   }
 
   const ctx = view === "home" ? ctxAll() :
-              view === "feocCheck" || view.startsWith("feocCheck:") ? ctxAll() + "\n\nThe user is currently using the FEOC Compliance Check tool. They may have questions about Prohibited Foreign Entities (PFE), the MACR (Material Assistance Cost Ratio) test, safe harbor tables, supplier certifications, or the foreign entity content threshold calculations. Help them understand the compliance requirements for their specific credit and technology." :
+              view === "feocCheck" || view.startsWith("feocCheck:") ? ctxAll() + "\n\nThe user is currently using the FEOC Compliance Check tool." :
               ctxFor(view);
+
+  // Determine if we should show the landing page (no wizard inputs) or the results
+  const showLanding = !wizardInputs || editingWizard;
 
   return (
     <div ref={ref} style={{
@@ -4633,15 +5308,11 @@ export default function CreditPulse() {
         @media (max-width: 768px) {
           .cp-container { padding: 20px 16px 60px !important; }
           .cp-credit-grid { grid-template-columns: 1fr !important; }
-          .cp-persona-grid { grid-template-columns: 1fr !important; }
           .cp-two-col { grid-template-columns: 1fr !important; }
           .cp-three-col { grid-template-columns: 1fr !important; }
-          .cp-hero-grid { grid-template-columns: 1fr !important; }
-          .cp-hero-stats { grid-template-columns: 1fr !important; }
           .cp-tabs { flex-wrap: wrap; }
           .cp-tabs button { flex: none !important; }
           .cp-sidebar { width: 100% !important; }
-          .cp-headline-pills { flex-direction: column; }
           .cp-tagline { display: none; }
           .cp-sticky-nav { overflow-x: auto; }
           .cp-comparison-table { font-size: 11px; }
@@ -4658,19 +5329,65 @@ export default function CreditPulse() {
         }
         @media (max-width: 480px) {
           .cp-container { padding: 16px 12px 50px !important; }
-          .cp-mini-stats { grid-template-columns: 1fr 1fr 1fr !important; }
-          .cp-editorial { padding: 20px 18px !important; }
-          .cp-editorial h2 { font-size: 24px !important; }
-          .cp-editorial p { font-size: 14px !important; }
-          .cp-section-heading { font-size: 22px !important; }
         }
       `}</style>
 
-      {/* Landing screen — shown when no persona is selected */}
-      {persona === null ? (
-        <PersonaLandingScreen onSelect={selectPersona} />
+      {/* Landing page — shown when no wizard inputs or editing */}
+      {showLanding && view === "home" ? (
+        editingWizard && wizardInputs ? (
+          /* Editing mode — show landing with pre-filled wizard */
+          <div style={{ minHeight: "100vh", background: COLOR.bg }}>
+            {/* Top bar */}
+            <div style={{
+              maxWidth: 980, margin: "0 auto", padding: "14px 28px",
+              display: "flex", justifyContent: "space-between", alignItems: "center",
+              borderBottom: `1px solid ${COLOR.border}`,
+            }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <div style={{
+                  width: 24, height: 24, borderRadius: 6,
+                  background: `linear-gradient(135deg, ${COLOR.gold}, ${COLOR.goldDim})`,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                }}>
+                  <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#fff" }} />
+                </div>
+                <span style={{ fontSize: 15, fontWeight: 700, color: COLOR.text, letterSpacing: "0.06em" }}>
+                  CREDITPULSE
+                </span>
+              </div>
+              <button
+                onClick={() => setEditingWizard(false)}
+                style={{
+                  background: "none", border: "none", cursor: "pointer",
+                  fontSize: 13, fontWeight: 500, color: COLOR.gold,
+                  fontFamily: FONT.body,
+                }}
+              >
+                ← Back to results
+              </button>
+            </div>
+            <div style={{ maxWidth: 780, margin: "0 auto", padding: "40px 28px" }}>
+              <FadeIn>
+                <h2 style={{
+                  fontFamily: FONT.display, fontSize: 28, fontWeight: 400,
+                  color: COLOR.text, margin: "0 0 8px", textAlign: "center",
+                }}>
+                  Edit your client's profile
+                </h2>
+                <p style={{
+                  fontSize: 14, color: COLOR.textTertiary, margin: "0 0 32px", textAlign: "center",
+                }}>
+                  Adjust any input and see updated results.
+                </p>
+              </FadeIn>
+              <IntakeWizard onComplete={handleWizardComplete} initialInputs={wizardInputs} />
+            </div>
+          </div>
+        ) : (
+          <LandingPage onComplete={handleWizardComplete} />
+        )
       ) : (<>
-        {/* Top bar — branding + attribution (not sticky) */}
+        {/* Top bar — branding + attribution */}
         <div style={{
           maxWidth: 980, margin: "0 auto", padding: "14px 28px",
           display: "flex", justifyContent: "space-between", alignItems: "center",
@@ -4719,8 +5436,19 @@ export default function CreditPulse() {
           </span>
         </div>
 
-        {/* Sticky nav bar — persona selector + section anchor links */}
-        {view === "home" && (
+        {/* Last updated + PDF download */}
+        <div style={{
+          maxWidth: 980, margin: "0 auto", padding: "8px 28px",
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+        }}>
+          <span style={{ fontSize: 12, color: COLOR.textTertiary }}>
+            Last updated {LAST_UPDATED} · Data from Crux's 2025 Market Intelligence Report
+          </span>
+          <DownloadPDFButton persona={"advisor"} />
+        </div>
+
+        {/* Sticky nav bar — section anchors on results page only */}
+        {view === "home" && wizardInputs && (
           <div className="cp-sticky-nav" style={{
             position: "sticky", top: 0, zIndex: 100,
             background: "rgba(250, 250, 248, 0.95)",
@@ -4733,16 +5461,12 @@ export default function CreditPulse() {
               display: "flex", alignItems: "center", gap: 0,
               height: 48,
             }}>
-              {persona !== "generic" && (
-                <PersonaIndicator persona={persona} onSelect={selectPersona} />
-              )}
-              <span style={{ color: COLOR.textTertiary, margin: "0 12px", fontSize: 12 }}>{"\u00B7"}</span>
               {[
-                { label: "Market Snapshot", id: "hero" },
+                { label: "Recommendation", id: "recommendation" },
                 { label: "Credits", id: "credits" },
                 { label: "Deadlines", id: "deadlines" },
                 { label: "Intelligence", id: "intelligence" },
-              ].map((link, i) => (
+              ].map((link) => (
                 <button
                   key={link.id}
                   onClick={() => {
@@ -4778,8 +5502,14 @@ export default function CreditPulse() {
           opacity: fade ? 1 : 0, transition: "opacity 0.25s ease",
         }}>
           {/* Content */}
-          {view === "home" ? (
-            <MarketOverview onNavigate={nav} persona={persona} isUnlocked={isUnlocked} onRequestUnlock={unlockContent} />
+          {view === "home" && wizardInputs ? (
+            <ResultsPage
+              inputs={wizardInputs}
+              onNavigate={nav}
+              onRequestAccess={openAccessModal}
+              onNewAssessment={handleNewAssessment}
+              onEditInputs={handleEditInputs}
+            />
           ) : view === "feocCheck" || view.startsWith("feocCheck:") ? (
             <FEOCDecisionTree
               onBack={() => nav("home")}
@@ -4787,13 +5517,21 @@ export default function CreditPulse() {
               preselectedCredit={view.includes(":") ? view.split(":")[1] : null}
             />
           ) : (
-            <DeepDive creditKey={view} onBack={() => nav("home")} onNavigate={nav} persona={persona} isUnlocked={isUnlocked} onRequestUnlock={unlockContent} />
+            <DeepDive creditKey={view} onBack={() => nav("home")} onNavigate={nav} onRequestAccess={openAccessModal} />
           )}
         </div>
 
-        {/* AI Sidebar — rendered outside main content container */}
+        {/* AI Sidebar */}
         <AskSidebar ctx={ctx} open={sidebarOpen} onClose={() => setSidebarOpen(false)} currentView={view} />
       </>)}
+
+      {/* Email capture modal */}
+      {showAccessModal && (
+        <AccessModal
+          onClose={() => setShowAccessModal(false)}
+          persona={"advisor"}
+        />
+      )}
     </div>
   );
 }
