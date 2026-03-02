@@ -37,10 +37,10 @@ const COLOR = {
   textMuted: "#b5b0a8",
 
   // Accent
-  gold: "#D4872C",
-  goldDim: "#B8741F",
-  goldBg: "rgba(212,135,44,0.06)",
-  goldBorder: "rgba(212,135,44,0.18)",
+  gold: "#0088FF",
+  goldDim: "#0070D4",
+  goldBg: "rgba(0,136,255,0.06)",
+  goldBorder: "rgba(0,136,255,0.18)",
 
   // Status
   green: "#047857",
@@ -3957,9 +3957,9 @@ function LandingPage({ onStartAssessment, onBrowse }) {
         borderBottom: `1px solid ${COLOR.border}`,
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <CruxLogo height={22} />
+          <CruxLogo height={26} />
           <span style={{
-            fontSize: 12, fontWeight: 500, color: COLOR.textTertiary,
+            fontSize: 14, fontWeight: 500, color: COLOR.textTertiary,
             letterSpacing: "0.02em", fontFamily: FONT.body,
           }}>
             CreditPulse
@@ -4015,7 +4015,7 @@ function LandingPage({ onStartAssessment, onBrowse }) {
                 fontFamily: FONT.display, fontSize: 20, fontWeight: 600,
                 color: COLOR.text, margin: "0 0 10px",
               }}>
-                Evaluate for a client
+                Evaluate transferable tax credits for a specific client
               </h3>
               <p style={{
                 fontSize: 13, color: COLOR.textTertiary, lineHeight: 1.5,
@@ -4236,13 +4236,13 @@ function PlatformBridgeCTA({ onRequestAccess }) {
   return (
     <FadeIn delay={650}>
       <div id="cp-section-cta" style={{
-        background: "#F5F0E8", border: "1px solid #E8DFD0",
+        background: "#F3F4F6", border: "1px solid #E5E7EB",
         borderRadius: 14,
         padding: "26px 28px", marginBottom: 48,
       }}>
         <div style={{
           fontSize: 11, fontWeight: 700, letterSpacing: "0.08em",
-          color: "#B8860B", textTransform: "uppercase", marginBottom: 10,
+          color: "#4B5563", textTransform: "uppercase", marginBottom: 10,
         }}>
           CRUX PLATFORM
         </div>
@@ -4253,7 +4253,7 @@ function PlatformBridgeCTA({ onRequestAccess }) {
           Give your client access to the market leader
         </div>
         <p style={{
-          fontSize: 14, color: "#6B5E4F", lineHeight: 1.6,
+          fontSize: 14, color: "#6B7280", lineHeight: 1.6,
           margin: "0 0 18px", maxWidth: 600,
         }}>
           Crux processes ~80% of all tax credit transfers. Connect your client with verified sellers, real-time pricing, and deal execution — backed by the industry's deepest transaction data.
@@ -5028,7 +5028,7 @@ function SubscribeBlock() {
   return (
     <FadeIn delay={700}>
       <div style={{
-        background: "#F5F0E8", border: "1px solid #E8DFD0",
+        background: "#F3F4F6", border: "1px solid #E5E7EB",
         borderRadius: 14, padding: "24px 28px", marginBottom: 24,
       }}>
         <h3 style={{
@@ -5934,9 +5934,9 @@ export default function CreditPulse() {
             borderBottom: `1px solid ${COLOR.border}`,
           }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <CruxLogo height={22} />
+              <CruxLogo height={26} />
               <span style={{
-                fontSize: 12, fontWeight: 500, color: COLOR.textTertiary,
+                fontSize: 14, fontWeight: 500, color: COLOR.textTertiary,
                 letterSpacing: "0.02em", fontFamily: FONT.body,
               }}>
                 CreditPulse
@@ -5981,9 +5981,9 @@ export default function CreditPulse() {
             borderBottom: `1px solid ${COLOR.border}`,
           }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <CruxLogo height={22} />
+              <CruxLogo height={26} />
               <span style={{
-                fontSize: 12, fontWeight: 500, color: COLOR.textTertiary,
+                fontSize: 14, fontWeight: 500, color: COLOR.textTertiary,
                 letterSpacing: "0.02em", fontFamily: FONT.body,
               }}>
                 CreditPulse
@@ -6033,9 +6033,9 @@ export default function CreditPulse() {
             }}
             onClick={(isDeepDive || isFeoc) ? backHandler : undefined}
           >
-            <CruxLogo height={22} />
+            <CruxLogo height={26} />
             <span style={{
-              fontSize: 12, fontWeight: 500, color: COLOR.textTertiary,
+              fontSize: 14, fontWeight: 500, color: COLOR.textTertiary,
               letterSpacing: "0.02em", fontFamily: FONT.body,
             }}>
               CreditPulse
@@ -6055,17 +6055,6 @@ export default function CreditPulse() {
               Jared Hutchinson
             </a>
           </span>
-        </div>
-
-        {/* Last updated + PDF download */}
-        <div style={{
-          maxWidth: 980, margin: "0 auto", padding: "8px 28px",
-          display: "flex", alignItems: "center", justifyContent: "space-between",
-        }}>
-          <span style={{ fontSize: 12, color: COLOR.textTertiary }}>
-            Last updated {LAST_UPDATED} · Data from Crux's 2025 Market Intelligence Report
-          </span>
-          <DownloadPDFButton />
         </div>
 
         {/* Sticky nav bar — section anchors on results/browse pages */}
