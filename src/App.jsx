@@ -56,8 +56,8 @@ const COLOR = {
   blueBg: "rgba(37,99,235,0.06)",
 
   // Sunsetting tag
-  sunsetBg: "#FFF7ED",
-  sunsetText: "#C2410C",
+  sunsetBg: "#F3F4F6",
+  sunsetText: "#6B7280",
   // Active/positive tag
   activeBg: "#ECFDF5",
   activeText: "#047857",
@@ -87,7 +87,7 @@ const STATUS_MAP = {
   expanded: { color: COLOR.activeText, bg: COLOR.activeBg, border: COLOR.greenBorder, label: "EXPANDED" },
   active: { color: COLOR.textSecondary, bg: COLOR.active, border: COLOR.borderHover, label: "ACTIVE" },
   modified: { color: COLOR.amber, bg: COLOR.amberBg, border: COLOR.amberBorder, label: "MODIFIED" },
-  sunsetting: { color: COLOR.sunsetText, bg: COLOR.sunsetBg, border: "rgba(194,65,12,0.20)", label: "SUNSETTING" },
+  sunsetting: { color: COLOR.sunsetText, bg: COLOR.sunsetBg, border: "rgba(107,114,128,0.20)", label: "SUNSETTING" },
 };
 
 const RISK_MAP = {
