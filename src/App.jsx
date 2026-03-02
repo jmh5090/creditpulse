@@ -69,9 +69,9 @@ const COLOR = {
 
 // Typography
 const FONT = {
-  display: "'DM Serif Display', Georgia, serif",
-  body: "'DM Sans', -apple-system, sans-serif",
-  mono: "'DM Sans', -apple-system, sans-serif",
+  display: "'Outfit', -apple-system, sans-serif",
+  body: "'Outfit', -apple-system, sans-serif",
+  mono: "'Outfit', -apple-system, sans-serif",
 };
 
 // Spacing scale
@@ -1545,7 +1545,7 @@ function RegModal({ item, onClose, onNavigate }) {
               <span style={{ fontSize: 13, color: COLOR.textSecondary, fontFamily: FONT.mono }}>{item.date}</span>
             </div>
             <h3 style={{
-              fontFamily: FONT.display, fontSize: 26, fontWeight: 400,
+              fontFamily: FONT.display, fontSize: 26, fontWeight: 600,
               color: COLOR.text, margin: 0, lineHeight: 1.35,
             }}>
               {item.title}
@@ -1679,6 +1679,19 @@ function RegModal({ item, onClose, onNavigate }) {
 // ═══════════════════════════════════════════════════════════
 // COMPONENTS
 // ═══════════════════════════════════════════════════════════
+
+function CruxLogo({ height = 22 }) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 584.84 235.63" style={{ height, width: "auto", display: "block" }} fill={COLOR.text}>
+      <polygon points="181 14.39 164.79 14.39 164.79 54.62 143.99 54.62 129.28 39.91 157.73 11.46 146.26 0 117.81 28.45 89.37 0 77.9 11.46 106.35 39.91 91.64 54.62 70.84 54.62 70.84 14.39 54.62 14.39 54.62 54.62 14.39 54.62 14.39 70.83 54.62 70.83 54.62 91.64 39.91 106.35 11.46 77.9 0 89.37 28.45 117.81 0 146.26 11.46 157.72 39.91 129.28 54.62 143.99 54.62 164.79 14.39 164.79 14.39 181 54.62 181 54.62 221.24 70.84 221.24 70.84 181 91.64 181 106.35 195.72 77.9 224.16 89.37 235.63 117.81 207.18 146.26 235.63 157.73 224.16 129.28 195.72 143.99 181 164.79 181 164.79 221.24 181 221.24 181 181 221.24 181 221.24 164.79 181.01 164.79 181.01 134.63 164.8 134.63 164.8 159 164.79 159 164.79 164.79 164.79 164.79 160.2 164.79 160.2 164.79 137.27 164.79 137.27 164.79 121.06 181 117.81 184.25 114.57 181 98.35 164.79 98.35 164.79 75.43 164.79 75.43 164.79 70.84 164.79 70.84 164.79 70.84 137.27 54.62 121.06 54.62 121.06 51.38 117.81 70.84 98.35 70.84 70.83 70.84 70.83 75.43 70.83 75.43 70.83 98.35 70.83 98.35 70.83 114.57 54.62 117.81 51.37 121.06 54.62 137.27 70.83 137.27 70.83 160.2 70.83 160.2 70.83 164.79 70.83 164.79 70.83 164.79 77.91 164.8 77.91 164.8 101 181.01 101 181.01 70.83 221.24 70.83 221.24 54.62 181 54.62 181 14.39"/>
+      <path d="m245.55,117.88c0-28.91,17.83-49.18,46.55-49.18,23.84,0,37.35,14.27,41.11,32.1l-15.77,3c-2.82-10.89-8.45-21.59-25.34-21.59-10.7,0-17.46,3.19-21.77,8.82-4.69,6.38-6.19,15.77-6.19,26.84,0,21.21,5.26,35.66,27.97,35.66,14.45,0,21.96-5.63,25.53-19.15l15.95,1.69c-3.38,18.96-19.71,30.97-41.48,30.97-28.72,0-46.55-18.39-46.55-49.18Z"/>
+      <path d="m397.51,68.7l-.38,15.95c-1.13-.19-2.63-.19-4.32-.19-17.83,0-30.78,5.63-30.78,35.85v44.49h-16.89v-93.85h16.89v16.52c2.63-9.01,13.7-17.46,29.09-18.58,1.5-.19,5.07-.19,6.38-.19Z"/>
+      <path d="m470.88,70.95h16.89v93.85h-16.89v-14.08c-5.07,10.7-15.58,16.33-28.91,16.33-12.2,0-21.02-3.38-27.78-10.51-7.32-7.7-7.51-19.52-7.51-29.47v-56.12h17.46v55.18c0,8.63-.19,15.95,5.44,21.4,5.44,5.26,11.64,5.44,17.08,5.44,8.45,0,24.21-2.06,24.21-29.28v-52.74Z"/>
+      <path d="m549.55,115.82l35.29,48.99h-18.21l-15.58-22.15c-3.38-4.88-7.7-12.01-10.14-15.95-2.25,3.57-6.95,11.07-10.32,15.95l-15.58,22.15h-18.21l35.29-48.99-32.47-44.86h18.21l15.2,21.21c3.19,4.5,6.01,9.2,7.88,12.2,2.06-3.19,4.88-7.7,8.07-12.2l14.83-21.21h18.39l-32.66,44.86Z"/>
+    </svg>
+  );
+}
+
 function FadeIn({ children, delay = 0, style = {} }) {
   const [visible, setVisible] = useState(false);
   useEffect(() => {
@@ -1799,7 +1812,7 @@ function AccessModal({ onClose }) {
               ✓
             </div>
             <div style={{
-              fontFamily: FONT.display, fontSize: 22, fontWeight: 400,
+              fontFamily: FONT.display, fontSize: 22, fontWeight: 600,
               color: COLOR.text, marginBottom: 8,
             }}>
               {already && !sent ? "You're already on the list" : "You're on the list"}
@@ -1812,7 +1825,7 @@ function AccessModal({ onClose }) {
           /* Email capture form */
           <>
             <div style={{
-              fontFamily: FONT.display, fontSize: 24, fontWeight: 400,
+              fontFamily: FONT.display, fontSize: 24, fontWeight: 600,
               color: COLOR.text, marginBottom: 8, lineHeight: 1.3,
               paddingRight: 28,
             }}>
@@ -2288,7 +2301,7 @@ function CreditCard({ credit, onClick, delay = 0, recommended = false, onRequest
 
         {/* Name */}
         <h3 style={{
-          fontFamily: FONT.display, fontSize: 22, fontWeight: 400,
+          fontFamily: FONT.display, fontSize: 22, fontWeight: 600,
           color: COLOR.text, margin: "0 0 7px", lineHeight: 1.3,
         }}>
           {c.name}
@@ -2462,7 +2475,7 @@ function DeepDive({ creditKey, onBack, backLabel = "Back to results", onNavigate
             </span>
           </div>
           <h1 className="cp-deep-header-name" style={{
-            fontFamily: FONT.display, fontSize: 32, fontWeight: 400,
+            fontFamily: FONT.display, fontSize: 32, fontWeight: 600, letterSpacing: "-0.01em",
             color: COLOR.text, margin: "0 0 10px", lineHeight: 1.3,
           }}>
             {c.name}
@@ -2977,7 +2990,7 @@ function FEOCQuestion({ node, onSelect }) {
         STEP {node.step} · {node.label.toUpperCase()}
       </div>
       <h2 style={{
-        fontFamily: FONT.display, fontSize: 28, fontWeight: 400,
+        fontFamily: FONT.display, fontSize: 28, fontWeight: 600, letterSpacing: "-0.01em",
         color: COLOR.text, margin: "0 0 14px", lineHeight: 1.35,
       }}>
         {node.question}
@@ -3133,7 +3146,7 @@ function FEOCOutcome({ node, selectedCredit, onNavigate, onRestart }) {
             {sev.label}
           </div>
           <div style={{
-            fontFamily: FONT.display, fontSize: 24, fontWeight: 400,
+            fontFamily: FONT.display, fontSize: 24, fontWeight: 600,
             color: COLOR.text, lineHeight: 1.3,
           }}>
             {node.title}
@@ -3517,7 +3530,7 @@ function FEOCDecisionTree({ onBack, onNavigate, preselectedCredit }) {
             ◆
           </div>
           <h1 style={{
-            fontFamily: FONT.display, fontSize: 30, fontWeight: 400,
+            fontFamily: FONT.display, fontSize: 30, fontWeight: 600, letterSpacing: "-0.01em",
             color: COLOR.text, margin: 0,
           }}>
             FEOC Compliance Check
@@ -3704,7 +3717,7 @@ function IntakeWizard({ onComplete, initialInputs }) {
         {step === 1 ? (
           <div>
             <h3 style={{
-              fontFamily: FONT.display, fontSize: 24, fontWeight: 400,
+              fontFamily: FONT.display, fontSize: 24, fontWeight: 600,
               color: COLOR.text, margin: "0 0 6px",
             }}>
               About your client
@@ -3844,7 +3857,7 @@ function IntakeWizard({ onComplete, initialInputs }) {
         ) : (
           <div>
             <h3 style={{
-              fontFamily: FONT.display, fontSize: 24, fontWeight: 400,
+              fontFamily: FONT.display, fontSize: 24, fontWeight: 600,
               color: COLOR.text, margin: "0 0 6px",
             }}>
               Approach
@@ -3944,24 +3957,12 @@ function LandingPage({ onStartAssessment, onBrowse }) {
         borderBottom: `1px solid ${COLOR.border}`,
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{
-            width: 24, height: 24, borderRadius: 6,
-            background: `linear-gradient(135deg, ${COLOR.gold}, ${COLOR.goldDim})`,
-            display: "flex", alignItems: "center", justifyContent: "center",
-          }}>
-            <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#fff" }} />
-          </div>
+          <CruxLogo height={22} />
           <span style={{
-            fontSize: 15, fontWeight: 700, color: COLOR.text,
-            letterSpacing: "0.06em",
+            fontSize: 12, fontWeight: 500, color: COLOR.textTertiary,
+            letterSpacing: "0.02em", fontFamily: FONT.body,
           }}>
-            CREDITPULSE
-          </span>
-          <span className="cp-tagline" style={{
-            fontSize: 11, color: COLOR.textTertiary, fontWeight: 400,
-            marginLeft: 4,
-          }}>
-            Clean energy tax credit intelligence
+            CreditPulse
           </span>
         </div>
         <span style={{ fontSize: 11, color: COLOR.textTertiary }}>
@@ -3984,10 +3985,10 @@ function LandingPage({ onStartAssessment, onBrowse }) {
       <div style={{ maxWidth: 780, margin: "0 auto", padding: "60px 28px 20px", textAlign: "center" }}>
         <FadeIn>
           <h1 style={{
-            fontFamily: FONT.display, fontSize: 42, fontWeight: 400,
+            fontFamily: FONT.display, fontSize: 42, fontWeight: 600, letterSpacing: "-0.01em",
             color: COLOR.text, margin: "0 0 16px", lineHeight: 1.2,
           }}>
-            What are you looking to accomplish today?
+            What are you looking to accomplish?
           </h1>
           <p style={{
             fontSize: 17, color: COLOR.textSecondary, lineHeight: 1.6,
@@ -4011,7 +4012,7 @@ function LandingPage({ onStartAssessment, onBrowse }) {
               display: "flex", flexDirection: "column",
             }}>
               <h3 style={{
-                fontFamily: FONT.display, fontSize: 20, fontWeight: 400,
+                fontFamily: FONT.display, fontSize: 20, fontWeight: 600,
                 color: COLOR.text, margin: "0 0 10px",
               }}>
                 Evaluate for a client
@@ -4020,14 +4021,14 @@ function LandingPage({ onStartAssessment, onBrowse }) {
                 fontSize: 13, color: COLOR.textTertiary, lineHeight: 1.5,
                 margin: "0 0 20px", flex: 1,
               }}>
-                Answer a few questions about your client and get a personalized credit recommendation with discussion points for your next meeting.
+                I want to evaluate transferable tax credits for a client.
               </p>
               <button
                 onClick={onStartAssessment}
                 style={{
                   width: "100%", padding: "12px 20px",
-                  background: COLOR.gold, color: "#fff",
-                  border: "none", borderRadius: 8,
+                  background: COLOR.card, color: COLOR.text,
+                  border: `1.5px solid ${COLOR.border}`, borderRadius: 8,
                   fontSize: 14, fontWeight: 700,
                   cursor: "pointer", fontFamily: FONT.body,
                   transition: "all 0.15s",
@@ -4045,7 +4046,7 @@ function LandingPage({ onStartAssessment, onBrowse }) {
               display: "flex", flexDirection: "column",
             }}>
               <h3 style={{
-                fontFamily: FONT.display, fontSize: 20, fontWeight: 400,
+                fontFamily: FONT.display, fontSize: 20, fontWeight: 600,
                 color: COLOR.text, margin: "0 0 10px",
               }}>
                 Browse market intelligence
@@ -4054,7 +4055,7 @@ function LandingPage({ onStartAssessment, onBrowse }) {
                 fontSize: 13, color: COLOR.textTertiary, lineHeight: 1.5,
                 margin: "0 0 20px", flex: 1,
               }}>
-                Explore all available credit types, upcoming deadlines, and the latest regulatory and market developments.
+                I want to browse the latest market intelligence.
               </p>
               <button
                 onClick={onBrowse}
@@ -4138,7 +4139,7 @@ function BrowseDashboard({ onNavigate, onRequestAccess, onStartAssessment }) {
       <div id="cp-section-credits" style={{ marginBottom: 36 }}>
         <FadeIn delay={100}>
           <h2 style={{
-            fontFamily: FONT.display, fontSize: 28, fontWeight: 400,
+            fontFamily: FONT.display, fontSize: 28, fontWeight: 600, letterSpacing: "-0.01em",
             color: COLOR.text, margin: "0 0 6px",
           }}>
             All transferable tax credits
@@ -4246,7 +4247,7 @@ function PlatformBridgeCTA({ onRequestAccess }) {
           CRUX PLATFORM
         </div>
         <div style={{
-          fontFamily: FONT.display, fontSize: 21, fontWeight: 400,
+          fontFamily: FONT.display, fontSize: 21, fontWeight: 600,
           color: COLOR.text, marginBottom: 8, lineHeight: 1.35,
         }}>
           Give your client access to the market leader
@@ -4322,7 +4323,7 @@ function RecommendationSummary({ inputs }) {
             BASED ON YOUR CLIENT'S PROFILE
           </div>
           <h2 style={{
-            fontFamily: FONT.display, fontSize: 26, fontWeight: 400,
+            fontFamily: FONT.display, fontSize: 26, fontWeight: 600,
             color: COLOR.text, margin: "0 0 18px", lineHeight: 1.3,
           }}>
             {headline}
@@ -4402,7 +4403,7 @@ function ConversationGuide({ inputs, onNavigate, browseMode = false }) {
     <div id="cp-section-guide" style={{ marginBottom: 36 }}>
       <FadeIn delay={200}>
         <h2 style={{
-          fontFamily: FONT.display, fontSize: 28, fontWeight: 400,
+          fontFamily: FONT.display, fontSize: 28, fontWeight: 600, letterSpacing: "-0.01em",
           color: COLOR.text, margin: "0 0 16px",
         }}>
           Client Conversation Guide
@@ -4647,7 +4648,7 @@ function CreditCardsSection({ recommendedCredits, onNavigate, onRequestAccess })
       {/* Recommended credits */}
       <FadeIn delay={100}>
         <h2 style={{
-          fontFamily: FONT.display, fontSize: 28, fontWeight: 400,
+          fontFamily: FONT.display, fontSize: 28, fontWeight: 600, letterSpacing: "-0.01em",
           color: COLOR.text, margin: "0 0 6px",
         }}>
           Recommended for your client
@@ -4767,7 +4768,7 @@ function DeadlinesTimeline({ recommendedCredits }) {
     <div id="cp-section-deadlines" style={{ marginBottom: 36 }}>
       <FadeIn delay={200}>
         <h2 style={{
-          fontFamily: FONT.display, fontSize: 28, fontWeight: 400,
+          fontFamily: FONT.display, fontSize: 28, fontWeight: 600, letterSpacing: "-0.01em",
           color: COLOR.text, margin: "0 0 20px",
         }}>
           Key Deadlines
@@ -4898,7 +4899,7 @@ function IntelFeed({ onNavigate }) {
         }}>
           <div style={{ display: "flex", alignItems: "baseline", gap: 12 }}>
             <h2 style={{
-              fontFamily: FONT.display, fontSize: 28, fontWeight: 400,
+              fontFamily: FONT.display, fontSize: 28, fontWeight: 600, letterSpacing: "-0.01em",
               color: COLOR.text, margin: 0,
             }}>
               Market Intelligence
@@ -5031,7 +5032,7 @@ function SubscribeBlock() {
         borderRadius: 14, padding: "24px 28px", marginBottom: 24,
       }}>
         <h3 style={{
-          fontFamily: FONT.display, fontSize: 20, fontWeight: 400,
+          fontFamily: FONT.display, fontSize: 20, fontWeight: 600,
           color: COLOR.text, margin: "0 0 6px", lineHeight: 1.35,
         }}>
           Stay current for your clients
@@ -5748,19 +5749,8 @@ export default function CreditPulse() {
   const [fade, setFade] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   // Wizard inputs stored in state and localStorage
-  const [wizardInputs, setWizardInputs] = useState(() => {
-    try {
-      const stored = localStorage.getItem("cp-wizard-inputs");
-      if (!stored) return null;
-      const parsed = JSON.parse(stored);
-      // Schema migration: old inputs had industry/timeline, new schema has predictability
-      if (parsed.industry || parsed.timeline || !parsed.predictability) {
-        localStorage.removeItem("cp-wizard-inputs");
-        return null;
-      }
-      return parsed;
-    } catch { return null; }
-  });
+  // Always start on the landing page — don't auto-restore wizard inputs from localStorage
+  const [wizardInputs, setWizardInputs] = useState(null);
   // Show wizard in edit mode (pre-filled) vs fresh
   const [editingWizard, setEditingWizard] = useState(false);
   const [showingWizard, setShowingWizard] = useState(false);
@@ -5889,7 +5879,7 @@ export default function CreditPulse() {
       fontFamily: FONT.body,
     }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM+Serif+Display&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
         html { font-size: 14px; }
         body { background: ${COLOR.bg}; }
@@ -5944,15 +5934,12 @@ export default function CreditPulse() {
             borderBottom: `1px solid ${COLOR.border}`,
           }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <div style={{
-                width: 24, height: 24, borderRadius: 6,
-                background: `linear-gradient(135deg, ${COLOR.gold}, ${COLOR.goldDim})`,
-                display: "flex", alignItems: "center", justifyContent: "center",
+              <CruxLogo height={22} />
+              <span style={{
+                fontSize: 12, fontWeight: 500, color: COLOR.textTertiary,
+                letterSpacing: "0.02em", fontFamily: FONT.body,
               }}>
-                <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#fff" }} />
-              </div>
-              <span style={{ fontSize: 15, fontWeight: 700, color: COLOR.text, letterSpacing: "0.06em" }}>
-                CREDITPULSE
+                CreditPulse
               </span>
             </div>
             <button
@@ -5969,7 +5956,7 @@ export default function CreditPulse() {
           <div style={{ maxWidth: 780, margin: "0 auto", padding: "40px 28px" }}>
             <FadeIn>
               <h2 style={{
-                fontFamily: FONT.display, fontSize: 28, fontWeight: 400,
+                fontFamily: FONT.display, fontSize: 28, fontWeight: 600, letterSpacing: "-0.01em",
                 color: COLOR.text, margin: "0 0 8px", textAlign: "center",
               }}>
                 Client assessment
@@ -5994,15 +5981,12 @@ export default function CreditPulse() {
             borderBottom: `1px solid ${COLOR.border}`,
           }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <div style={{
-                width: 24, height: 24, borderRadius: 6,
-                background: `linear-gradient(135deg, ${COLOR.gold}, ${COLOR.goldDim})`,
-                display: "flex", alignItems: "center", justifyContent: "center",
+              <CruxLogo height={22} />
+              <span style={{
+                fontSize: 12, fontWeight: 500, color: COLOR.textTertiary,
+                letterSpacing: "0.02em", fontFamily: FONT.body,
               }}>
-                <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#fff" }} />
-              </div>
-              <span style={{ fontSize: 15, fontWeight: 700, color: COLOR.text, letterSpacing: "0.06em" }}>
-                CREDITPULSE
+                CreditPulse
               </span>
             </div>
             <button
@@ -6019,7 +6003,7 @@ export default function CreditPulse() {
           <div style={{ maxWidth: 780, margin: "0 auto", padding: "40px 28px" }}>
             <FadeIn>
               <h2 style={{
-                fontFamily: FONT.display, fontSize: 28, fontWeight: 400,
+                fontFamily: FONT.display, fontSize: 28, fontWeight: 600, letterSpacing: "-0.01em",
                 color: COLOR.text, margin: "0 0 8px", textAlign: "center",
               }}>
                 Edit your client's profile
@@ -6049,24 +6033,12 @@ export default function CreditPulse() {
             }}
             onClick={(isDeepDive || isFeoc) ? backHandler : undefined}
           >
-            <div style={{
-              width: 24, height: 24, borderRadius: 6,
-              background: `linear-gradient(135deg, ${COLOR.gold}, ${COLOR.goldDim})`,
-              display: "flex", alignItems: "center", justifyContent: "center",
-            }}>
-              <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#fff" }} />
-            </div>
+            <CruxLogo height={22} />
             <span style={{
-              fontSize: 15, fontWeight: 700, color: COLOR.text,
-              letterSpacing: "0.06em",
+              fontSize: 12, fontWeight: 500, color: COLOR.textTertiary,
+              letterSpacing: "0.02em", fontFamily: FONT.body,
             }}>
-              CREDITPULSE
-            </span>
-            <span className="cp-tagline" style={{
-              fontSize: 11, color: COLOR.textTertiary, fontWeight: 400,
-              marginLeft: 4,
-            }}>
-              Clean energy tax credit intelligence
+              CreditPulse
             </span>
           </div>
           <span style={{ fontSize: 11, color: COLOR.textTertiary }}>
