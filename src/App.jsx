@@ -4216,7 +4216,7 @@ function IntakeWizard({ onComplete, initialInputs }) {
   );
 }
 
-function LandingPage({ onStartAssessment, onBrowse }) {
+function LandingPage({ onStartAssessment, onBrowse, onFeocCheck }) {
   return (
     <div style={{
       minHeight: "100vh", background: COLOR.bg,
@@ -4272,8 +4272,8 @@ function LandingPage({ onStartAssessment, onBrowse }) {
         {/* Two entry path cards */}
         <FadeIn delay={100}>
           <div className="cp-two-col" style={{
-            display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16,
-            maxWidth: 600, margin: "0 auto 36px",
+            display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16,
+            maxWidth: 900, margin: "0 auto 36px",
           }}>
             {/* Left: Evaluate for a client */}
             <div style={{
@@ -4340,6 +4340,40 @@ function LandingPage({ onStartAssessment, onBrowse }) {
                 }}
               >
                 View dashboard →
+              </button>
+            </div>
+
+            {/* Third: FEOC compliance check */}
+            <div style={{
+              background: COLOR.card, border: `1px solid ${COLOR.border}`,
+              borderRadius: 12, padding: "28px 24px", textAlign: "left",
+              boxShadow: "0 2px 12px rgba(0,0,0,0.04)",
+              display: "flex", flexDirection: "column",
+            }}>
+              <h3 style={{
+                fontFamily: FONT.display, fontSize: 20, fontWeight: 600,
+                color: COLOR.text, margin: "0 0 10px",
+              }}>
+                Check FEOC compliance
+              </h3>
+              <p style={{
+                fontSize: 13, color: COLOR.textTertiary, lineHeight: 1.5,
+                margin: "0 0 20px", flex: 1,
+              }}>
+                I want to check foreign entity restrictions for a specific credit.
+              </p>
+              <button
+                onClick={onFeocCheck}
+                style={{
+                  width: "100%", padding: "12px 20px",
+                  background: COLOR.card, color: COLOR.text,
+                  border: `1.5px solid ${COLOR.border}`, borderRadius: 8,
+                  fontSize: 14, fontWeight: 700,
+                  cursor: "pointer", fontFamily: FONT.body,
+                  transition: "all 0.15s",
+                }}
+              >
+                Start FEOC check →
               </button>
             </div>
           </div>
@@ -6063,6 +6097,14 @@ export default function CreditPulse() {
     if (ref.current) ref.current.scrollTo({ top: 0 });
   }
 
+  function handleFeocCheck() {
+    setBrowseMode(false);
+    setShowingWizard(false);
+    setView("feocCheck");
+    window.location.hash = "#/feoc";
+    if (ref.current) ref.current.scrollTo({ top: 0 });
+  }
+
   function handleWizardComplete(inputs) {
     setWizardInputs(inputs);
     setEditingWizard(false);
@@ -6193,7 +6235,7 @@ export default function CreditPulse() {
 
       {/* STATE 1: Landing page */}
       {isLanding && !isDeepDive && !isFeoc ? (
-        <LandingPage onStartAssessment={handleStartAssessment} onBrowse={handleBrowse} />
+        <LandingPage onStartAssessment={handleStartAssessment} onBrowse={handleBrowse} onFeocCheck={handleFeocCheck} />
 
       /* STATE 2: Fresh wizard (no prior inputs) */
       ) : isFreshWizard && !isDeepDive && !isFeoc ? (
