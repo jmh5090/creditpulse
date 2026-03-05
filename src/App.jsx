@@ -251,10 +251,20 @@ const QUALITATIVE_STATS = {
     { label: "Timeline", desc: "Longest average close times due to complexity" },
     { label: "Market", desc: "Niche market concentrated in carbon capture" },
   ],
+  "45U": [
+    { label: "Pricing", desc: "Mid- to high-90s cents on the dollar" },
+    { label: "Counterparty", desc: "Concentrated pool of pre-2022 nuclear plants" },
+    { label: "Policy tailwind", desc: "Grid reliability + data-center demand" },
+  ],
   "48C": [
-    { label: "Pricing", desc: "Moderate discounts with well-established structures" },
-    { label: "Structure", desc: "Legacy ITC framework with proven deal mechanics" },
-    { label: "Track record", desc: "Longest operating history in the transfer market" },
+    { label: "Structure", desc: "Competitive allocation — finite pool" },
+    { label: "Credit rate", desc: "30% of qualified investment (w/ PWA)" },
+    { label: "Scarcity", desc: "Forfeited awards now permanent under OBBBA" },
+  ],
+  "48": [
+    { label: "Eligibility", desc: "BOC before January 1, 2025 only" },
+    { label: "Election", desc: "Must choose §48 vs. §48E — irrevocable" },
+    { label: "Market", desc: "Shrinking pipeline; late-stage legacy deals" },
   ],
   "45Y": [
     { label: "Status", desc: "New in 2025 with limited transaction history" },
@@ -893,6 +903,267 @@ const CREDITS = {
       share: "Active but smaller segment. All FEOC restrictions (PFE/SFE/FIE) effective for taxable years beginning after July 4, 2025 (Jan 1, 2026 for calendar-year taxpayers).",
       price: "No change from IRA under OBBBA. Facilities must begin construction by end of 2032. Manufacturing and fuels segments had limited project finance debt access in 2025; balance sheet capital common."
     }
+  },
+  "45U": {
+    sec: "§45U", name: "Zero-Emission Nuclear Power Production", type: "PTC",
+    status: "active",
+    tagline: "Fuel sourcing compliance and SFE/FIE eligibility are the dominant diligence issues.",
+    pricing: "Mid–high 90s¢", pricingCtx: "per $1",
+    pricingDetail: {
+      type: "range_only",
+      low: 94, high: 97, label: "Mid– to high-90s¢",
+      note: "Concentrated counterparty base — limited number of eligible pre-2022 nuclear plants. Strong credit ratings and insurance required. Growing interest driven by nuclear policy tailwind (grid reliability, AI/data-center power demand).",
+      source: "Crux market observations"
+    },
+    share: "Modest", shareCtx: "constrained pool",
+    timeline: "10–16 wks", timelineCtx: "listing → close",
+    risk: "Moderate",
+    keyDate: "12/31/2027", keyDateLabel: "Fuel sourcing certification",
+    nextDate: { date: "Dec 31, 2027", label: "Fuel sourcing certification deadline — no covered-nation fuel", urgent: true },
+    obbbaWinners: "Grid reliability and data-center demand driving renewed buyer interest.",
+    obbbaLosers: "SFE/FIE eligibility cutoffs and layered fuel-sourcing restrictions.",
+    sum: "Revenue backstop for existing nuclear facilities — pays plant owners a per-kWh credit for zero-emission electricity sold to unrelated persons, reduced by a revenue-based 'reduction amount' that phases down the credit if plant electricity revenue exceeds a statutory threshold.",
+    howItWorks: {
+      eligible: [
+        "Existing nuclear power facilities placed in service before August 16, 2022",
+        "U.S.-located, zero-emission electricity generation sold to unrelated persons",
+        "Owners (not operators) who meet fuel-sourcing and entity eligibility rules"
+      ],
+      valueTable: [
+        ["Base rate", "0.3¢/kWh"],
+        ["With PWA", "~1.5¢/kWh"],
+        ["Reduction amount", "Revenue-based phasedown"],
+        ["Eligible assets", "Pre-8/16/2022 nuclear"],
+        ["Transferable", "Yes (§6418)"],
+        ["Elective Pay", "Yes (§6417 entities)"]
+      ],
+      transfer: "Annual credit strips transferred from plant owner to buyers; often paired with bilateral PPAs or capacity market revenues.",
+      duration: "Applies to tax years beginning before 1/1/2033. Credit terminates Dec 31, 2032.",
+    },
+    risks: {
+      summary: "Primary exposure is fuel sourcing compliance and entity eligibility. Revenue-based reduction amount means plants earning above the statutory price threshold receive a lower effective credit.",
+      underwriting: [
+        { text: "Fuel sourcing — certification required after 12/31/2027; no covered-nation nuclear fuel.", severity: "high" },
+        { text: "Entity eligibility — SFE/FIE restrictions with hard cutoff dates.", severity: "high" },
+        { text: "Revenue-based reduction amount — credit phases down for high-revenue plants.", severity: "medium" }
+      ],
+      mitigable: [
+        { text: "Verify nuclear fuel supply chain against covered-nation/entity lists.", action: "Verification" },
+        { text: "Confirm seller is not an SFE or FIE (or will not be by applicable cutoff dates).", action: "Documentation" },
+        { text: "Model the revenue-based 'reduction amount' into deal economics.", action: "Modeling" }
+      ],
+      uncertain: [
+        "How aggressively will fuel sourcing certification requirements be enforced?",
+        "Will concentrated counterparty base create pricing pressure as buyer interest grows?",
+        "How will nuclear relicensing and long-term operating risk affect credit availability?"
+      ]
+    },
+    guidance: {
+      status: "OBBBA layered fuel-sourcing restrictions and SFE/FIE eligibility cutoffs. Entity restrictions effective 7/4/2025 (SFEs) and ~7/4/2027 (FIEs).",
+      open: [
+        "How will fuel sourcing certification requirements be implemented in practice?",
+        "Will the concentrated counterparty base create supply constraints?",
+        "How will the revenue-based reduction amount interact with rising electricity prices?"
+      ]
+    },
+    feoc: "OBBBA layered fuel-sourcing restrictions (no covered-nation fuel after 12/31/2027) and SFE/FIE eligibility cutoffs. Operates differently from standard FEOC — focused on fuel supply chain rather than equipment components. SFEs: effective 7/4/2025. FIEs: effective ~7/4/2027. Fuel: effective 12/31/2027.",
+    dates: [
+      { d: "After 7/4/2025", e: "SFEs cannot claim or receive transferred §45U credits", urgent: true },
+      { d: "~7/4/2027", e: "FIEs (foreign-influenced entities) lose eligibility" },
+      { d: "Dec 31, 2027", e: "Fuel sourcing: no covered-nation nuclear fuel (unless pre-1/1/2023 contract)", urgent: true },
+      { d: "Dec 31, 2032", e: "Credit terminates — applies to tax years beginning before 1/1/2033" }
+    ],
+    bl: [
+      "Revenue backstop for existing nuclear — growing interest from grid reliability and data-center demand.",
+      "Mid- to high-90s pricing for large operators with strong credit ratings and insurance.",
+      "Fuel sourcing certification is the #1 diligence issue — no covered-nation fuel after 12/31/2027.",
+      "SFE/FIE entity eligibility cutoffs create hard deadlines for transfer transactions.",
+      "Revenue-based reduction amount phases down credit for high-revenue plants — model into deal economics."
+    ],
+    mkt: {
+      share: "Modest but growing; volume constrained by finite pool of pre-2022 nuclear facilities.",
+      price: "Mid- to high-90s cents on the dollar for large operators with strong credit ratings and insurance. Growing interest driven by nuclear policy tailwind (grid reliability, AI/data-center power demand)."
+    },
+    stats: [
+      { label: "Credit Type", value: "PTC" },
+      { label: "Rate", value: "~0.3–1.5¢/kWh" },
+      { label: "Expires", value: "Dec 31, 2032" }
+    ]
+  },
+  "48C": {
+    sec: "§48C", name: "Qualifying Advanced Energy Project", type: "ITC",
+    status: "active",
+    tagline: "Allocation scarcity and FEOC/§45X interaction rules are the dominant diligence issues.",
+    pricing: "Mid–high 90s¢", pricingCtx: "per $1",
+    pricingDetail: {
+      type: "range_only",
+      low: 94, high: 97, label: "Mid– to high-90s¢",
+      note: "Strong sponsors with insurance; scarcity supports pricing as forfeited awards are permanently lost under OBBBA. Finite allocation pool drives premium relative to open-ended credits.",
+      source: "Crux market observations"
+    },
+    share: "Small", shareCtx: "finite allocation pool",
+    timeline: "10–16 wks", timelineCtx: "listing → close",
+    risk: "Moderate",
+    keyDate: "Ongoing", keyDateLabel: "2-year PIS window",
+    nextDate: { date: "Ongoing", label: "2-year placed-in-service window from allocation letter — forfeitures permanent", urgent: true },
+    obbbaWinners: "Forfeited allocations cannot be reissued — scarcity supports existing award values.",
+    obbbaLosers: "Permanent forfeitures shrink available pool. Stricter SFE/FIE ownership screening.",
+    sum: "Competitive allocation-based ITC — must win a DOE/IRS award before claiming. Covers 30% of qualified investment in certified clean energy manufacturing, industrial decarbonization, and critical minerals projects.",
+    howItWorks: {
+      eligible: [
+        "Re-equipping, expanding, or establishing facilities to produce/recycle advanced energy property",
+        "Industrial decarbonization projects that reduce facility GHG emissions by ≥20%",
+        "Facilities processing, refining, or recycling critical materials for clean-energy supply chains",
+        "Projects that win a competitive DOE/IRS allocation via the 48C Portal"
+      ],
+      valueTable: [
+        ["Base rate", "6% of qualified investment"],
+        ["With PWA", "30% of qualified investment"],
+        ["Total cap", "$10B allocation"],
+        ["Energy community set-aside", "$4B of total"],
+        ["Transferable", "Yes (§6418)"],
+        ["Elective Pay", "Yes (§6417 entities)"]
+      ],
+      transfer: "Direct transfer after placed-in-service and DOE/IRS certification; may be paired with §45X planning to avoid prohibited double-claiming.",
+      duration: "One-time ITC claimed at placed-in-service. 2-year window from allocation letter — forfeitures are permanent under OBBBA.",
+    },
+    risks: {
+      summary: "Allocation compliance and milestone deadlines are the key risks. FEOC ownership screening required for all projects.",
+      underwriting: [
+        { text: "Allocation milestones — 2-year placed-in-service window is a hard deadline under OBBBA.", severity: "high" },
+        { text: "SFE/FIE ownership — material assistance from or ties to specified foreign entities bars project.", severity: "high" },
+        { text: "§45X interaction — cannot claim both §48C and §45X for same property after 8/16/2022.", severity: "medium" }
+      ],
+      mitigable: [
+        { text: "Verify allocation letter terms and milestone deadlines before transacting.", action: "Documentation" },
+        { text: "Screen for SFE/FIE ownership or material assistance in project.", action: "Verification" },
+        { text: "Confirm no §45X credits being claimed for same property (no stacking allowed).", action: "Verification" }
+      ],
+      uncertain: [
+        "Will remaining allocation pool be sufficient as demand for clean energy manufacturing grows?",
+        "How will the DOE scoring process evolve for future allocation rounds?",
+        "Will forfeiture rules create secondary market opportunities for existing allocations?"
+      ]
+    },
+    guidance: {
+      status: "DOE/IRS allocation rounds ongoing via 48C Portal. OBBBA made forfeited allocations permanent — no reallocation.",
+      open: [
+        "Will the DOE release additional allocation rounds or guidance on remaining pool?",
+        "How strictly will the 2-year placed-in-service window be enforced?",
+        "Can §48C and §45X planning be coordinated without triggering the stacking prohibition?"
+      ]
+    },
+    feoc: "OBBBA bars projects with 'material assistance from, or ownership ties to' specified foreign entities (China, Russia, Iran, North Korea). Applies at project level — ownership structure and supply chain must be screened. Effective for projects under OBBBA (signed 7/4/2025).",
+    dates: [
+      { d: "Ongoing", e: "DOE/IRS allocation rounds via 48C Portal — check current round status" },
+      { d: "Post-allocation", e: "2-year placed-in-service window; failure = permanent forfeiture (no reallocation under OBBBA)", urgent: true },
+      { d: "After 8/16/2022", e: "Cannot claim both §48C and §45X for same property placed in service" },
+      { d: "Total cap", e: "$10B allocation (including $4B reserved for energy communities) — finite pool" }
+    ],
+    bl: [
+      "Competitive allocation-based ITC — must win DOE/IRS award before claiming 30% credit.",
+      "Forfeited allocations are now permanent under OBBBA — pool is shrinking over time.",
+      "Cannot stack with §45X for same property — requires careful planning.",
+      "$4B of $10B total allocation reserved for energy community projects.",
+      "Mid- to high-90s pricing for strong sponsors with insurance; scarcity supports pricing."
+    ],
+    mkt: {
+      share: "Smaller but high-value; characterized by large one-off credits and a finite allocation pool.",
+      price: "Mid- to high-90s cents on the dollar for strong sponsors with insurance; scarcity supports pricing. Rising interest while allocations remain; long-term volume capped as forfeited awards expire permanently."
+    },
+    stats: [
+      { label: "Credit Type", value: "ITC (allocated)" },
+      { label: "Rate", value: "30% (w/ PWA)" },
+      { label: "Total Cap", value: "$10B" }
+    ]
+  },
+  "48": {
+    sec: "§48", name: "Legacy Clean Electricity ITC", type: "ITC",
+    status: "sunsetting",
+    tagline: "Still active for pre-2025 construction starts — but §48E is the successor for all new projects.",
+    pricing: "~89–93¢", pricingCtx: "per $1",
+    pricingDetail: {
+      type: "ig_split",
+      ig: { low: 90, high: 93, label: "90–93¢" },
+      nonIg: { low: 86, high: 89, label: "86–89¢" },
+      spread: "~3–4¢",
+      source: "Crux market observations",
+      note: "Generally comparable to §48E ITCs for similar technology and risk profile; some vintage-specific discounts for legacy projects. Declining pipeline as tech-neutral §48E takes over."
+    },
+    share: "Shrinking", shareCtx: "declining pipeline",
+    timeline: "8–14 wks", timelineCtx: "listing → close",
+    risk: "Moderate",
+    keyDate: "Before 1/1/2025", keyDateLabel: "BOC deadline (passed)",
+    nextDate: { date: "Ongoing", label: "Elect §48 vs §48E for straddle projects — irrevocable", urgent: false },
+    obbbaWinners: "Straddle projects that started before 2025 can still elect legacy §48.",
+    obbbaLosers: "SFE transfer bans now overlay legacy §48. Declining pipeline as §48E takes over.",
+    sum: "Predecessor to §48E — covers 30%+ of the cost of building clean power and storage, but only for projects where construction began before January 1, 2025. Straddle projects must choose between §48 and §48E.",
+    howItWorks: {
+      eligible: [
+        "Solar energy property, fuel cell property, small wind, CHP, qualified biogas property",
+        "Microgrid controllers, geothermal, energy storage when paired with generation",
+        "Any property defined in §48(a)(3) where construction began before 1/1/2025"
+      ],
+      valueTable: [
+        ["Base rate", "6% of investment"],
+        ["With PWA", "30% of investment"],
+        ["BOC deadline", "Before 1/1/2025"],
+        ["Recapture", "5-year schedule"],
+        ["Transferable", "Yes (one-time)"],
+        ["Elective Pay", "Yes (§6417 entities)"]
+      ],
+      transfer: "Legacy tax equity (partnership flips, leases) plus direct transfers for newer projects; many sponsors pivot to §48E for post-2024 facilities.",
+      duration: "One-time ITC at placed-in-service. 5-year recapture period. Construction must have begun before 1/1/2025.",
+    },
+    risks: {
+      summary: "Standard ITC recapture applies. Key decision: whether to elect §48 or §48E for straddle projects — the election is irrevocable.",
+      underwriting: [
+        { text: "ITC recapture — 5-year recapture schedule applies if project sold or stops qualifying.", severity: "high" },
+        { text: "§48 vs §48E election — irrevocable; domestic content and energy community bonuses only available under §48E.", severity: "high" },
+        { text: "SFE transfer bans — OBBBA restrictions now overlay legacy §48 transfers.", severity: "medium" }
+      ],
+      mitigable: [
+        { text: "Confirm construction began before 1/1/2025 via 5% safe harbor or continuous physical work test.", action: "Documentation" },
+        { text: "Model §48 vs §48E election — consider domestic content and energy community bonuses only available under §48E.", action: "Modeling" },
+        { text: "Screen buyer for SFE status — OBBBA transfer bans now overlay legacy §48.", action: "Verification" }
+      ],
+      uncertain: [
+        "How will the IRS verify construction-start dates for projects near the 1/1/2025 cutoff?",
+        "Will straddle project elections create complications if §48E rules change?",
+        "How will declining pipeline volume affect pricing for remaining legacy deals?"
+      ]
+    },
+    guidance: {
+      status: "Legacy framework — construction must have begun before 1/1/2025. OBBBA SFE transfer bans now apply.",
+      open: [
+        "How strictly will construction-start dates be verified near the 1/1/2025 cutoff?",
+        "Will additional guidance address straddle project election complexities?",
+        "How do FEOC component rules apply to legacy solar/storage equipment?"
+      ]
+    },
+    feoc: "OBBBA's SFE transfer bans apply to §48. Standard FEOC component considerations apply to solar/storage equipment. Less prescriptive than §48E regime but buyers should screen supply chain. SFE transfer ban effective for tax years beginning after 7/4/2025.",
+    dates: [
+      { d: "Before 1/1/2025", e: "Construction must have begun to qualify for legacy §48 (5% safe harbor or physical work test)" },
+      { d: "After 12/31/2024", e: "Projects placed in service may qualify for §48E/§45Y — taxpayer must choose, no double-claiming" },
+      { d: "Ongoing", e: "Declining pipeline as tech-neutral (§48E) takes over new origination" },
+      { d: "Post-OBBBA", e: "SFE transfer bans and FEOC overlays now apply to legacy §48 transfers" }
+    ],
+    bl: [
+      "Legacy ITC for pre-2025 construction starts — still active for late-stage solar, storage, and CHP.",
+      "Straddle projects must choose between §48 and §48E — election is irrevocable.",
+      "Standard 5-year ITC recapture schedule applies.",
+      "OBBBA SFE transfer bans now overlay legacy §48 transactions.",
+      "Declining market share as §48E takes over new origination."
+    ],
+    mkt: {
+      share: "Shrinking — meaningful volume from 'straddle' projects that started construction before 2025.",
+      price: "Generally comparable to §48E ITCs for similar technology and risk profile; some vintage-specific discounts. Legacy tax equity plus direct transfers. Many sponsors pivot to §48E for post-2024 facilities."
+    },
+    stats: [
+      { label: "Credit Type", value: "ITC" },
+      { label: "Rate", value: "30% (w/ PWA)" },
+      { label: "Recapture", value: "5-year schedule" }
+    ]
   }
 };
 
@@ -4081,7 +4352,7 @@ function LandingPage({ onStartAssessment, onBrowse }) {
             display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12,
           }}>
             {[
-              { icon: "§", text: "6 credit types" },
+              { icon: "§", text: "8 credit types" },
               { icon: "◷", text: "Key deadlines through 2035" },
               { icon: "✓", text: "FEOC compliance guidance" },
               { icon: "⇄", text: "ITC vs PTC analysis" },
@@ -4145,7 +4416,7 @@ function BrowseDashboard({ onNavigate, onRequestAccess, onStartAssessment }) {
             All transferable tax credits
           </h2>
           <p style={{ fontSize: 13, color: COLOR.textTertiary, margin: "0 0 20px" }}>
-            6 credit types currently available in the transfer market
+            8 credit types currently available in the transfer market
           </p>
         </FadeIn>
         <div className="cp-credit-grid" style={{
